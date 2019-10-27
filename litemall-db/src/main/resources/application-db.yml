@@ -9,7 +9,7 @@ spring:
     druid:
       url:  jdbc:mysql://47.107.226.163:3306/litemall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&verifyServerCertificate=false&useSSL=false
       driver-class-name:  com.mysql.jdbc.Driver
-      username:  root
+      username:  litemall
       password:  Litemall_123
       initial-size:  10
       max-active:  50

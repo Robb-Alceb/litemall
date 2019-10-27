@@ -1,0 +1,7 @@
+
+spring:
+  redis:
+    host: 47.107.226.163
+    password: Litemall_123
+
+

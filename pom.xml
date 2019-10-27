@@ -25,6 +25,7 @@
         <module>litemall-wx-api</module>
         <module>litemall-admin-api</module>
         <module>litemall-all</module>
+        <module>litemall-cache</module>
     </modules>
 
     <dependencyManagement>
@@ -47,6 +48,11 @@
             <dependency>
                 <groupId>org.linlinjava</groupId>
                 <artifactId>litemall-admin-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.linlinjava</groupId>
+                <artifactId>litemall-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

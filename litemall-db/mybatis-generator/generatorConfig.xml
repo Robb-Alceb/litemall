@@ -178,7 +178,7 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
         <!--2019-10-30-->
-        <table tableName="litemall_shop">
+<!--        <table tableName="litemall_shop">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="types" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
@@ -188,15 +188,15 @@
         </table>
         <table tableName="litemall_user_log">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
+        </table>-->
         <table tableName="litemall_admin">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="role_ids" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
         </table>
-        <table tableName="litemall_shop_admin">
+<!--        <table tableName="litemall_shop_admin">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
+        </table>-->
 
     </context>
 </generatorConfiguration>

@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.admin.vo;
+package org.linlinjava.litemall.admin.beans.vo;
 
 import java.util.List;
 

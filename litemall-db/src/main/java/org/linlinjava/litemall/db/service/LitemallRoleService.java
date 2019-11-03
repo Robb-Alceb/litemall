@@ -8,10 +8,7 @@ import org.linlinjava.litemall.db.domain.LitemallRoleExample;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class LitemallRoleService {
@@ -84,4 +81,17 @@ public class LitemallRoleService {
         example.or().andDeletedEqualTo(false);
         return roleMapper.selectByExample(example);
     }
+
+    public List<LitemallRole> queryRoleByIds(Integer[] roleIds) {
+        List<LitemallRole> roleList = new ArrayList<>();
+        if(null == roleIds || roleIds.length == 0){
+            return roleList;
+        }
+        LitemallRoleExample example = new LitemallRoleExample();
+        example.or().andIdIn(Arrays.asList(roleIds)).andEnabledEqualTo(true).andDeletedEqualTo(false);
+        roleList = roleMapper.selectByExample(example);
+        return roleList;
+
+    }
+
 }

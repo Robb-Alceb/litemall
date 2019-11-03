@@ -3,15 +3,13 @@ package org.linlinjava.litemall.admin.util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
-import org.linlinjava.litemall.admin.vo.PermVo;
+import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.vo.PermVo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -127,6 +125,28 @@ public class PermissionUtil {
                 GetMapping getMapping = AnnotationUtils.getAnnotation(method, GetMapping.class);
                 if (getMapping != null) {
                     api = "GET " + api + getMapping.value()[0];
+                    Permission permission = new Permission();
+                    permission.setRequiresPermissions(requiresPermissions);
+                    permission.setRequiresPermissionsDesc(requiresPermissionsDesc);
+                    permission.setApi(api);
+                    permissions.add(permission);
+                    continue;
+                }
+
+                DeleteMapping deleteMapping = AnnotationUtils.getAnnotation(method, DeleteMapping.class);
+                if (deleteMapping != null) {
+                    api = "DELETE " + api + deleteMapping.value()[0];
+                    Permission permission = new Permission();
+                    permission.setRequiresPermissions(requiresPermissions);
+                    permission.setRequiresPermissionsDesc(requiresPermissionsDesc);
+                    permission.setApi(api);
+                    permissions.add(permission);
+                    continue;
+                }
+
+                PutMapping putMapping = AnnotationUtils.getAnnotation(method, PutMapping.class);
+                if (putMapping != null) {
+                    api = "PUT " + api + putMapping.value()[0];
                     Permission permission = new Permission();
                     permission.setRequiresPermissions(requiresPermissions);
                     permission.setRequiresPermissionsDesc(requiresPermissionsDesc);

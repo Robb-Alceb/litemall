@@ -5,7 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
-import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.service.AdminService;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -31,9 +33,11 @@ public class AdminAdminController {
     private final Log logger = LogFactory.getLog(AdminAdminController.class);
 
     @Autowired
-    private LitemallAdminService adminService;
+    private LitemallAdminService litemallAdminService;
     @Autowired
     private LogHelper logHelper;
+    @Autowired
+    private AdminService adminService;
 
     @RequiresPermissions("admin:admin:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
@@ -43,7 +47,7 @@ public class AdminAdminController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAdmin> adminList = adminService.querySelective(username, page, limit, sort, order);
+        List<LitemallAdmin> adminList = litemallAdminService.querySelective(username, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
 
@@ -72,7 +76,7 @@ public class AdminAdminController {
         }
 
         String username = admin.getUsername();
-        List<LitemallAdmin> adminList = adminService.findAdmin(username);
+        List<LitemallAdmin> adminList = litemallAdminService.findAdmin(username);
         if (adminList.size() > 0) {
             return ResponseUtil.fail(ADMIN_NAME_EXIST, "管理员已经存在");
         }
@@ -81,7 +85,7 @@ public class AdminAdminController {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedPassword = encoder.encode(rawPassword);
         admin.setPassword(encodedPassword);
-        adminService.add(admin);
+        litemallAdminService.add(admin);
         logHelper.logAuthSucceed("添加管理员", username);
         return ResponseUtil.ok(admin);
     }
@@ -90,7 +94,7 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
-        LitemallAdmin admin = adminService.findById(id);
+        LitemallAdmin admin = litemallAdminService.findById(id);
         return ResponseUtil.ok(admin);
     }
 
@@ -111,7 +115,7 @@ public class AdminAdminController {
         // 不允许管理员通过编辑接口修改密码
         admin.setPassword(null);
 
-        if (adminService.updateById(admin) == 0) {
+        if (litemallAdminService.updateById(admin) == 0) {
             return ResponseUtil.updatedDataFailed();
         }
 
@@ -135,8 +139,24 @@ public class AdminAdminController {
             return ResponseUtil.fail(ADMIN_DELETE_NOT_ALLOWED, "管理员不能删除自己账号");
         }
 
-        adminService.deleteById(anotherAdminId);
+        litemallAdminService.deleteById(anotherAdminId);
         logHelper.logAuthSucceed("删除管理员", admin.getUsername());
         return ResponseUtil.ok();
+    }
+
+    @GetMapping("/shopkeeper")
+    public Object getShopkeeper(@NotNull Integer shopId) {
+        return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
+    }
+    @GetMapping("/shop/manager")
+    public Object getShopManager(@NotNull Integer shopId) {
+        return adminService.findShopMemberByRole(shopId, Constants.SHOP_MANAGER_ROLE_ID);
+    }
+
+    @RequiresPermissions("admin:admin:shopMembers")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
+    @GetMapping("/shop/members")
+    public Object getShopMembers(@NotNull Integer shopId) {
+        return adminService.findShopMembers(shopId);
     }
 }

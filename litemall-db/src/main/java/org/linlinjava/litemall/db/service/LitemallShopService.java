@@ -16,11 +16,22 @@ public class LitemallShopService {
     @Resource
     private LitemallShopMapper litemallShopMapper;
 
-    public List<LitemallShop> querySelective(String name, Integer status, String timeRange,Integer page, Integer limit, String sort, String order) {
+    public List<LitemallShop> querySelective(String name, String address, Short status,
+                                             LocalDateTime addTimeFrom, LocalDateTime addTimeTo, Integer page,
+                                             Integer limit, String sort, String order) {
         LitemallShopExample example = new LitemallShopExample();
         LitemallShopExample.Criteria criteria = example.createCriteria();
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
+        }
+        if (!StringUtils.isEmpty(address)) {
+            criteria.andAddressLike("%" + address + "%");
+        }
+        if (!StringUtils.isEmpty(status)) {
+            criteria.andStatusEqualTo(status);
+        }
+        if (null != addTimeFrom && null != addTimeTo) {
+            criteria.andAddTimeBetween(addTimeFrom,addTimeTo);
         }
         criteria.andDeletedEqualTo(false);
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

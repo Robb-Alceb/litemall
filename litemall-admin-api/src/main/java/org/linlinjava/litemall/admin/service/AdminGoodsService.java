@@ -2,8 +2,8 @@ package org.linlinjava.litemall.admin.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.linlinjava.litemall.admin.dto.GoodsAllinone;
-import org.linlinjava.litemall.admin.vo.CatVo;
+import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
+import org.linlinjava.litemall.admin.beans.vo.CatVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;

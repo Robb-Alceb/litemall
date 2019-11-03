@@ -44,6 +44,7 @@ public class LitemallShopAdminService {
         return litemallShopAdminMapper.selectByExample(example);
     }
 
+
     public LitemallShopAdmin findById(Integer id) {
         return litemallShopAdminMapper.selectByPrimaryKeySelective(id);
     }

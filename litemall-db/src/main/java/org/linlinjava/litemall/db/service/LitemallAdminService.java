@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.nickName, Column.mobile, Column.avatar, Column.roleIds, Column.shopId};
     @Resource
     private LitemallAdminMapper adminMapper;
 
@@ -62,6 +62,33 @@ public class LitemallAdminService {
 
     public LitemallAdmin findById(Integer id) {
         return adminMapper.selectByPrimaryKeySelective(id, result);
+    }
+
+    public List<LitemallAdmin> findByIds(List<Integer> ids) {
+        LitemallAdminExample example = new LitemallAdminExample();
+        LitemallAdminExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(ids);
+        return adminMapper.selectByExampleSelective(example, result);
+    }
+
+    public List<LitemallAdmin> findByShopId(Integer shopId) {
+        LitemallAdminExample example = new LitemallAdminExample();
+        LitemallAdminExample.Criteria criteria = example.createCriteria();
+        criteria.andShopIdEqualTo(shopId);
+        return adminMapper.selectByExampleSelective(example, result);
+    }
+
+    public LitemallAdmin findShopMember(Integer shopId, Integer role) {
+        List<LitemallAdmin> byShopId = findByShopId(shopId);
+        for (LitemallAdmin admin :
+                byShopId) {
+            for(Integer roleId : admin.getRoleIds()){
+                if(role == roleId){
+                    return admin;
+                }
+            }
+        }
+        return null;
     }
 
     public List<LitemallAdmin> all() {

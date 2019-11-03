@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.admin.dto;
+package org.linlinjava.litemall.admin.beans.dto;
 
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallGoodsAttribute;

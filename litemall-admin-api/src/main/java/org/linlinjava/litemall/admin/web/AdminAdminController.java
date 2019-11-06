@@ -144,7 +144,7 @@ public class AdminAdminController {
         return ResponseUtil.ok();
     }
 
-    @GetMapping("/shopkeeper")
+    @GetMapping("/shop/shopkeeper")
     public Object getShopkeeper(@NotNull Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }

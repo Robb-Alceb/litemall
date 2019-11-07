@@ -9,15 +9,13 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin/category")
@@ -36,27 +34,23 @@ public class AdminCategoryController {
 
         List<LitemallCategory> categoryList = categoryService.queryByPid(0);
         for (LitemallCategory category : categoryList) {
-            CategoryVo categoryVO = new CategoryVo();
-            categoryVO.setId(category.getId());
-            categoryVO.setDesc(category.getDesc());
-            categoryVO.setIconUrl(category.getIconUrl());
-            categoryVO.setPicUrl(category.getPicUrl());
-            categoryVO.setKeywords(category.getKeywords());
-            categoryVO.setName(category.getName());
-            categoryVO.setLevel(category.getLevel());
+            CategoryVo categoryVO = getCategoryVo(category);
 
             List<CategoryVo> children = new ArrayList<>();
             List<LitemallCategory> subCategoryList = categoryService.queryByPid(category.getId());
             for (LitemallCategory subCategory : subCategoryList) {
-                CategoryVo subCategoryVo = new CategoryVo();
-                subCategoryVo.setId(subCategory.getId());
-                subCategoryVo.setDesc(subCategory.getDesc());
-                subCategoryVo.setIconUrl(subCategory.getIconUrl());
-                subCategoryVo.setPicUrl(subCategory.getPicUrl());
-                subCategoryVo.setKeywords(subCategory.getKeywords());
-                subCategoryVo.setName(subCategory.getName());
-                subCategoryVo.setLevel(subCategory.getLevel());
+                CategoryVo subCategoryVo = getCategoryVo(subCategory);
 
+                List<CategoryVo> childrenLThree = new ArrayList<>();
+                List<LitemallCategory> litemallCategories = categoryService.queryByPid(subCategory.getId());
+                if(!CollectionUtils.isEmpty(litemallCategories)){
+                    for(LitemallCategory litemallCategory : litemallCategories){
+                        CategoryVo categoryVoThree = getCategoryVo(litemallCategory);
+                        childrenLThree.add(categoryVoThree);
+                    }
+                }
+
+                subCategoryVo.setChildren(childrenLThree);
                 children.add(subCategoryVo);
             }
 
@@ -65,6 +59,18 @@ public class AdminCategoryController {
         }
 
         return ResponseUtil.okList(categoryVoList);
+    }
+
+    private CategoryVo getCategoryVo(LitemallCategory litemallCategory) {
+        CategoryVo categoryVoThree = new CategoryVo();
+        categoryVoThree.setId(litemallCategory.getId());
+        categoryVoThree.setDesc(litemallCategory.getDesc());
+        categoryVoThree.setIconUrl(litemallCategory.getIconUrl());
+        categoryVoThree.setPicUrl(litemallCategory.getPicUrl());
+        categoryVoThree.setKeywords(litemallCategory.getKeywords());
+        categoryVoThree.setName(litemallCategory.getName());
+        categoryVoThree.setLevel(litemallCategory.getLevel());
+        return categoryVoThree;
     }
 
     private Object validate(LitemallCategory category) {
@@ -77,12 +83,12 @@ public class AdminCategoryController {
         if (StringUtils.isEmpty(level)) {
             return ResponseUtil.badArgument();
         }
-        if (!level.equals("L1") && !level.equals("L2")) {
+        if (!level.equals("L1") && !level.equals("L2") && !level.equals("L3")) {
             return ResponseUtil.badArgumentValue();
         }
 
         Integer pid = category.getPid();
-        if (level.equals("L2") && (pid == null)) {
+        if ((level.equals("L2")||level.equals("L3")) && (pid == null)) {
             return ResponseUtil.badArgument();
         }
 

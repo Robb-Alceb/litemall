@@ -43,11 +43,16 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String username,
+                       Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAdmin> adminList = litemallAdminService.querySelective(username, page, limit, sort, order);
+        LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
+        if(null != admin.getShopId()){
+            shopId = admin.getShopId();
+        }
+        List<LitemallAdmin> adminList = litemallAdminService.querySelective(username, shopId, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
 
@@ -65,6 +70,15 @@ public class AdminAdminController {
         }
         return null;
     }
+
+    private Object validatePassword(LitemallAdmin admin) {
+        String password = admin.getPassword();
+        if (!StringUtils.isEmpty(password) && password.length() < 6) {
+            return ResponseUtil.fail(ADMIN_INVALID_PASSWORD, "管理员密码长度不能小于6");
+        }
+        return null;
+    }
+
 
     @RequiresPermissions("admin:admin:create")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
@@ -102,7 +116,7 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "编辑")
     @PostMapping("/update")
     public Object update(@RequestBody LitemallAdmin admin) {
-        Object error = validate(admin);
+        Object error = validatePassword(admin);
         if (error != null) {
             return error;
         }
@@ -112,8 +126,16 @@ public class AdminAdminController {
             return ResponseUtil.badArgument();
         }
 
-        // 不允许管理员通过编辑接口修改密码
-        admin.setPassword(null);
+        // 不允许管理员通过编辑接口用户名
+        admin.setUsername(null);
+
+        if(!StringUtils.isEmpty(admin.getPassword())){
+            String rawPassword = admin.getPassword();
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String encodedPassword = encoder.encode(rawPassword);
+            admin.setPassword(encodedPassword);
+        }
+
 
         if (litemallAdminService.updateById(admin) == 0) {
             return ResponseUtil.updatedDataFailed();
@@ -144,7 +166,7 @@ public class AdminAdminController {
         return ResponseUtil.ok();
     }
 
-    @GetMapping("/shopkeeper")
+    @GetMapping("/shop/shopkeeper")
     public Object getShopkeeper(@NotNull Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }

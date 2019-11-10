@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -126,11 +127,11 @@ public class ShopService {
      */
     public void updateShopRole(LitemallAdmin admin, Integer role) {
         if (Arrays.asList(admin.getRoleIds()).contains(role)) {
-            LitemallAdmin update = new LitemallAdmin();
+            LitemallAdmin update = admin;
             update.setRoleIds(Iterables.toArray(Arrays.stream(admin.getRoleIds()).filter(roleId ->
                     role != roleId).collect(Collectors.toList()), Integer.class));
 
-            List<Integer> roleIds = Arrays.asList(update.getRoleIds());
+            List<Integer> roleIds = new ArrayList(Arrays.asList(update.getRoleIds()));
             roleIds.add(Constants.SHOP_ASSISTANT_ROLE_ID);
             litemallAdminService.updateById(update);
         }

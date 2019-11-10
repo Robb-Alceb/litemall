@@ -25,4 +25,9 @@ public class Constants {
      * 店员角色id
      */
     public static final Integer SHOP_ASSISTANT_ROLE_ID = 9;
+
+    /**
+     * 角色类型=1，角色为门店角色
+     */
+    public static final Integer SHOP_ROLE_TYPE = 1;
 }

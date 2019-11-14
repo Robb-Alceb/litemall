@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.admin.service;
 
 import com.google.common.collect.Iterables;
+import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.Shop;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
@@ -9,7 +10,9 @@ import org.linlinjava.litemall.admin.beans.vo.ShopVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallShop;
+import org.linlinjava.litemall.db.domain.LitemallShopLog;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
+import org.linlinjava.litemall.db.service.LitemallShopLogService;
 import org.linlinjava.litemall.db.service.LitemallShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,8 @@ public class ShopService {
     private LitemallShopService litemallShopService;
     @Autowired
     private LitemallAdminService litemallAdminService;
+    @Autowired
+    private LitemallShopLogService litemallShopLogService;
 
     public Object list(String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
@@ -47,17 +52,25 @@ public class ShopService {
     }
 
     public Object detail(Integer shopId){
-        return ResponseUtil.ok(litemallShopService.findById(shopId));
+        //门店信息
+        LitemallShop litemallShop = litemallShopService.findById(shopId);
+        //查询门店人员信息
+        List<LitemallAdmin> byShopId = litemallAdminService.findByShopId(litemallShop.getId());
+        return ResponseUtil.ok(BeanConvert.toShopDto(litemallShop, byShopId));
     }
 
     public Object delete(Integer shopId){
         litemallShopService.deleteById(shopId);
+        //保存日志
+        saveShopLog(Constants.DELETE_MANAGER+litemallShopService.findById(shopId).getName());
         return ResponseUtil.ok();
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Object create(Shop shop){
         litemallShopService.add(shop.getLitemallShop());
+        //保存日志
+        saveShopLog(Constants.CREATE_SHOP+shop.getName());
 
         /**
          * 添加当前用户为店长
@@ -88,6 +101,8 @@ public class ShopService {
     @Transactional(rollbackFor = Exception.class)
     public Object update(Shop shop) {
         litemallShopService.updateById(shop.getLitemallShop());
+        //保存日志
+        saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName());
         if (null != shop.getShopkeeperId() || null != shop.getShopManagerId()) {
             List<LitemallAdmin> admins = litemallAdminService.findByShopId(shop.getLitemallShop().getId());
             admins.forEach(admin -> {
@@ -100,6 +115,8 @@ public class ShopService {
                  */
                 if(shop.getShopkeeperId() == admin.getId()){
                     setShopRole(admin, shop.getShopkeeperId());
+                    //保存日志
+                    saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername());
                 }
 
                 /**
@@ -111,6 +128,8 @@ public class ShopService {
                  */
                 if(shop.getShopManagerId() == admin.getId()){
                     setShopRole(admin, shop.getShopManagerId());
+                    //保存日志
+                    saveShopLog(Constants.ADD_MANAGER+admin.getUsername());
                 }
             });
 
@@ -133,9 +152,24 @@ public class ShopService {
 
             List<Integer> roleIds = new ArrayList(Arrays.asList(update.getRoleIds()));
             roleIds.add(Constants.SHOP_ASSISTANT_ROLE_ID);
+            update.setRoleIds(Iterables.toArray(roleIds, Integer.class));
             litemallAdminService.updateById(update);
+
+            //保存日志
+            saveShopLog(Constants.UPDATE_PERMISSION+admin.getUsername());
         }
     }
+
+    private void saveShopLog(String context) {
+        LitemallAdmin litemallAdmin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+        LitemallShopLog litemallShopLog = new LitemallShopLog();
+        litemallShopLog.setCreateUserId(litemallAdmin.getId());
+        litemallShopLog.setCreateUserName(litemallAdmin.getUsername());
+        litemallShopLog.setIpAddr(litemallAdmin.getLastLoginIp());
+        litemallShopLog.setContent(context);
+        litemallShopLogService.add(litemallShopLog);
+    }
+
     public void setShopRole(LitemallAdmin admin, Integer role) {
         List<Integer> roleIds = Arrays.asList(admin.getRoleIds());
         roleIds.add(role);

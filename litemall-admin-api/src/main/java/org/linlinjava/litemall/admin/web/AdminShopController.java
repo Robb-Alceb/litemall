@@ -2,10 +2,9 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
-import org.linlinjava.litemall.admin.beans.dto.Shop;
+import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.service.ShopService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
@@ -63,7 +62,7 @@ public class AdminShopController {
     @RequiresPermissions("admin:shop:update")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "编辑")
     @PutMapping("/update")
-    public Object update(@RequestBody Shop shop) {
+    public Object update(@RequestBody ShopDto shop) {
         return shopService.update(shop);
     }
 
@@ -89,7 +88,7 @@ public class AdminShopController {
     @RequiresPermissions("admin:goods:create")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "新增")
     @PostMapping("/create")
-    public Object create(@RequestBody Shop shop) {
+    public Object create(@RequestBody ShopDto shop) {
         return shopService.create(shop);
     }
 

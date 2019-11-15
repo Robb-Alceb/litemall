@@ -3,7 +3,7 @@ package org.linlinjava.litemall.admin.service;
 import com.google.common.collect.Iterables;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
-import org.linlinjava.litemall.admin.beans.dto.Shop;
+import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
@@ -67,7 +67,7 @@ public class ShopService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Object create(Shop shop){
+    public Object create(ShopDto shop){
         litemallShopService.add(shop.getLitemallShop());
         //保存日志
         saveShopLog(Constants.CREATE_SHOP+shop.getName());
@@ -99,7 +99,7 @@ public class ShopService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Object update(Shop shop) {
+    public Object update(ShopDto shop) {
         litemallShopService.updateById(shop.getLitemallShop());
         //保存日志
         saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName());

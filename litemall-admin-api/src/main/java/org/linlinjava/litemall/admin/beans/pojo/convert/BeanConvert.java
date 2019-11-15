@@ -1,7 +1,7 @@
 package org.linlinjava.litemall.admin.beans.pojo.convert;
 
 import org.linlinjava.litemall.admin.beans.Constants;
-import org.linlinjava.litemall.admin.beans.dto.Shop;
+import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
@@ -27,8 +27,8 @@ public class BeanConvert {
         return vo;
     }
 
-    public static Shop toShopDto(LitemallShop litemallShop, List<LitemallAdmin> admins){
-        Shop vo = new Shop();
+    public static ShopDto toShopDto(LitemallShop litemallShop, List<LitemallAdmin> admins){
+        ShopDto vo = new ShopDto();
         vo.setShopId(litemallShop.getId());
         vo.setAddress(litemallShop.getAddress());
         vo.setMembers(admins.size());

@@ -25,4 +25,8 @@ public class AdminService {
     public Object findShopMembers(Integer shopId) {
         return ResponseUtil.ok(litemallAdminService.findByShopId(shopId));
     }
+
+    public Object all() {
+        return ResponseUtil.ok(litemallAdminService.all());
+    }
 }

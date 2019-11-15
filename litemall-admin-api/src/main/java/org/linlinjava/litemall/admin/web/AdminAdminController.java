@@ -181,4 +181,11 @@ public class AdminAdminController {
     public Object getShopMembers(@NotNull Integer shopId) {
         return adminService.findShopMembers(shopId);
     }
+
+    @RequiresPermissions("admin:admin:all")
+    @RequiresPermissionsDesc(menu = {"系统管理员", "系统管理员"}, button = "所有")
+    @GetMapping("/all")
+    public Object all() {
+        return adminService.all();
+    }
 }

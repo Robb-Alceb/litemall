@@ -4,13 +4,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
+import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -44,7 +47,19 @@ public class AdminGoodsService {
     public Object list(String goodsSn, String name,
                        Integer page, Integer limit, String sort, String order) {
         List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, page, limit, sort, order);
-        return ResponseUtil.okList(goodsList);
+        List<GoodsVo> goodsVos = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(goodsList)){
+            goodsList.stream().forEach(goods->{
+                GoodsVo goodsVo = new GoodsVo();
+                BeanUtils.copyProperties(goods, goodsVo);
+                //库存查询
+                goodsVo.setStoreCount(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
+                //销量查询
+
+                goodsVos.add(goodsVo);
+            });
+        }
+        return ResponseUtil.okList(goodsVos, goodsList);
     }
 
     private Object validate(GoodsAllinone goodsAllinone) {

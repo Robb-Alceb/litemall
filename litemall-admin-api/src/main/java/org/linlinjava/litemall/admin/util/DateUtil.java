@@ -20,7 +20,7 @@ public class DateUtil {
      * @return
      */
     public static String dateToString(LocalDateTime dateTime){
-        return dateToString(dateTime, YYYY_MM_DD_HH_MM);
+        return dateToString(dateTime, YYYY_MM_DD_HH_MM_SS);
     }
     /**
      *  日期转字符串
@@ -31,9 +31,6 @@ public class DateUtil {
     public static String dateToString(LocalDateTime dateTime, String pattern){
         if(null == dateTime){
             return null;
-        }
-        if(StringUtils.isEmpty(pattern)){
-            pattern = YYYY_MM_DD_HH_MM;
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         return dateTime.format(formatter);
@@ -46,7 +43,7 @@ public class DateUtil {
      * @return
      */
     public static LocalDateTime stringToDate(String dateTimeStr){
-        return stringToDate(dateTimeStr, YYYY_MM_DD_HH_MM);
+        return stringToDate(dateTimeStr, YYYY_MM_DD_HH_MM_SS);
     }
     /**
      *

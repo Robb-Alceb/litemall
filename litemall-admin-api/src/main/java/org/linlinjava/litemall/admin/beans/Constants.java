@@ -34,17 +34,7 @@ public class Constants extends org.linlinjava.litemall.db.beans.Constants {
 
 
 
-    /**
-     * 商品审核状态：（1：待审核；2：已审核；3：未通过）
-     */
-    public static final Integer GOODS_REVIEW_PENDING = 1;
-    public static final Integer GOODS_REVIEW_APPROVE = 2;
-    public static final Integer GOODS_REVIEW_REJECT = 3;
-    /**
-     * 商品日志类型：（1：审核日志；2:普通日志）
-     */
-    public static final Integer GOODS_LOG_REVIEW = 1;
-    public static final Integer GOODS_LOG_COMMON = 2;
+
 
     /**
      * 日志信息enum

@@ -2,12 +2,15 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -38,12 +41,12 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String goodsSn, String name,
+    public Object list(String goodsSn, String name, @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsService.list(goodsSn, name, page, limit, sort, order);
+        return adminGoodsService.list(goodsSn, name, shopId, page, limit, sort, order);
     }
 
     @GetMapping("/catAndBrand")

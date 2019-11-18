@@ -56,7 +56,7 @@ public class ShopService {
         LitemallShop litemallShop = litemallShopService.findById(shopId);
         //查询门店人员信息
         List<LitemallAdmin> byShopId = litemallAdminService.findByShopId(litemallShop.getId());
-        return ResponseUtil.ok(BeanConvert.toShopDto(litemallShop, byShopId));
+        return ResponseUtil.ok(BeanConvert.toShopVo(litemallShop, byShopId));
     }
 
     public Object delete(Integer shopId){
@@ -70,7 +70,7 @@ public class ShopService {
     public Object create(ShopDto shop){
         litemallShopService.add(shop.getLitemallShop());
         //保存日志
-        saveShopLog(Constants.CREATE_SHOP+shop.getName());
+        saveShopLog(Constants.CREATE_SHOP+shop.getLitemallShop().getName());
 
         /**
          * 添加当前用户为店长
@@ -105,33 +105,48 @@ public class ShopService {
         saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName());
         if (null != shop.getShopkeeperId() || null != shop.getShopManagerId()) {
             List<LitemallAdmin> admins = litemallAdminService.findByShopId(shop.getLitemallShop().getId());
-            admins.forEach(admin -> {
-                /**
-                 * 修改旧的门店店长为普通门店用户
-                 */
-                updateShopRole(admin, Constants.SHOPKEEPER_ROLE_ID);
-                /**
-                 * 添加当前用户为店长
-                 */
-                if(shop.getShopkeeperId() == admin.getId()){
-                    setShopRole(admin, shop.getShopkeeperId());
-                    //保存日志
-                    saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername());
-                }
-
-                /**
-                 * 修改旧的门店经理为普通门店用户
-                 */
-                updateShopRole(admin, Constants.SHOP_MANAGER_ROLE_ID);
-                /**
-                 * 添加当前用户为门店经理
-                 */
-                if(shop.getShopManagerId() == admin.getId()){
-                    setShopRole(admin, shop.getShopManagerId());
-                    //保存日志
-                    saveShopLog(Constants.ADD_MANAGER+admin.getUsername());
-                }
-            });
+            //判断店长是否修改
+            Boolean updateShopkepper = admins.stream().anyMatch(admin ->
+                 shop.getShopkeeperId() == admin.getId()&&
+                    Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)
+            );
+            //判断门店经理是否修改
+            Boolean updateShopMamager = admins.stream().anyMatch(admin ->
+                    shop.getShopManagerId() == admin.getId()&&
+                            Arrays.asList(admin.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID)
+            );
+            if(updateShopkepper){
+                admins.forEach(admin -> {
+                    /**
+                     * 修改旧的门店店长为普通门店用户
+                     */
+                    updateShopRole(admin, Constants.SHOPKEEPER_ROLE_ID);
+                    /**
+                     * 添加当前用户为店长
+                     */
+                    if(shop.getShopkeeperId() == admin.getId()){
+                        setShopRole(admin, shop.getShopkeeperId());
+                        //保存日志
+                        saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername());
+                    }
+                });
+            }
+            if(updateShopMamager){
+                admins.forEach(admin -> {
+                    /**
+                     * 修改旧的门店经理为普通门店用户
+                     */
+                    updateShopRole(admin, Constants.SHOP_MANAGER_ROLE_ID);
+                    /**
+                     * 添加当前用户为门店经理
+                     */
+                    if(shop.getShopManagerId() == admin.getId()){
+                        setShopRole(admin, shop.getShopManagerId());
+                        //保存日志
+                        saveShopLog(Constants.ADD_MANAGER+admin.getUsername());
+                    }
+                });
+            }
 
         }
 
@@ -173,6 +188,7 @@ public class ShopService {
     public void setShopRole(LitemallAdmin admin, Integer role) {
         List<Integer> roleIds = Arrays.asList(admin.getRoleIds());
         roleIds.add(role);
+        admin.setRoleIds(Iterables.toArray(roleIds, Integer.class));
         litemallAdminService.updateById(admin);
     }
 }

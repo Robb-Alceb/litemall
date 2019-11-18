@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
 import org.linlinjava.litemall.admin.util.Permission;
@@ -47,11 +48,12 @@ public class AdminRoleController {
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色查询")
     @GetMapping("/list")
     public Object list(String name,
+                       @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallRole> roleList = roleService.querySelective(name, page, limit, sort, order);
+        List<LitemallRole> roleList = roleService.querySelective(name, shopId, page, limit, sort, order);
         return ResponseUtil.okList(roleList);
     }
 

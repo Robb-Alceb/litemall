@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminService;
 import org.linlinjava.litemall.admin.service.LogHelper;
@@ -43,15 +44,11 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String username,
-                       Integer shopId,
+                       @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
-        if(null != admin.getShopId()){
-            shopId = admin.getShopId();
-        }
         List<LitemallAdmin> adminList = litemallAdminService.querySelective(username, shopId, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
@@ -167,18 +164,18 @@ public class AdminAdminController {
     }
 
     @GetMapping("/shop/shopkeeper")
-    public Object getShopkeeper(@NotNull Integer shopId) {
+    public Object getShopkeeper(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }
     @GetMapping("/shop/manager")
-    public Object getShopManager(@NotNull Integer shopId) {
+    public Object getShopManager(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOP_MANAGER_ROLE_ID);
     }
 
     @RequiresPermissions("admin:admin:shopMembers")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
     @GetMapping("/shop/members")
-    public Object getShopMembers(@NotNull Integer shopId) {
+    public Object getShopMembers(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMembers(shopId);
     }
 

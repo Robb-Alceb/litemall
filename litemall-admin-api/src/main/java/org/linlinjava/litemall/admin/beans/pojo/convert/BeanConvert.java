@@ -27,28 +27,4 @@ public class BeanConvert {
         return vo;
     }
 
-    public static ShopDto toShopDto(LitemallShop litemallShop, List<LitemallAdmin> admins){
-        ShopDto vo = new ShopDto();
-        vo.setShopId(litemallShop.getId());
-        vo.setAddress(litemallShop.getAddress());
-        vo.setMembers(admins.size());
-        vo.setName(litemallShop.getName());
-        vo.setStatus(Integer.valueOf(litemallShop.getStatus()));
-        vo.setOpenTime(litemallShop.getOpenTime());
-        vo.setCloseTime(litemallShop.getCloseTime());
-        vo.setDescription(litemallShop.getDescription());
-        vo.setRange(litemallShop.getRange());
-        vo.setTypes(litemallShop.getTypes());
-        vo.setId(litemallShop.getId());
-        admins.forEach(admin -> {
-            if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)){
-                vo.setShopkeeper(admin.getNickName());
-                vo.setMobile(admin.getMobile());
-            }
-            if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID)){
-                vo.setManager(admin.getNickName());
-            }
-        });
-        return vo;
-    }
 }

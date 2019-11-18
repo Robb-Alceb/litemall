@@ -2,6 +2,7 @@ package org.linlinjava.litemall.db.service;
 
 import com.alibaba.druid.util.StringUtils;
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallRoleMapper;
 import org.linlinjava.litemall.db.domain.LitemallRole;
 import org.linlinjava.litemall.db.domain.LitemallRoleExample;
@@ -34,10 +35,13 @@ public class LitemallRoleService {
 
     }
 
-    public List<LitemallRole> querySelective(String name, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallRole> querySelective(String name, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallRoleExample example = new LitemallRoleExample();
         LitemallRoleExample.Criteria criteria = example.createCriteria();
 
+        if(null != shopId){
+            criteria.andTypeEqualTo(Constants.SHOP_ROLE_TYPE);
+        }
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
         }

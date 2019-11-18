@@ -74,6 +74,7 @@ public class AdminAuthController {
         }
 
         currentUser = SecurityUtils.getSubject();
+        currentUser.getSession().setTimeout(4*60*60*1000);
         LitemallAdmin admin = (LitemallAdmin) currentUser.getPrincipal();
         admin.setLastLoginIp(IpUtil.getIpAddr(request));
         admin.setLastLoginTime(LocalDateTime.now());

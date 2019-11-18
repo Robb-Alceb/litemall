@@ -44,8 +44,10 @@ public class AdminGoodsService {
     @Autowired
     private QCodeService qCodeService;
 
-    public Object list(String goodsSn, String name,
+    public Object list(String goodsSn, String name,Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
+        List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
+        return ResponseUtil.okList(goodsList);
         List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, page, limit, sort, order);
         List<GoodsVo> goodsVos = new ArrayList<>();
         if(!CollectionUtils.isEmpty(goodsList)){

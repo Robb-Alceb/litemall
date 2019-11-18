@@ -1,6 +1,8 @@
 package org.linlinjava.litemall.db.dao;
 
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 import org.linlinjava.litemall.db.domain.LitemallShopGoods;
 import org.linlinjava.litemall.db.domain.LitemallShopGoodsExample;
@@ -149,4 +151,9 @@ public interface LitemallShopGoodsMapper {
      * @mbg.generated
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+    /**
+     * 门店商品列表
+     */
+    List<Map<String, Object>> selectShopGoodsList(@Param("example") Map<String, Object> map, @Param("selective") LitemallShopGoods.Column ... selective);
 }

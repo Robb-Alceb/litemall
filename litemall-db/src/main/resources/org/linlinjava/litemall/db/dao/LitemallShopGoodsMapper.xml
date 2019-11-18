@@ -564,4 +564,37 @@
     update litemall_shop_goods set deleted = 1
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectShopGoodsList" resultType="map">
+    SELECT
+      sg.id id,
+      sg.shop_id as shopId,
+      sg.goods_id as goodsId,
+      g.goods_sn as goodsSn,
+      g.`name` as name,
+      g.pic_url as picUrl,
+      sg.retail_price as retail_price,
+      sg.is_on_sale as isOnSale,
+      sg.is_new as isNew,
+      sg.is_hot as isHot,
+      sg.add_time as addTime,
+      sg.number as number,
+      g.review_type as reviewType
+    FROM
+      litemall_shop_goods sg
+    LEFT JOIN
+      litemall_goods g
+      ON g.id = sg.goods_id
+    WHERE 1=1
+    <if test="example.shopId!=null">
+      AND sg.shop_id = #{example.shopId}
+    </if>
+    <if test="example.name!=null and example.name!=''">
+      AND g.`name` LIKE CONCAT('%',#{example.name, jdbcType=VARCHAR},'%')
+    </if>
+    <if test="example.goodsSn!=null and example.goodsSn!=''">
+      AND g.goods_sn LIKE CONCAT('%',#{example.goodsSn, jdbcType=VARCHAR},'%')
+    </if>
+    ORDER BY sg.add_time DESC
+  </select>
 </mapper>

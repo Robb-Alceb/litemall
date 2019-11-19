@@ -63,8 +63,8 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:update")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "编辑")
     @PostMapping("/update")
-    public Object update(@RequestBody GoodsAllinone goodsAllinone) {
-        return adminGoodsService.update(goodsAllinone);
+    public Object update(@RequestBody GoodsAllinone goodsAllinone, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.update(goodsAllinone, shopId);
     }
 
     /**
@@ -76,8 +76,8 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:delete")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "删除")
     @PostMapping("/delete")
-    public Object delete(@RequestBody LitemallGoods goods) {
-        return adminGoodsService.delete(goods);
+    public Object delete(@RequestBody LitemallGoods goods, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.delete(goods, shopId);
     }
 
     /**
@@ -102,8 +102,8 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:read")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "详情")
     @GetMapping("/detail")
-    public Object detail(@NotNull Integer id) {
-        return adminGoodsService.detail(id);
+    public Object detail(@NotNull Integer id, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.detail(id, shopId);
 
     }
 

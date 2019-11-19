@@ -567,7 +567,7 @@
 
   <select id="selectShopGoodsList" resultType="map">
     SELECT
-      sg.id id,
+      sg.id as shopGoodsId,
       sg.shop_id as shopId,
       sg.goods_id as goodsId,
       g.goods_sn as goodsSn,

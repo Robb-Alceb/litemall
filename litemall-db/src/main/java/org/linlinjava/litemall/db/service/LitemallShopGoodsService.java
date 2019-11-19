@@ -3,6 +3,7 @@ package org.linlinjava.litemall.db.service;
 import com.github.pagehelper.PageHelper;
 import org.linlinjava.litemall.db.dao.LitemallShopGoodsMapper;
 import org.linlinjava.litemall.db.domain.LitemallShopGoods;
+import org.linlinjava.litemall.db.domain.LitemallShopGoodsExample;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +25,16 @@ public class LitemallShopGoodsService {
         map.put("goodsSn", goodsSn);
         PageHelper.startPage(page, limit);
         return litemallShopGoodsMapper.selectShopGoodsList(map);
+    }
+
+    /**
+     * 查询门店内商品详情
+     * @return
+     */
+    public LitemallShopGoods queryByShopIdAndGoodsid(Integer shopId, Integer goodsId) {
+        LitemallShopGoodsExample example = new LitemallShopGoodsExample();
+        example.or().andShopIdEqualTo(shopId).andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        return litemallShopGoodsMapper.selectOneByExampleSelective(example);
     }
 
     public int updateById(LitemallShopGoods shop) {

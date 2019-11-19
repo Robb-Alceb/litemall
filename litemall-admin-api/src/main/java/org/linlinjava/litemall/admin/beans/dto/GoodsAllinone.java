@@ -1,15 +1,21 @@
 package org.linlinjava.litemall.admin.beans.dto;
 
-import org.linlinjava.litemall.db.domain.LitemallGoods;
-import org.linlinjava.litemall.db.domain.LitemallGoodsAttribute;
-import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
-import org.linlinjava.litemall.db.domain.LitemallGoodsSpecification;
+import org.linlinjava.litemall.db.domain.*;
 
 public class GoodsAllinone {
     LitemallGoods goods;
     LitemallGoodsSpecification[] specifications;
     LitemallGoodsAttribute[] attributes;
     LitemallGoodsProduct[] products;
+    LitemallShopGoods shopGoods;
+
+    public LitemallShopGoods getShopGoods() {
+        return shopGoods;
+    }
+
+    public void setShopGoods(LitemallShopGoods shopGoods) {
+        this.shopGoods = shopGoods;
+    }
 
     public LitemallGoods getGoods() {
         return goods;

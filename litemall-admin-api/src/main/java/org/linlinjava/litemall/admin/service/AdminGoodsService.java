@@ -1,5 +1,7 @@
 package org.linlinjava.litemall.admin.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -40,26 +43,30 @@ public class AdminGoodsService {
     private LitemallCategoryService categoryService;
     @Autowired
     private LitemallBrandService brandService;
-
+    @Autowired
+    private LitemallShopGoodsService shopGoodsService;
+    @Autowired
+    private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private QCodeService qCodeService;
+    @Autowired
+    private LitemallAdminOrderGoodsService adminOrderGoodsService;
 
     public Object list(String goodsSn, String name,Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
-        List<GoodsVo> goodsVos = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(goodsList)){
-            goodsList.stream().forEach(goods->{
-                GoodsVo goodsVo = new GoodsVo();
-                BeanUtils.copyProperties(goods, goodsVo);
-                //库存查询
-                goodsVo.setStoreCount(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
-                //销量查询
-
-                goodsVos.add(goodsVo);
-            });
+        if(shopId!=null){
+            //查询门店商品
+            List<Map<String, Object>> shops = shopGoodsService.querySelective(goodsSn, name, shopId,
+                    page, limit, sort, order);
+            List<GoodsVo> goodsVos =  getShopGoodsVos(shops);
+            return ResponseUtil.okList(goodsVos, shops);
+        }else{
+            //查询所有商品
+            List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
+            List<GoodsVo> goodsVos = new ArrayList<>();
+            getGoodsVos(goodsList, goodsVos);
+            return ResponseUtil.okList(goodsVos, goodsList);
         }
-        return ResponseUtil.okList(goodsVos, goodsList);
     }
 
     private Object validate(GoodsAllinone goodsAllinone) {
@@ -149,7 +156,13 @@ public class AdminGoodsService {
      * 所以这里可能需要重新设计。
      */
     @Transactional
-    public Object update(GoodsAllinone goodsAllinone) {
+    public Object update(GoodsAllinone goodsAllinone, Integer shopId) {
+        //更新门店内商品
+        if(!ObjectUtils.isEmpty(shopId)){
+            LitemallShopGoods litemallShopGoods = goodsAllinone.getShopGoods();
+            shopGoodsService.updateById(litemallShopGoods);
+            return ResponseUtil.ok();
+        }
         Object error = validate(goodsAllinone);
         if (error != null) {
             return error;
@@ -198,7 +211,12 @@ public class AdminGoodsService {
     }
 
     @Transactional
-    public Object delete(LitemallGoods goods) {
+    public Object delete(LitemallGoods goods, Integer shopId) {
+        //门店删除商品
+        if(!ObjectUtils.isEmpty(shopId)){
+            shopGoodsService.deleteById(shopId);
+            return ResponseUtil.ok();
+        }
         Integer id = goods.getId();
         if (id == null) {
             return ResponseUtil.badArgument();
@@ -302,8 +320,13 @@ public class AdminGoodsService {
         return ResponseUtil.ok(data);
     }
 
-    public Object detail(Integer id) {
+    public Object detail(Integer id, Integer shopId) {
         LitemallGoods goods = goodsService.findById(id);
+        //查询门店商品
+        if(!ObjectUtils.isEmpty(shopId)){
+            LitemallShopGoods shopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, id);
+            return ResponseUtil.ok(new HashMap<String, Object>(){{put("goods", goods);put("shopGoods", shopGoods);}});
+        }
         List<LitemallGoodsProduct> products = productService.queryByGid(id);
         List<LitemallGoodsSpecification> specifications = specificationService.queryByGid(id);
         List<LitemallGoodsAttribute> attributes = attributeService.queryByGid(id);
@@ -326,4 +349,35 @@ public class AdminGoodsService {
         return ResponseUtil.ok(data);
     }
 
+    private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {
+        if(!CollectionUtils.isEmpty(goodsList)){
+            goodsList.stream().forEach(goods->{
+                GoodsVo goodsVo = new GoodsVo();
+                BeanUtils.copyProperties(goods, goodsVo);
+                //库存查询
+                goodsVo.setNumber(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
+                //销量查询
+                List<LitemallAdminOrderGoods> litemallAdminOrderGoods = adminOrderGoodsService.queryByGoodsId(goods.getId());
+                if(!CollectionUtils.isEmpty(litemallAdminOrderGoods)){
+                    goodsVo.setSales(litemallAdminOrderGoods.stream().mapToInt(adminOrderGoods-> adminOrderGoods.getNumber()).sum());
+                }
+                goodsVos.add(goodsVo);
+            });
+        }
+    }
+
+    private List<GoodsVo> getShopGoodsVos(List<Map<String, Object>> shops) {
+        List<GoodsVo> goodsVos = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(shops)){
+            goodsVos = JSONObject.parseArray(JSON.toJSONString(shops), GoodsVo.class);
+            goodsVos.stream().forEach(goodsVo->{
+                //查询销量中商品销量
+                List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.findByShopIdAndGoodsid(goodsVo.getShopId(), goodsVo.getId());
+                if(!CollectionUtils.isEmpty(litemallOrderGoods)){
+                    goodsVo.setSales(litemallOrderGoods.stream().mapToInt(adminOrderGoods-> adminOrderGoods.getNumber()).sum());
+                }
+            });
+        }
+        return goodsVos;
+    }
 }

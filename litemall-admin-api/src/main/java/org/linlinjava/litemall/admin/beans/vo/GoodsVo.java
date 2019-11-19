@@ -9,6 +9,10 @@ import java.time.LocalDateTime;
 public class GoodsVo {
     //商品id
     private Integer id;
+    //门店id
+    private Integer shopId;
+    //门店商品id
+    private Integer shopGoodsId;
     //商品编号
     private String goodsSn;
     //商品名称
@@ -28,7 +32,7 @@ public class GoodsVo {
     //上架时间
     private LocalDateTime addTime;
     //库存
-    private int storeCount;
+    private int number;
     //销量
     private int sales;
     //审核状态

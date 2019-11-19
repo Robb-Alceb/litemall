@@ -137,9 +137,6 @@ public class LitemallGoodsService {
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
         }
-//        if (!StringUtils.isEmpty(shopId)) {
-//            criteria.andShopIdE(shopId);
-//        }
         criteria.andDeletedEqualTo(false);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

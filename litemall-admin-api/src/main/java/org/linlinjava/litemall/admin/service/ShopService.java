@@ -62,7 +62,8 @@ public class ShopService {
     public Object delete(Integer shopId){
         litemallShopService.deleteById(shopId);
         //保存日志
-        saveShopLog(Constants.DELETE_MANAGER+litemallShopService.findById(shopId).getName());
+        LitemallShop shop = litemallShopService.findById(shopId);
+        saveShopLog(Constants.DELETE_MANAGER+shop.getName(), shop);
         return ResponseUtil.ok();
     }
 
@@ -70,7 +71,7 @@ public class ShopService {
     public Object create(ShopDto shop){
         litemallShopService.add(shop.getLitemallShop());
         //保存日志
-        saveShopLog(Constants.CREATE_SHOP+shop.getLitemallShop().getName());
+        saveShopLog(Constants.CREATE_SHOP+shop.getLitemallShop().getName(), shop.getLitemallShop());
 
         /**
          * 添加当前用户为店长
@@ -102,48 +103,48 @@ public class ShopService {
     public Object update(ShopDto shop) {
         litemallShopService.updateById(shop.getLitemallShop());
         //保存日志
-        saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName());
+        saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName(), shop.getLitemallShop());
         if (null != shop.getShopkeeperId() || null != shop.getShopManagerId()) {
             List<LitemallAdmin> admins = litemallAdminService.findByShopId(shop.getLitemallShop().getId());
             //判断店长是否修改
-            Boolean updateShopkepper = admins.stream().anyMatch(admin ->
-                 shop.getShopkeeperId() == admin.getId()&&
+            Boolean updateShopkeeper = admins.stream().anyMatch(admin ->
+                 shop.getShopkeeperId() == admin.getId() &&
                     Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)
             );
             //判断门店经理是否修改
-            Boolean updateShopMamager = admins.stream().anyMatch(admin ->
+            Boolean updateShopManager = admins.stream().anyMatch(admin ->
                     shop.getShopManagerId() == admin.getId()&&
                             Arrays.asList(admin.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID)
             );
-            if(updateShopkepper){
+            if(!updateShopkeeper && null != shop.getShopkeeperId()){
                 admins.forEach(admin -> {
                     /**
                      * 修改旧的门店店长为普通门店用户
                      */
-                    updateShopRole(admin, Constants.SHOPKEEPER_ROLE_ID);
+                    updateShopRole(admin, Constants.SHOPKEEPER_ROLE_ID, shop.getLitemallShop());
                     /**
                      * 添加当前用户为店长
                      */
                     if(shop.getShopkeeperId() == admin.getId()){
                         setShopRole(admin, shop.getShopkeeperId(), shop.getLitemallShop().getId());
                         //保存日志
-                        saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername());
+                        saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername(), shop.getLitemallShop());
                     }
                 });
             }
-            if(updateShopMamager){
+            if(!updateShopManager && null != shop.getShopManagerId()){
                 admins.forEach(admin -> {
                     /**
                      * 修改旧的门店经理为普通门店用户
                      */
-                    updateShopRole(admin, Constants.SHOP_MANAGER_ROLE_ID);
+                    updateShopRole(admin, Constants.SHOP_MANAGER_ROLE_ID, shop.getLitemallShop());
                     /**
                      * 添加当前用户为门店经理
                      */
                     if(shop.getShopManagerId() == admin.getId()){
                         setShopRole(admin, shop.getShopManagerId(), shop.getLitemallShop().getId());
                         //保存日志
-                        saveShopLog(Constants.ADD_MANAGER+admin.getUsername());
+                        saveShopLog(Constants.ADD_MANAGER+admin.getUsername(), shop.getLitemallShop());
                     }
                 });
             }
@@ -159,7 +160,7 @@ public class ShopService {
      * @param role
      * @return
      */
-    public void updateShopRole(LitemallAdmin admin, Integer role) {
+    public void updateShopRole(LitemallAdmin admin, Integer role, LitemallShop shop) {
         if (Arrays.asList(admin.getRoleIds()).contains(role)) {
             LitemallAdmin update = admin;
             update.setRoleIds(Iterables.toArray(Arrays.stream(admin.getRoleIds()).filter(roleId ->
@@ -171,23 +172,26 @@ public class ShopService {
             litemallAdminService.updateById(update);
 
             //保存日志
-            saveShopLog(Constants.UPDATE_PERMISSION+admin.getUsername());
+            saveShopLog(Constants.UPDATE_PERMISSION+admin.getUsername(), shop);
         }
     }
 
-    private void saveShopLog(String context) {
+    private void saveShopLog(String context, LitemallShop shop) {
         LitemallAdmin litemallAdmin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
         LitemallShopLog litemallShopLog = new LitemallShopLog();
         litemallShopLog.setCreateUserId(litemallAdmin.getId());
         litemallShopLog.setCreateUserName(litemallAdmin.getUsername());
         litemallShopLog.setIpAddr(litemallAdmin.getLastLoginIp());
         litemallShopLog.setContent(context);
+        litemallShopLog.setShopId(shop.getId());
+        litemallShopLog.setShopName(shop.getName());
         litemallShopLogService.add(litemallShopLog);
     }
 
     public void setShopRole(LitemallAdmin admin, Integer role, Integer shopId) {
         List<Integer> roleIds = new ArrayList<>(Arrays.asList(admin.getRoleIds()));
         roleIds.add(role);
+        roleIds = roleIds.stream().distinct().collect(Collectors.toList());
         admin.setRoleIds(Iterables.toArray(roleIds, Integer.class));
         admin.setShopId(shopId);
         litemallAdminService.updateById(admin);

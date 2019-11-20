@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
+import org.linlinjava.litemall.admin.beans.dto.GoodsReviewDto;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
@@ -51,6 +53,10 @@ public class AdminGoodsService {
     private QCodeService qCodeService;
     @Autowired
     private LitemallAdminOrderGoodsService adminOrderGoodsService;
+    @Autowired
+    private LitemallGoodsLogService goodsLogService;
+    @Autowired
+    private GoodsReviewService goodsReviewService;
 
     public Object list(String goodsSn, String name,Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
@@ -183,7 +189,7 @@ public class AdminGoodsService {
         if (goodsService.updateById(goods) == 0) {
             throw new RuntimeException("更新数据失败");
         }
-
+        saveGoodsLog(goods, Constants.UPDATE_GOODS);
         Integer gid = goods.getId();
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
@@ -224,6 +230,7 @@ public class AdminGoodsService {
 
         Integer gid = goods.getId();
         goodsService.deleteById(gid);
+        saveGoodsLog(goods, Constants.DELETE_GOODS);
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
         productService.deleteByGid(gid);
@@ -249,7 +256,7 @@ public class AdminGoodsService {
 
         // 商品基本信息表litemall_goods
         goodsService.add(goods);
-
+        saveGoodsLog(goods, Constants.CREATE_GOODS);
         //将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
         if (!StringUtils.isEmpty(url)) {
@@ -277,6 +284,16 @@ public class AdminGoodsService {
             productService.add(product);
         }
         return ResponseUtil.ok();
+    }
+
+    private void saveGoodsLog(LitemallGoods goods, String content) {
+        LitemallGoods litemallGoods = goodsService.findById(goods.getId());
+        GoodsReviewDto goodsReviewDto = new GoodsReviewDto();
+        goodsReviewDto.setId(goods.getId());
+        goodsReviewDto.setGoodsName(litemallGoods.getName());
+        goodsReviewDto.setGoodsSn(litemallGoods.getGoodsSn());
+        goodsReviewDto.setContent(content+litemallGoods.getName());
+        goodsReviewService.saveLog(goodsReviewDto, null);
     }
 
     public Object list2() {
@@ -358,6 +375,21 @@ public class AdminGoodsService {
         data.put("categoryIds", categoryIds);
 
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 商品日志列表
+     * @param userName
+     * @param content
+     * @param page
+     * @param limit
+     * @param sort
+     * @param order
+     * @return
+     */
+    public Object queryGoodsLogList(String userName, String content, Integer page,
+                                    Integer limit, String sort, String order){
+        return goodsLogService.querySelective(userName, content, page, limit, sort, order);
     }
 
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {

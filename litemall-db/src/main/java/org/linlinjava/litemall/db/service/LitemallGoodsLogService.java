@@ -22,12 +22,15 @@ public class LitemallGoodsLogService {
     @Resource
     private LitemallGoodsLogMapper litemallGoodsLogMapper;
 
-    public List<LitemallGoodsLog> querySelective(String content, Integer page,
+    public List<LitemallGoodsLog> querySelective(String userName, String content, Integer page,
                                                  Integer limit, String sort, String order) {
         LitemallGoodsLogExample example = new LitemallGoodsLogExample();
         LitemallGoodsLogExample.Criteria criteria = example.createCriteria();
         if (!StringUtils.isEmpty(content)) {
             criteria.andContentLike("%" + content + "%");
+        }
+        if (!StringUtils.isEmpty(userName)) {
+            criteria.andUserNameLike("%" + userName + "%");
         }
         criteria.andDeletedEqualTo(false);
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

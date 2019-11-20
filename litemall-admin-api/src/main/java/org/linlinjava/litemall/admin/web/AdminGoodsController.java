@@ -2,7 +2,6 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
@@ -10,7 +9,6 @@ import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
-import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -107,4 +105,16 @@ public class AdminGoodsController {
 
     }
 
+    /**
+     * 商品日志
+     *
+     * @return
+     */
+    @RequiresPermissions("admin:goodsLog:read")
+    @RequiresPermissionsDesc(menu = {"商品日志", "商品日志"}, button = "详情")
+    @GetMapping("/queryGoodsLogList")
+    public Object queryGoodsLogList(String userName, String content, Integer page,
+                                    Integer limit, String sort, String order){
+        return adminGoodsService.queryGoodsLogList(userName, content, page, limit, sort, order);
+    }
 }

@@ -10,6 +10,8 @@ import org.linlinjava.litemall.db.domain.LitemallGoodsLog;
 import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 
 /**
@@ -55,7 +57,7 @@ public class GoodsReviewService {
      * @param goodsReviewDto
      * @param type
      */
-    private void saveLog(GoodsReviewDto goodsReviewDto, Integer type){
+    public void saveLog(GoodsReviewDto goodsReviewDto, Integer type){
         LitemallGoodsLog log = new LitemallGoodsLog();
         log.setGoodsId(goodsReviewDto.getId());
         log.setGoodsSn(goodsReviewDto.getGoodsSn());
@@ -63,11 +65,17 @@ public class GoodsReviewService {
         LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
         log.setAddUserId(admin.getId());
         log.setUserName(admin.getNickName());
-        if(type == Constants.GOODS_REVIEW_APPROVE){
-            log.setContent(Constants.LogMessage.GOODS_REVIEW_APPROVE_LOG + goodsReviewDto.getContent());
-        }else if(type == Constants.GOODS_REVIEW_REJECT){
-            log.setContent(Constants.LogMessage.GOODS_REVIEW_REJECT_LOG + goodsReviewDto.getContent());
+        log.setContent(goodsReviewDto.getContent());
+        log.setGoodsName(goodsReviewDto.getGoodsName());
+        String content = StringUtils.isEmpty(goodsReviewDto.getContent())?"":goodsReviewDto.getContent();
+        if(!ObjectUtils.isEmpty(type)){
+            if(type == Constants.GOODS_REVIEW_APPROVE){
+                log.setContent(Constants.LogMessage.GOODS_REVIEW_APPROVE_LOG + content);
+            }else if(type == Constants.GOODS_REVIEW_REJECT){
+                log.setContent(Constants.LogMessage.GOODS_REVIEW_REJECT_LOG + content);
+            }
         }
         goodsLogService.add(log);
     }
+
 }

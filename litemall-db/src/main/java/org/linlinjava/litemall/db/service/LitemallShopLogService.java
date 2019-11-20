@@ -16,10 +16,13 @@ public class LitemallShopLogService {
     @Resource
     private LitemallShopLogMapper litemallShopLogMapper;
 
-    public List<LitemallShopLog> querySelective(String content, Integer page,
+    public List<LitemallShopLog> querySelective(Integer shopId,String content, Integer page,
                                                 Integer limit, String sort, String order) {
         LitemallShopLogExample example = new LitemallShopLogExample();
         LitemallShopLogExample.Criteria criteria = example.createCriteria();
+        if (null != shopId) {
+            criteria.andShopIdEqualTo(shopId);
+        }
         if (!StringUtils.isEmpty(content)) {
             criteria.andContentLike("%" + content + "%");
         }

@@ -415,14 +415,14 @@ public class WxCartController {
 
         // 团购优惠
         BigDecimal grouponPrice = new BigDecimal(0.00);
-        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
+/*        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
         if (grouponRules != null) {
             grouponPrice = grouponRules.getDiscount();
-        }
+        }*/
 
         // 商品价格
         List<LitemallCart> checkedGoodsList = null;
-        if (cartId == null || cartId.equals(0)) {
+/*        if (cartId == null || cartId.equals(0)) {
             checkedGoodsList = cartService.queryByUidAndChecked(userId);
         } else {
             LitemallCart cart = cartService.findById(cartId);
@@ -431,16 +431,16 @@ public class WxCartController {
             }
             checkedGoodsList = new ArrayList<>(1);
             checkedGoodsList.add(cart);
-        }
+        }*/
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
-        for (LitemallCart cart : checkedGoodsList) {
+/*        for (LitemallCart cart : checkedGoodsList) {
             //  只有当团购规格商品ID符合才进行团购优惠
             if (grouponRules != null && grouponRules.getGoodsId().equals(cart.getGoodsId())) {
                 checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().subtract(grouponPrice).multiply(new BigDecimal(cart.getNumber())));
             } else {
                 checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
             }
-        }
+        }*/
 
         // 计算优惠券可用情况
         BigDecimal tmpCouponPrice = new BigDecimal(0.00);

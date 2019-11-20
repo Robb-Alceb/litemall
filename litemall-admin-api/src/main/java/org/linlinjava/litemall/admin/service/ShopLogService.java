@@ -15,9 +15,9 @@ public class ShopLogService {
     @Autowired
     private LitemallShopLogService litemallShopLogService;
 
-    public Object list(String content, Integer page, Integer limit, String sort, String order){
+    public Object list(Integer shopId,String content, Integer page, Integer limit, String sort, String order){
 
-        List<LitemallShopLog> shops = litemallShopLogService.querySelective(content, page, limit, sort, order);
+        List<LitemallShopLog> shops = litemallShopLogService.querySelective(shopId, content, page, limit, sort, order);
         return ResponseUtil.okList(shops);
     }
 

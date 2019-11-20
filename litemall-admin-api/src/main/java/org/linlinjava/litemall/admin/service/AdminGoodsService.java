@@ -297,6 +297,16 @@ public class AdminGoodsService {
                 l2CatVo.setValue(l2.getId());
                 l2CatVo.setLabel(l2.getName());
                 children.add(l2CatVo);
+
+                List<LitemallCategory> l3CatList = categoryService.queryByPid(l2.getId());
+                List<CatVo> c3 = new ArrayList<>(l3CatList.size());
+                for(LitemallCategory l3 : l3CatList){
+                    CatVo l3CatVo = new CatVo();
+                    l3CatVo.setValue(l3.getId());
+                    l3CatVo.setLabel(l3.getName());
+                    c3.add(l3CatVo);
+                }
+                l2CatVo.setChildren(c3);
             }
             l1CatVo.setChildren(children);
 
@@ -336,7 +346,8 @@ public class AdminGoodsService {
         Integer[] categoryIds = new Integer[]{};
         if (category != null) {
             Integer parentCategoryId = category.getPid();
-            categoryIds = new Integer[]{parentCategoryId, categoryId};
+            LitemallCategory c2 = categoryService.findById(parentCategoryId);
+            categoryIds = new Integer[]{c2.getPid(), parentCategoryId, categoryId};
         }
 
         Map<String, Object> data = new HashMap<>();

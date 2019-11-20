@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.service.ShopService;
@@ -44,12 +45,12 @@ public class AdminShopController {
     @RequiresPermissions("admin:shop:list")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String name, String address, Integer status, String addTimeFrom, String addTimeTo,
+    public Object list(@LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return shopService.list(name, address, status, addTimeFrom, addTimeTo, page, limit, sort, order);
+        return shopService.list(shopId, name, address, status, addTimeFrom, addTimeTo, page, limit, sort, order);
     }
 
 
@@ -62,7 +63,10 @@ public class AdminShopController {
     @RequiresPermissions("admin:shop:update")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "编辑")
     @PutMapping("/update")
-    public Object update(@RequestBody ShopDto shop) {
+    public Object update(@RequestBody ShopDto shop, @LoginAdminShopId Integer shopId) {
+        if(null != shopId){
+            shop.getLitemallShop().setId(shopId);
+        }
         return shopService.update(shop);
     }
 
@@ -75,7 +79,7 @@ public class AdminShopController {
     @RequiresPermissions("admin:shop:delete")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "删除")
     @DeleteMapping("/delete")
-    public Object delete(@NotNull Integer id) {
+    public Object delete(@NotNull @LoginAdminShopId Integer id) {
         return shopService.delete(id);
     }
 
@@ -101,7 +105,7 @@ public class AdminShopController {
     @RequiresPermissions("admin:shop:read")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "详情")
     @GetMapping("/detail")
-    public Object detail(@NotNull Integer id) {
+    public Object detail(@NotNull @LoginAdminShopId Integer id) {
         return shopService.detail(id);
 
     }

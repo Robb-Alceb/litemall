@@ -35,12 +35,12 @@ public class ShopService {
     @Autowired
     private LitemallShopLogService litemallShopLogService;
 
-    public Object list(String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
+    public Object list(Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
         if(null != status){
             sp = status.shortValue();
         }
-        List<LitemallShop> shops = litemallShopService.querySelective(name, address, sp,
+        List<LitemallShop> shops = litemallShopService.querySelective(shopId, name, address, sp,
                 DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
                 page, limit, sort, order);
 

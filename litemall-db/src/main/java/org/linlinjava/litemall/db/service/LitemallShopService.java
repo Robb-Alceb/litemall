@@ -16,11 +16,14 @@ public class LitemallShopService {
     @Resource
     private LitemallShopMapper litemallShopMapper;
 
-    public List<LitemallShop> querySelective(String name, String address, Short status,
+    public List<LitemallShop> querySelective(Integer shopId, String name, String address, Short status,
                                              LocalDateTime addTimeFrom, LocalDateTime addTimeTo, Integer page,
                                              Integer limit, String sort, String order) {
         LitemallShopExample example = new LitemallShopExample();
         LitemallShopExample.Criteria criteria = example.createCriteria();
+        if(null != shopId){
+            criteria.andIdEqualTo(shopId);
+        }
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
         }

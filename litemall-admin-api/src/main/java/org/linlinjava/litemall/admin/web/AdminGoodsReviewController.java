@@ -26,7 +26,7 @@ public class AdminGoodsReviewController {
      * @return
      */
     @RequiresPermissions("admin:goods:approve")
-    @RequiresPermissionsDesc(menu = {"商品审核", "商品审核"}, button = "通过")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品审核"}, button = "通过")
     @PostMapping("/approve")
     public Object create(@RequestBody GoodsReviewDto goodsReviewDto) {
         return goodsReviewService.approve(goodsReviewDto);
@@ -39,7 +39,7 @@ public class AdminGoodsReviewController {
      * @return
      */
     @RequiresPermissions("admin:goods:reject")
-    @RequiresPermissionsDesc(menu = {"商品审核", "商品审核"}, button = "不通过")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品审核"}, button = "不通过")
     @PostMapping("/reject")
     public Object detail(@RequestBody GoodsReviewDto goodsReviewDto) {
         return goodsReviewService.reject(goodsReviewDto);

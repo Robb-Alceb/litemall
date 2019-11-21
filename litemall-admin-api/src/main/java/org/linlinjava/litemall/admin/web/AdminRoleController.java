@@ -2,6 +2,7 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.ROLE_NAME_EXIST;
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.ROLE_USER_EXIST;
@@ -148,18 +150,41 @@ public class AdminRoleController {
 
     @Autowired
     private ApplicationContext context;
+    private List<Permission> permissions = null;
     private List<PermVo> systemPermissions = null;
     private Set<String> systemPermissionsString = null;
+    private Map<Integer, List<PermVo>> permissionMap = new HashMap<>();
+    private Map<Integer, Set<String>> permissionStringMap = new HashMap<>();
 
     private List<PermVo> getSystemPermissions() {
         final String basicPackage = "org.linlinjava.litemall.admin";
-        if (systemPermissions == null) {
-            List<Permission> permissions = PermissionUtil.listPermission(context, basicPackage);
-            systemPermissions = PermissionUtil.listPermVo(permissions);
-            systemPermissionsString = PermissionUtil.listPermissionString(permissions);
+
+        if(systemPermissions == null || permissions == null){
+            permissions = PermissionUtil.listPermission(context, basicPackage);
+            systemPermissions = PermissionUtil.listPermVo(permissions, null);
         }
-        return systemPermissions;
+        //获取自己有权限的接口
+        LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+        boolean isSuperAdmin = Arrays.stream(admin.getRoleIds()).anyMatch(roleId->{
+            return permissionService.checkSuperPermission(roleId);
+        });
+
+        boolean unPermission = Arrays.stream(admin.getRoleIds()).anyMatch(roleId->{
+            return permissionMap.get(roleId) == null;
+        });
+
+        Set<String> permissionsString = new HashSet<>();
+        if(isSuperAdmin){
+            return systemPermissions;
+        }else{
+            for(Integer roleId : admin.getRoleIds()){
+                permissionsString.addAll(permissionService.queryByRoleId(roleId));
+            }
+            List<PermVo> permVos = PermissionUtil.listPermVo(permissions, permissionsString);
+            return permVos;
+        }
     }
+
 
     private Set<String> getAssignedPermissions(Integer roleId) {
         // 这里需要注意的是，如果存在超级权限*，那么这里需要转化成当前所有系统权限。

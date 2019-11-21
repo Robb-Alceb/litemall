@@ -16,7 +16,7 @@ import java.util.*;
 
 public class PermissionUtil {
 
-    public static List<PermVo> listPermVo(List<Permission> permissions) {
+    public static List<PermVo> listPermVo(List<Permission> permissions, Set<String> systemPermissionsString) {
         List<PermVo> root = new ArrayList<>();
         for (Permission permission : permissions) {
             RequiresPermissions requiresPermissions = permission.getRequiresPermissions();
@@ -67,11 +67,22 @@ public class PermissionUtil {
                 }
             }
             if (leftPerm == null) {
-                leftPerm = new PermVo();
-                leftPerm.setId(requiresPermissions.value()[0]);
-                leftPerm.setLabel(requiresPermissionsDesc.button());
-                leftPerm.setApi(api);
-                perm2.getChildren().add(leftPerm);
+                if(null != systemPermissionsString){
+                     if(systemPermissionsString.contains(requiresPermissions.value()[0])){
+                         leftPerm = new PermVo();
+                         leftPerm.setId(requiresPermissions.value()[0]);
+                         leftPerm.setLabel(requiresPermissionsDesc.button());
+                         leftPerm.setApi(api);
+                         perm2.getChildren().add(leftPerm);
+                     }
+                }else{
+                    leftPerm = new PermVo();
+                    leftPerm.setId(requiresPermissions.value()[0]);
+                    leftPerm.setLabel(requiresPermissionsDesc.button());
+                    leftPerm.setApi(api);
+                    perm2.getChildren().add(leftPerm);
+                }
+
             } else {
                 // TODO
                 // 目前限制Controller里面每个方法的RequiresPermissionsDesc注解是唯一的
@@ -80,6 +91,24 @@ public class PermissionUtil {
             }
 
         }
+        for (int i = 0; i < root.size(); i++) {
+            PermVo v1 = root.get(i);
+            for(int j = v1.getChildren().size() - 1; j >= 0; j--){
+                if(v1.getChildren().get(j).getChildren().size() == 0){
+                    v1.getChildren().remove(j);
+                }
+            }
+        }
+        for (int i = root.size() -1 ; i >= 0; i--) {
+            if(root.get(i).getChildren().size() == 0){
+                root.remove(i);
+            }
+        }
+/*        root.stream().allMatch(r1->{
+           return r1.getChildren().stream().allMatch(r2->{
+              return r2.getChildren().size() == 0;
+           });
+        });*/
         return root;
     }
 

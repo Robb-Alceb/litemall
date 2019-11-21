@@ -25,7 +25,7 @@ public class PermissionTest {
     public void test() {
         final String basicPackage = "org.linlinjava.litemall.admin";
         List<Permission> permissionList = PermissionUtil.listPermission(context, basicPackage);
-        List<PermVo> permVoList = PermissionUtil.listPermVo(permissionList);
-        permVoList.stream().forEach(System.out::println);
+//        List<PermVo> permVoList = PermissionUtil.listPermVo(permissionList);
+//        permVoList.stream().forEach(System.out::println);
     }
 }

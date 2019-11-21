@@ -27,7 +27,7 @@ public class AdminCategoryController {
     private LitemallCategoryService categoryService;
 
     @RequiresPermissions("admin:category:list")
-    @RequiresPermissionsDesc(menu = {"商场管理", "类目管理"}, button = "查询")
+    @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "查询")
     @GetMapping("/list")
     public Object list() {
         List<CategoryVo> categoryVoList = new ArrayList<>();
@@ -96,7 +96,7 @@ public class AdminCategoryController {
     }
 
     @RequiresPermissions("admin:category:create")
-    @RequiresPermissionsDesc(menu = {"商场管理", "类目管理"}, button = "添加")
+    @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "添加")
     @PostMapping("/create")
     public Object create(@RequestBody LitemallCategory category) {
         Object error = validate(category);
@@ -108,7 +108,7 @@ public class AdminCategoryController {
     }
 
     @RequiresPermissions("admin:category:read")
-    @RequiresPermissionsDesc(menu = {"商场管理", "类目管理"}, button = "详情")
+    @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
         LitemallCategory category = categoryService.findById(id);
@@ -131,7 +131,7 @@ public class AdminCategoryController {
     }
 
     @RequiresPermissions("admin:category:delete")
-    @RequiresPermissionsDesc(menu = {"商场管理", "类目管理"}, button = "删除")
+    @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "删除")
     @PostMapping("/delete")
     public Object delete(@RequestBody LitemallCategory category) {
         Integer id = category.getId();

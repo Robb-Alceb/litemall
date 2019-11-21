@@ -28,6 +28,19 @@ public class LitemallShopGoodsService {
     }
 
     /**
+     * 库存查询
+     * @return
+     */
+    public List<Map<String, Object>> querySelective(String name, Integer shopId, Integer page,
+                                                    Integer limit, String sort, String order) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("shopId", shopId);
+        map.put("name", name);
+        PageHelper.startPage(page, limit);
+        return litemallShopGoodsMapper.selectShopGoodsList(map);
+    }
+
+    /**
      * 查询门店内商品详情
      * @return
      */

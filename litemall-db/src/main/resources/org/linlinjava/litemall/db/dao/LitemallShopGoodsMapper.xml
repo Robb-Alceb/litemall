@@ -573,6 +573,7 @@
       g.goods_sn as goodsSn,
       g.`name` as name,
       g.pic_url as picUrl,
+      g.counter_price as counterPrice,
       sg.retail_price as retail_price,
       sg.is_on_sale as isOnSale,
       sg.is_new as isNew,

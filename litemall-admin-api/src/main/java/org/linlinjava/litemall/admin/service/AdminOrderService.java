@@ -6,6 +6,7 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.util.JacksonUtil;
@@ -50,24 +51,25 @@ public class AdminOrderService {
     private NotifyService notifyService;
     @Autowired
     private LogHelper logHelper;
+    @Autowired
+    private LitemallAdminOrderService adminOrderService;
 
-    public Object list(Integer userId, String orderSn, List<Short> orderStatusArray,
+    /**
+     * 调货申请列表
+     * @return
+     */
+    public Object list(String orderSn, String userName, String address, Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallOrder> orderList = orderService.querySelective(userId, orderSn, orderStatusArray, page, limit,
-                sort, order);
-        return ResponseUtil.okList(orderList);
+        return ResponseUtil.okList(adminOrderService.querySelective(orderSn, userName, address, shopId, page, limit, sort, order));
     }
 
+    /**
+     * 详情
+     * @param id
+     * @return
+     */
     public Object detail(Integer id) {
-        LitemallOrder order = orderService.findById(id);
-        List<LitemallOrderGoods> orderGoods = orderGoodsService.queryByOid(id);
-        UserVo user = userService.findUserVoById(order.getUserId());
-        Map<String, Object> data = new HashMap<>();
-        data.put("order", order);
-        data.put("orderGoods", orderGoods);
-        data.put("user", user);
-
-        return ResponseUtil.ok(data);
+        return ResponseUtil.ok(adminOrderService.queryById(id));
     }
 
     /**

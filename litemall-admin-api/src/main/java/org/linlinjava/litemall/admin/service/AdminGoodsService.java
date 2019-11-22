@@ -387,9 +387,9 @@ public class AdminGoodsService {
      * @param order
      * @return
      */
-    public Object queryGoodsLogList(String userName, String content, Integer page,
+    public Object queryGoodsLogList(Integer goodsId, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
-        return goodsLogService.querySelective(userName, content, page, limit, sort, order);
+        return ResponseUtil.okList(goodsLogService.querySelective(goodsId, userName, content, page, limit, sort, order));
     }
 
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {

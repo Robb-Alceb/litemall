@@ -113,8 +113,8 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goodsLog:read")
     @RequiresPermissionsDesc(menu = {"商品日志", "商品日志"}, button = "详情")
     @GetMapping("/queryGoodsLogList")
-    public Object queryGoodsLogList(String userName, String content, Integer page,
+    public Object queryGoodsLogList(Integer goodsId, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
-        return adminGoodsService.queryGoodsLogList(userName, content, page, limit, sort, order);
+        return adminGoodsService.queryGoodsLogList(goodsId, userName, content, page, limit, sort, order);
     }
 }

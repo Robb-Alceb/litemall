@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 商品库存
+ * 货品库存
  */
 @RestController
 @RequestMapping("/admin/merchandise")
@@ -31,7 +31,7 @@ public class AdminMerchandiseController {
      * @param order
      * @return
      */
-    @RequiresPermissions("admin:goodsProduct:list")
+    @RequiresPermissions("admin:merchandise:list")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String name, String merchandiseSn, @LoginAdminShopId Integer shopId,

@@ -1,11 +1,9 @@
 package org.linlinjava.litemall.admin.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
-import org.linlinjava.litemall.admin.service.AdminGoodsProductService;
+import org.linlinjava.litemall.admin.service.AdminMerchandiseService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +14,12 @@ import org.springframework.web.bind.annotation.*;
  * 商品库存
  */
 @RestController
-@RequestMapping("/admin/goodsProduct")
+@RequestMapping("/admin/merchandise")
 @Validated
-public class AdminGoodsProductController {
-    private final Log logger = LogFactory.getLog(AdminGoodsProductController.class);
+public class AdminMerchandiseController {
 
     @Autowired
-    private AdminGoodsProductService adminGoodsProductService;
+    private AdminMerchandiseService adminMerchandiseService;
 
     /**
      * 查询库存列表
@@ -37,18 +34,19 @@ public class AdminGoodsProductController {
     @RequiresPermissions("admin:goodsProduct:list")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String name, @LoginAdminShopId Integer shopId,
+    public Object list(String name, String merchandiseSn, @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsProductService.list(name, shopId, page, limit, sort, order);
+        return adminMerchandiseService.list(name, merchandiseSn, shopId, page, limit, sort, order);
     }
 
     /**
      * 出库入库列表
+     * @param merchandiseId
+     * @param merchandiseName
      * @param orderSn
-     * @param goodsName
      * @param shopId
      * @param page
      * @param limit
@@ -56,14 +54,14 @@ public class AdminGoodsProductController {
      * @param order
      * @return
      */
-    @RequiresPermissions("admin:productRecord:list")
+    @RequiresPermissions("admin:merchandiseRecord:list")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "出库入库查询")
-    @GetMapping("/goodsProductRecordList")
-    public Object goodsProductRecordList(String orderSn, String goodsName, @LoginAdminShopId Integer shopId,
+    @GetMapping("/merchandiseRecordList")
+    public Object merchandiseRecordList(Integer merchandiseId, String merchandiseName, String orderSn, @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsProductService.goodsProductRecordList(orderSn, goodsName, shopId, page, limit, sort, order);
+        return adminMerchandiseService.goodsProductRecordList(merchandiseId, merchandiseName, orderSn, shopId, page, limit, sort, order);
     }
 }

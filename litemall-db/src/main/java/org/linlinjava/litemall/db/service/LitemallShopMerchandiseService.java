@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,5 +38,17 @@ public class LitemallShopMerchandiseService {
         return litemallShopMerchandiseMapper.selectByExampleSelective(example);
     }
 
+    public void updateById(LitemallShopMerchandise merchandise) {
+        merchandise.setUpdateTime(LocalDateTime.now());
+        litemallShopMerchandiseMapper.updateByPrimaryKeySelective(merchandise);
+    }
 
+    public void deleteById(Integer id) {
+        LitemallShopMerchandiseExample merchandise = new LitemallShopMerchandiseExample();
+        merchandise.or().andIdEqualTo(id);
+        LitemallShopMerchandise shopMerchandise = new LitemallShopMerchandise();
+        shopMerchandise.setDeleted(true);
+        shopMerchandise.setUpdateTime(LocalDateTime.now());
+        litemallShopMerchandiseMapper.updateByExample(shopMerchandise, merchandise);
+    }
 }

@@ -218,7 +218,7 @@ public class AdminGoodsService {
     public Object delete(LitemallGoods goods, Integer shopId) {
         //门店删除商品
         if(!ObjectUtils.isEmpty(shopId)){
-            shopGoodsService.deleteById(shopId);
+            shopGoodsService.deleteById(goods.getId());
             return ResponseUtil.ok();
         }
         Integer id = goods.getId();

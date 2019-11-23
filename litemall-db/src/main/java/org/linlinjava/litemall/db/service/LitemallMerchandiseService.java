@@ -38,4 +38,21 @@ public class LitemallMerchandiseService {
         merchandise.setUpdateTime(LocalDateTime.now());
         litemallMerchandiseMapper.updateByPrimaryKeySelective(merchandise);
     }
+
+    public void deleteById(LitemallMerchandise merchandise) {
+
+        LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
+        merchandiseExample.or().andIdEqualTo(merchandise.getId());
+
+        merchandise.setDeleted(true);
+        merchandise.setUpdateTime(LocalDateTime.now());
+        merchandise.setUpdateTime(LocalDateTime.now());
+        litemallMerchandiseMapper.updateByExample(merchandise, merchandiseExample);
+    }
+
+    public void create(LitemallMerchandise litemallMerchandise){
+        litemallMerchandise.setAddTime(LocalDateTime.now());
+        litemallMerchandise.setUpdateTime(LocalDateTime.now());
+        litemallMerchandiseMapper.insert(litemallMerchandise);
+    }
 }

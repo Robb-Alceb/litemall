@@ -3,9 +3,11 @@ package org.linlinjava.litemall.admin.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.domain.LitemallMerchandise;
 import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 
 @Service
@@ -33,6 +35,18 @@ public class AdminMerchandiseService {
             //查询所有商品
             return ResponseUtil.okList(merchandiseService.querySelective(name, merchandiseSn, page, limit, sort, order));
         }
+    }
+
+    /**
+     * 修改库存信息
+     */
+    public Object update(LitemallMerchandise litemallMerchandise){
+
+        if(ObjectUtils.isEmpty(litemallMerchandise.getId())){
+            return ResponseUtil.fail();
+        }
+        merchandiseService.updateById(litemallMerchandise);
+        return ResponseUtil.ok();
     }
 
     /**

@@ -6,6 +6,7 @@ import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminMerchandiseService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallMerchandise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,13 @@ public class AdminMerchandiseController {
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         return adminMerchandiseService.list(name, merchandiseSn, shopId, page, limit, sort, order);
+    }
+
+    @RequiresPermissions("admin:merchandise:update")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "修改")
+    @GetMapping("/update")
+    public Object update(LitemallMerchandise litemallMerchandise) {
+        return adminMerchandiseService.update(litemallMerchandise);
     }
 
     /**

@@ -20,6 +20,12 @@ public class LitemallOrderGoodsService {
         return orderGoodsMapper.insertSelective(orderGoods);
     }
 
+    public List<LitemallOrderGoods> queryByGid(Integer goodsId) {
+        LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
+        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        return orderGoodsMapper.selectByExample(example);
+    }
+
     public List<LitemallOrderGoods> queryByOid(Integer orderId) {
         LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
         example.or().andOrderIdEqualTo(orderId).andDeletedEqualTo(false);

@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.admin.web;
 
+import io.swagger.models.auth.In;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -70,8 +71,8 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:refund")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单退款")
     @PostMapping("/refund")
-    public Object refund(@RequestBody String body) {
-        return adminOrderService.refund(body);
+    public Object refund(@RequestBody String body, @LoginAdminShopId Integer shopId) {
+        return adminOrderService.refund(body, shopId);
     }
 
     /**

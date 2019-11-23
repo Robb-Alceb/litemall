@@ -16,6 +16,8 @@ public class WxResponseCode {
     public static final Integer GOODS_NO_STOCK = 711;
     public static final Integer GOODS_UNKNOWN = 712;
     public static final Integer GOODS_INVALID = 713;
+    public static final Integer GOODS_PRICE_CHANGE = 714;
+    public static final Integer GOODS_TAX_CHANGE = 715;
 
     public static final Integer ORDER_UNKNOWN = 720;
     public static final Integer ORDER_INVALID = 721;

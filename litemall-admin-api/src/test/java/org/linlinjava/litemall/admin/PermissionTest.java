@@ -11,7 +11,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)

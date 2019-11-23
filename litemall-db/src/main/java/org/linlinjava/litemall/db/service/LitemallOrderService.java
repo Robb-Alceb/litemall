@@ -41,6 +41,12 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByPrimaryKey(orderId);
     }
 
+    public LitemallOrder findByUserAndId(Integer userId, Integer orderId) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andUserIdEqualTo(userId).andIdEqualTo(orderId).andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByPrimaryKey(orderId);
+    }
+
     private String getRandomNum(Integer num) {
         String base = "0123456789";
         Random random = new Random();
@@ -144,6 +150,12 @@ public class LitemallOrderService {
     public LitemallOrder findBySn(String orderSn) {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andOrderSnEqualTo(orderSn).andDeletedEqualTo(false);
+        return litemallOrderMapper.selectOneByExample(example);
+    }
+
+    public LitemallOrder findByPayId(String payId) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andPayIdEqualTo(payId).andDeletedEqualTo(false);
         return litemallOrderMapper.selectOneByExample(example);
     }
 

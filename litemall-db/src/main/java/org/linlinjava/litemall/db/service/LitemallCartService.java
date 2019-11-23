@@ -66,8 +66,17 @@ public class LitemallCartService {
     }
 
     public void clearGoods(Integer userId) {
+        clearGoods(userId, null);
+    }
+
+
+    public void clearGoods(Integer userId, Integer id) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andUserIdEqualTo(userId).andCheckedEqualTo(true);
+        LitemallCartExample.Criteria criteria = example.createCriteria();
+        criteria.andUserIdEqualTo(userId);
+        if(null != id){
+            criteria.andIdEqualTo(id);
+        }
         LitemallCart cart = new LitemallCart();
         cart.setDeleted(true);
         cartMapper.updateByExampleSelective(cart, example);

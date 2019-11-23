@@ -112,3 +112,11 @@ litemall:
       accessKey: 111111
       secretKey: xxxxxx
       bucketName: litemall
+    paypal:
+      mode: sandbox
+      client:
+        app: AeiR5dIbE1oYoiRl9cfUSigkoWqBjXjdzR2cCUQgplZDGIipof2-IpwLC06EVPkq0GpLc6swIPfMvmrw
+        secret: EM6dIFvtDOrJmDbtU2D5ozOCp_qPXWDYioJ1nQ2XmUqrKcd4GKNTauMpnOj5mOqOkdKPDm_qfGlRmdZ3
+      callback:
+        success: http://127.0.0.1:8080/paypal/success
+        cancel: http://127.0.0.1:8080/paypal/calcel

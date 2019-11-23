@@ -140,5 +140,6 @@ public class ResponseUtil {
     public static Object unauthz() {
         return fail(506, "无操作权限");
     }
+
 }
 

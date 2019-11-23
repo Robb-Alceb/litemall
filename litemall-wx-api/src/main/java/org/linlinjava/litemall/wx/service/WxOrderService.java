@@ -104,6 +104,10 @@ public class WxOrderService {
     private LitemallCouponUserService couponUserService;
     @Autowired
     private CouponVerifyService couponVerifyService;
+    @Autowired
+    private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallShopGoodsService shopGoodsService;
 
     /**
      * 订单列表
@@ -219,6 +223,8 @@ public class WxOrderService {
      * 提交订单
      * <p>
      * 1. 创建订单表项和订单商品表项;
+     *  1-1.判断商品是否上架
+     *  1-2.从商品中获取实际商品价格和商品税费
      * 2. 购物车清空;
      * 3. 优惠券设置已用;
      * 4. 商品货品库存减少;
@@ -285,14 +291,32 @@ public class WxOrderService {
         if (checkedGoodsList.size() == 0) {
             return ResponseUtil.badArgumentValue();
         }
+        /**
+         * 商品价格
+         */
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        /**
+         * 税费
+         */
+        BigDecimal taxGoodsPrice = new BigDecimal(0.00);
         for (LitemallCart checkGoods : checkedGoodsList) {
+            Integer shopId = checkGoods.getShopId();
+            Integer goodsId = checkGoods.getGoodsId();
+            LitemallGoods litemallGoods = goodsService.findById(goodsId);
+            LitemallShopGoods litemallShopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, goodsId);
+            if(litemallGoods.getRetailPrice().compareTo(checkGoods.getPrice()) != 0){
+                return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
+            }
             //  只有当团购规格商品ID符合才进行团购优惠
             if (grouponRules != null && grouponRules.getGoodsId().equals(checkGoods.getGoodsId())) {
                 checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().subtract(grouponPrice).multiply(new BigDecimal(checkGoods.getNumber())));
             } else {
                 checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
             }
+            if(litemallShopGoods.getTax().compareTo(checkGoods.getTaxPrice()) != 0){
+                return ResponseUtil.fail(GOODS_TAX_CHANGE,"商品税费已更新，请重新添加商品");
+            }
+            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
         }
 
         // 获取可用的优惠券信息
@@ -340,6 +364,7 @@ public class WxOrderService {
         order.setIntegralPrice(integralPrice);
         order.setOrderPrice(orderTotalPrice);
         order.setActualPrice(actualPrice);
+        order.setTaxPrice(taxGoodsPrice);
 
         // 有团购活动
         if (grouponRules != null) {
@@ -366,12 +391,17 @@ public class WxOrderService {
             orderGoods.setNumber(cartGoods.getNumber());
             orderGoods.setSpecifications(cartGoods.getSpecifications());
             orderGoods.setAddTime(LocalDateTime.now());
+            orderGoods.setTaxPrice(taxGoodsPrice);
 
             orderGoodsService.add(orderGoods);
         }
 
         // 删除购物车里面的商品信息
-        cartService.clearGoods(userId);
+        if(cartId != null){
+            cartService.clearGoods(userId, cartId);
+        }else{
+            cartService.clearGoods(userId);
+        }
 
         // 商品货品数量减少
         for (LitemallCart checkGoods : checkedGoodsList) {

@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.wx.config.paypal;
+package org.linlinjava.litemall.core.payment.paypal.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +18,13 @@ import com.paypal.base.rest.PayPalRESTException;
  * @description：TODO
  */
 
-//@Configuration
+@Configuration
 public class PaypalConfig {
-    @Value("${paypal.client.app}")
+    @Value("${litemall.paypal.client.app}")
     private String clientId;
-    @Value("${paypal.client.secret}")
+    @Value("${litemall.paypal.client.secret}")
     private String clientSecret;
-    @Value("${paypal.mode}")
+    @Value("${litemall.paypal.mode}")
     private String mode;
 
     @Bean

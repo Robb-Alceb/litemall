@@ -43,5 +43,14 @@ public class Constants {
     public static final Integer GOODS_LOG_REVIEW = 1;
     public static final Integer GOODS_LOG_COMMON = 2;
 
+    /**
+     * 支付方式
+     */
+    public static final Integer PAY_TYPE_PAYPAL = 2;    //PayPal支付
+
+
+    public enum PaymemtType{
+        paypal;
+    }
 
 }

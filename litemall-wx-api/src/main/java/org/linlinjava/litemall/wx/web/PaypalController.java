@@ -3,11 +3,12 @@ package org.linlinjava.litemall.wx.web;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import org.linlinjava.litemall.wx.config.paypal.PaypalPaymentIntent;
-import org.linlinjava.litemall.wx.config.paypal.PaypalPaymentMethod;
-import org.linlinjava.litemall.wx.service.PaypalService;
+import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.wx.annotation.LoginUser;
+import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.wx.util.URLUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,8 +21,7 @@ import javax.servlet.http.HttpServletRequest;
  * @description：TODO
  */
 
-@RestController
-@RequestMapping("/paypal")
+@Controller
 public class PaypalController {
     public static final String PAYPAL_SUCCESS_URL = "paypal/success";
     public static final String PAYPAL_CANCEL_URL = "paypal/cancel";
@@ -32,45 +32,43 @@ public class PaypalController {
     private PaypalService paypalService;
 
 
-    @PostMapping("/pay")
-    public String pay(HttpServletRequest request){
+    @PostMapping("/paypal/pay")
+    public Object pay(HttpServletRequest request, @LoginUser Integer userId, Integer orderId){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
-        try {
-            Payment payment = paypalService.createPayment(
-                    1.00,
-                    "USD",
-                    PaypalPaymentMethod.paypal,
-                    PaypalPaymentIntent.sale,
-                    "payment description",
-                    cancelUrl,
-                    successUrl);
-            for(Links links : payment.getLinks()){
-                if(links.getRel().equals("approval_url")){
-                    return "redirect:" + links.getHref();
-                }
-            }
-        } catch (PayPalRESTException e) {
-            log.error(e.getMessage());
+        Object obj =  paypalService.getPayment(userId, orderId, successUrl, cancelUrl);
+        if(!(obj instanceof Payment)){
+            return obj;
         }
-        return "redirect:/";
+        Payment payment = (Payment)obj;
+        for(Links links : payment.getLinks()){
+            if(links.getRel().equals("approval_url")){
+                return String.format("<script type=\"text/javascript\">location.href=\"%s\"</script>",links.getHref() );
+            }
+        }
+
+        return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
     }
 
     @GetMapping(PAYPAL_CANCEL_URL)
-    public String cancelPay(){
-        return "cancel";
+    public Object cancelPay(){
+        return ResponseUtil.ok("cancel") ;
     }
 
     @GetMapping(PAYPAL_SUCCESS_URL)
-    public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId){
+    public Object successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId){
         try {
-            Payment payment = paypalService.executePayment(paymentId, payerId);
+            Object obj =  paypalService.executePayment(paymentId, payerId);
+            if(!(obj instanceof Payment)){
+                return obj;
+            }
+            Payment payment = (Payment)obj;
             if(payment.getState().equals("approved")){
-                return "success";
+                return ResponseUtil.ok("success");
             }
         } catch (PayPalRESTException e) {
             log.error(e.getMessage());
         }
-        return "redirect:/";
+        return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
     }
 }

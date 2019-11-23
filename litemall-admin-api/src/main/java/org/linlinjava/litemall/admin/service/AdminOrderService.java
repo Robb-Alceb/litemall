@@ -6,9 +6,11 @@ import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
+import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallComment;
@@ -53,6 +55,8 @@ public class AdminOrderService {
     private LogHelper logHelper;
     @Autowired
     private LitemallAdminOrderService adminOrderService;
+    @Autowired
+    private PaypalService paypalService;
 
     /**
      * 调货申请列表
@@ -89,7 +93,7 @@ public class AdminOrderService {
      * @return 订单退款操作结果
      */
     @Transactional
-    public Object refund(String body) {
+    public Object refund(String body, Integer shopId) {
         Integer orderId = JacksonUtil.parseInteger(body, "orderId");
         String refundMoney = JacksonUtil.parseString(body, "refundMoney");
         if (orderId == null) {
@@ -100,6 +104,9 @@ public class AdminOrderService {
         }
 
         LitemallOrder order = orderService.findById(orderId);
+        if(null != shopId && order.getShopId() != shopId){
+            return ResponseUtil.badArgument();
+        }
         if (order == null) {
             return ResponseUtil.badArgument();
         }
@@ -122,7 +129,11 @@ public class AdminOrderService {
         wxPayRefundRequest.setTotalFee(totalFee);
         wxPayRefundRequest.setRefundFee(totalFee);
 
-        WxPayRefundResult wxPayRefundResult;
+        if(order.getPayType() == Constants.PAY_TYPE_PAYPAL.byteValue()){
+            paypalService.refund(order);
+        }
+
+/*        WxPayRefundResult wxPayRefundResult;
         try {
             wxPayRefundResult = wxPayService.refund(wxPayRefundRequest);
         } catch (WxPayException e) {
@@ -136,7 +147,7 @@ public class AdminOrderService {
         if (!wxPayRefundResult.getResultCode().equals("SUCCESS")) {
             logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
             return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
+        }*/
 
         // 设置订单取消状态
         order.setOrderStatus(OrderUtil.STATUS_REFUND_CONFIRM);

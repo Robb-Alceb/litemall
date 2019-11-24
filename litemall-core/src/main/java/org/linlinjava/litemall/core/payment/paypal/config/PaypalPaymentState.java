@@ -6,9 +6,5 @@ package org.linlinjava.litemall.core.payment.paypal.config;
  * @description：TODO
  */
 public enum  PaypalPaymentState {
-    created;
-
-    public static void main(String[] args) {
-        System.out.println(PaypalPaymentState.created.toString());
-    }
+    created,completed;
 }

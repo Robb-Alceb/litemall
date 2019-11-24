@@ -120,17 +120,19 @@ public class AdminOrderService {
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
         }
 
-        // 微信退款
+/*        // 微信退款
         WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
         wxPayRefundRequest.setOutTradeNo(order.getOrderSn());
         wxPayRefundRequest.setOutRefundNo("refund_" + order.getOrderSn());
         // 元转成分
         Integer totalFee = order.getActualPrice().multiply(new BigDecimal(100)).intValue();
         wxPayRefundRequest.setTotalFee(totalFee);
-        wxPayRefundRequest.setRefundFee(totalFee);
+        wxPayRefundRequest.setRefundFee(totalFee);*/
 
         if(order.getPayType() == Constants.PAY_TYPE_PAYPAL.byteValue()){
-            paypalService.refund(order);
+            if(!paypalService.refund(order)){
+                return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+            };
         }
 
 /*        WxPayRefundResult wxPayRefundResult;

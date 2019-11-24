@@ -3,9 +3,11 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.dto.MerchandiseAllinone;
 import org.linlinjava.litemall.admin.service.AdminMerchandiseService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallMerchandise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,42 @@ public class AdminMerchandiseController {
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         return adminMerchandiseService.list(name, merchandiseSn, shopId, page, limit, sort, order);
+    }
+
+    /**
+     * 添加货品
+     * @param litemallMerchandise
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:update")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "添加")
+    @GetMapping("/create")
+    public Object create(LitemallMerchandise litemallMerchandise) {
+        return adminMerchandiseService.create(litemallMerchandise);
+    }
+
+    /**
+     * 修改货品信息
+     * @param merchandiseAllinone
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:update")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "修改")
+    @GetMapping("/update")
+    public Object update(MerchandiseAllinone merchandiseAllinone, @LoginAdminShopId Integer shopId) {
+        return adminMerchandiseService.update(merchandiseAllinone, shopId);
+    }
+
+    /**
+     * 删除货品信息
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:delete")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "删除")
+    @GetMapping("/delete")
+    public Object delete(Integer id, @LoginAdminShopId Integer shopId) {
+        return adminMerchandiseService.delete(id, shopId);
     }
 
     /**

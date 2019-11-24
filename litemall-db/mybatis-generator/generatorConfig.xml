@@ -229,25 +229,12 @@
         <table tableName="litemall_vip_goods_price">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
-<!--        <table tableName="litemall_goods_log">
+<!--        <table tableName="litemall_shop_log">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
 
         <table tableName="litemall_order">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
-<!--        <table tableName="litemall_cart">
-            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-            <columnOverride column="specifications" javaType="java.lang.String[]"
-                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler"/>
-        </table>
-        <table tableName="litemall_order_goods">
-            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-            <columnOverride column="specifications" javaType="java.lang.String[]"
-                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler"/>
-            <columnOverride column="comments" javaType="java.lang.Integer[]"
-                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
-
-        </table>-->
     </context>
 </generatorConfiguration>

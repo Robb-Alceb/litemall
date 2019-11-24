@@ -3,11 +3,14 @@ package org.linlinjava.litemall.core.payment.paypal.service;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
-import org.linlinjava.litemall.core.payment.paypal.PaymentResponseCode;
+import org.linlinjava.litemall.core.payment.DefaultCurType;
+import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.beans.DefaultCurType;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallUserFormid;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
@@ -18,14 +21,13 @@ import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentIntent;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentMethod;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -35,12 +37,12 @@ import java.util.Map;
  */
 @Service
 public class PaypalService {
+    private final Log logger = LogFactory.getLog(PaypalService.class);
+
     @Autowired
     private APIContext apiContext;
     @Autowired
     private LitemallOrderService orderService;
-    @Value("${paypal.currency}")
-    private String currency;
     @Autowired
     private LitemallUserFormIdService formIdService;
     @Autowired
@@ -59,7 +61,7 @@ public class PaypalService {
         BigDecimal tax = litemallOrder.getTaxPrice();
         BigDecimal shipping = litemallOrder.getFreightPrice();
         Amount amount = new Amount();
-        amount.setCurrency(currency);
+        amount.setCurrency(DefaultCurType.USD.getType());
         amount.setTotal(String.format("%.2f", total));
         Details details = new Details();
         /**
@@ -76,8 +78,7 @@ public class PaypalService {
         details.setShipping(String.format("%.2f", shipping));
         amount.setDetails(details);
         Transaction transaction = new Transaction();
-        String description = "coffee order";
-        transaction.setDescription(description);
+        transaction.setDescription(litemallOrder.getDescription());
         transaction.setAmount(amount);
 
         List<Transaction> transactions = new ArrayList<>();
@@ -130,6 +131,9 @@ public class PaypalService {
         paymentExecute.setPayerId(payerId);
         payment.getPayer().getPayerInfo();
         Payment rtn = payment.execute(apiContext, paymentExecute);
+
+        // 交易号
+        String transationId = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getId();
         if(rtn.getState().equals("approved")){
             LitemallOrder order = orderService.findByPayId(paymentId);
             List<Transaction> transactions = rtn.getTransactions();
@@ -156,6 +160,10 @@ public class PaypalService {
                 return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, order.getOrderSn() + " : 支付金额不符合 totalFee=" + totalFee);
             }
 
+            order.setPayType(Constants.PAY_TYPE_PAYPAL);
+            order.setCurrency(DefaultCurType.USD.getType());
+            order.setTransationId(transationId);        //交易号，退款时需要用到
+            order.setPayId(payment.getId());            //付款编号，获取详情是需要用到？
             order.setPayTime(LocalDateTime.now());
             order.setOrderStatus(OrderUtil.STATUS_PAY);
 
@@ -190,23 +198,62 @@ public class PaypalService {
         }
     }
 
-    public Map<String, Object> refund(LitemallOrder order) {
-/*        JSONObject request =  new JSONObject();
+    /**
+     *
+     * @param order
+     * @return  false:退款失败； true:退款成功
+     */
+    public boolean refund(LitemallOrder order) {
+        // ###Sale
+        // A sale transaction.
+        // Create a Sale object with the
+        // given sale transaction id.
 
-        if (null != order.getActualPrice() && BigDecimal.ZERO.compareTo( order.getActualPrice()) == -1){
-            Amount amount = new Amount();
-            if(null == order.getCurrency()){
-                order.setCurrency(DefaultCurType.USD.getType());
+        // ###Refund
+        // A refund transaction.
+        // Use the amount to create
+        // a refund object
+        RefundRequest refund = new RefundRequest();
+        // ###Amount
+        // Create an Amount object to
+        // represent the amount to be
+        // refunded. Create the refund object, if the refund is partial
+        Amount amount = new Amount();
+        amount.setCurrency(order.getCurrency());
+        amount.setTotal(String.format("%.2f", order.getActualPrice()));
+        refund.setAmount(amount);
+        refund.setReason(order.getDescription());
+
+
+        try {
+            if(StringUtils.isEmpty(order.getTransationId())) {
+                //注意这段代码，获取saleId
+                Payment payment = Payment.get(apiContext, order.getPayId());
+                Transaction transaction = payment.getTransactions().get(0);
+                RelatedResources resources = transaction.getRelatedResources().get(0);
+                String id = resources.getSale().getId();
+                order.setTransationId(id);
             }
 
-            amount.setCurrency(order.getCurrency());
-            amount.setTotal(String.format("%.2f", order.getActualPrice()));
-            request.put("amount", amount);
-            request.put("description", order.getDescription());
-        }*/
+            // ### Api Context
+            // Pass in a `ApiContext` object to authenticate
+            // the call and to send a unique request id
+            // (that ensures idempotency). The SDK generates
+            // a request id if you do not pass one explicitly.
 
-        return null;
-
+            // Refund by posting to the APIService
+            // using a valid AccessToken
+            Sale sale = new Sale();
+            sale.setId(order.getTransationId());
+            DetailedRefund res = sale.refund(apiContext, refund);
+            if(res.getState().equals(PaypalPaymentState.completed.toString())){
+                return true;
+            }
+            return false;
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

@@ -46,11 +46,7 @@ public class Constants {
     /**
      * 支付方式
      */
-    public static final Integer PAY_TYPE_PAYPAL = 2;    //PayPal支付
+    public static final Byte PAY_TYPE_PAYPAL = 2;    //PayPal支付
 
-
-    public enum PaymemtType{
-        paypal;
-    }
 
 }

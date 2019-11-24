@@ -52,8 +52,6 @@ public class AdminGoodsService {
     @Autowired
     private QCodeService qCodeService;
     @Autowired
-    private LitemallAdminOrderGoodsService adminOrderGoodsService;
-    @Autowired
     private LitemallGoodsLogService goodsLogService;
     @Autowired
     private GoodsReviewService goodsReviewService;
@@ -220,7 +218,7 @@ public class AdminGoodsService {
     public Object delete(LitemallGoods goods, Integer shopId) {
         //门店删除商品
         if(!ObjectUtils.isEmpty(shopId)){
-            shopGoodsService.deleteById(shopId);
+            shopGoodsService.deleteById(goods.getId());
             return ResponseUtil.ok();
         }
         Integer id = goods.getId();
@@ -400,9 +398,9 @@ public class AdminGoodsService {
                 //库存查询
                 goodsVo.setNumber(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
                 //销量查询
-                List<LitemallAdminOrderGoods> litemallAdminOrderGoods = adminOrderGoodsService.queryByGoodsId(goods.getId());
-                if(!CollectionUtils.isEmpty(litemallAdminOrderGoods)){
-                    goodsVo.setSales(litemallAdminOrderGoods.stream().mapToInt(adminOrderGoods-> adminOrderGoods.getNumber()).sum());
+                List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryByGid(goodsVo.getId());
+                if(!CollectionUtils.isEmpty(litemallOrderGoods)){
+                    goodsVo.setSales(litemallOrderGoods.stream().mapToInt(adminOrderGoods-> adminOrderGoods.getNumber()).sum());
                 }
                 goodsVos.add(goodsVo);
             });

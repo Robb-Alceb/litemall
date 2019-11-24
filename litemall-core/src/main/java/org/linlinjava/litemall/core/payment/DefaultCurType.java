@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.db.beans;
+package org.linlinjava.litemall.core.payment;
 
 /**
  * @author ：stephen

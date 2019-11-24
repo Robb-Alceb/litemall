@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.core.payment.paypal;
+package org.linlinjava.litemall.core.payment;
 
 /**
  * @author ：stephen

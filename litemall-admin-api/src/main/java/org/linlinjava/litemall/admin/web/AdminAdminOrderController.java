@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/order")
+@RequestMapping("/admin/shopOrder")
 @Validated
 public class AdminAdminOrderController {
     private final Log logger = LogFactory.getLog(AdminAdminOrderController.class);

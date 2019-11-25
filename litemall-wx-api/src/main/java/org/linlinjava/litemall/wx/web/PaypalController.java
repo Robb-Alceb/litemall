@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 @Controller
+@RequestMapping("/wx")
 public class PaypalController {
     public static final String PAYPAL_SUCCESS_URL = "paypal/success";
     public static final String PAYPAL_CANCEL_URL = "paypal/cancel";
@@ -32,10 +33,11 @@ public class PaypalController {
     private PaypalService paypalService;
 
 
-    @PostMapping("/paypal/pay")
-    public Object pay(HttpServletRequest request, @LoginUser Integer userId, Integer orderId){
+    @GetMapping("/paypal/pay")
+    public Object pay(HttpServletRequest request, Integer userId, Integer orderId){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
+        successUrl = "http://192.168.0.101:8080/"+PAYPAL_CANCEL_URL;
         Object obj =  paypalService.getPayment(userId, orderId, successUrl, cancelUrl);
         if(!(obj instanceof Payment)){
             return obj;
@@ -43,7 +45,8 @@ public class PaypalController {
         Payment payment = (Payment)obj;
         for(Links links : payment.getLinks()){
             if(links.getRel().equals("approval_url")){
-                return String.format("<script type=\"text/javascript\">location.href=\"%s\"</script>",links.getHref() );
+//                return String.format("<script type=\"text/javascript\">location.href=\"%s\"</script>",links.getHref() );
+                return "redirect:" + links.getHref();
             }
         }
 
@@ -57,6 +60,8 @@ public class PaypalController {
 
     @GetMapping(PAYPAL_SUCCESS_URL)
     public Object successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId){
+        log.debug("paypal success");
+        System.out.println("paypal success");
         try {
             Object obj =  paypalService.executePayment(paymentId, payerId);
             if(!(obj instanceof Payment)){

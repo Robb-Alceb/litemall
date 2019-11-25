@@ -98,6 +98,8 @@ public class PaypalService {
 
 
         try {
+            logger.debug("success url is " + redirectUrls.getReturnUrl());
+            logger.debug("cancel url is " + redirectUrls.getCancelUrl());
             Payment rtn =  payment.create(apiContext);
             if(null == rtn.getId() || !PaypalPaymentState.created.toString().equals(rtn.getState())){
                 return ResponseUtil.fail(PaymentResponseCode.ORDER_INVALID_OPERATION, "订单不能支付");
@@ -105,15 +107,16 @@ public class PaypalService {
             String paymentId = rtn.getId();
             //保存paymentId作为PayPal的商户订单号
             litemallOrder.setOutTradeNo(paymentId);
-            if (orderService.updateWithOptimisticLocker(litemallOrder) == 0) {
+/*            if (orderService.updateWithOptimisticLocker(litemallOrder) == 0) {
                 return ResponseUtil.updatedDateExpired();
-            }
+            }*/
             //缓存paymentId用于后续模版通知
 
             LitemallUserFormid userFormid = new LitemallUserFormid();
             userFormid.setFormid(paymentId);
             userFormid.setIsprepay(true);
             userFormid.setUseamount(3);
+            userFormid.setOpenid("");
             userFormid.setExpireTime(LocalDateTime.now().plusDays(7));
             formIdService.addUserFormid(userFormid);
 

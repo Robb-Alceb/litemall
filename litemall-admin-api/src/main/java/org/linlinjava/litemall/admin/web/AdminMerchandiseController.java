@@ -51,8 +51,8 @@ public class AdminMerchandiseController {
      */
     @RequiresPermissions("admin:merchandise:update")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "添加")
-    @GetMapping("/create")
-    public Object create(LitemallMerchandise litemallMerchandise) {
+    @PostMapping("/create")
+    public Object create(@RequestBody LitemallMerchandise litemallMerchandise) {
         return adminMerchandiseService.create(litemallMerchandise);
     }
 
@@ -63,8 +63,8 @@ public class AdminMerchandiseController {
      */
     @RequiresPermissions("admin:merchandise:update")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "修改")
-    @GetMapping("/update")
-    public Object update(MerchandiseAllinone merchandiseAllinone, @LoginAdminShopId Integer shopId) {
+    @PutMapping("/update")
+    public Object update(@RequestBody MerchandiseAllinone merchandiseAllinone, @LoginAdminShopId Integer shopId) {
         return adminMerchandiseService.update(merchandiseAllinone, shopId);
     }
 
@@ -75,7 +75,7 @@ public class AdminMerchandiseController {
      */
     @RequiresPermissions("admin:merchandise:delete")
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "删除")
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     public Object delete(Integer id, @LoginAdminShopId Integer shopId) {
         return adminMerchandiseService.delete(id, shopId);
     }

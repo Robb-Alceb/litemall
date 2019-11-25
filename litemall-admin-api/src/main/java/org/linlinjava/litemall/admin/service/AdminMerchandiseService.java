@@ -54,7 +54,7 @@ public class AdminMerchandiseService {
         LitemallAdmin admin = getLitemallAdmin();
         litemallMerchandise.setAddUserId(admin.getId());
         litemallMerchandise.setUpdateUserId(admin.getId());
-        merchandiseService.updateById(litemallMerchandise);
+        merchandiseService.create(litemallMerchandise);
         return ResponseUtil.ok();
     }
 

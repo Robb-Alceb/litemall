@@ -3,9 +3,10 @@ package org.linlinjava.litemall.admin.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
-import org.linlinjava.litemall.admin.beans.enumerate.AdminOrderStatusEnum;
-import org.linlinjava.litemall.admin.beans.enumerate.AdminPayStatusEnum;
-import org.linlinjava.litemall.admin.beans.enumerate.PromptEnum;
+import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.enums.AdminOrderStatusEnum;
+import org.linlinjava.litemall.admin.beans.enums.AdminPayStatusEnum;
+import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.admin.beans.vo.AdminOrderVo;
 import org.linlinjava.litemall.admin.util.RandomUtils;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -30,6 +31,8 @@ public class AdminAdminOrderService {
     private LitemallMerchandiseService merchandiseService;
     @Autowired
     private LitemallShopService shopService;
+    @Autowired
+    private LitemallMerchandiseLogService merchandiseLogService;
 
 
     /**
@@ -159,7 +162,29 @@ public class AdminAdminOrderService {
         }
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_5.getCode().toString());
+        saveMerchandiseLog(adminOrderVo);
         return ResponseUtil.ok();
+    }
+
+    private void saveMerchandiseLog(AdminOrderVo adminOrderVo) {
+        //获取货品信息
+        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
+        LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+        LitemallMerchandiseLog merchandiseLog = new LitemallMerchandiseLog();
+        merchandiseLog.setAddUserId(admin.getId());
+        merchandiseLog.setAdminOrderId(adminOrderVo.getAdminOrderId());
+        merchandiseLog.setContent(Constants.TAKE_DELIVERY);
+        merchandiseLog.setMerchandiseId(adminOrderVo.getMerchandiseId());
+        merchandiseLog.setMerchandiseImage(litemallMerchandise.getPicUrl());
+        merchandiseLog.setMerchandiseName(litemallMerchandise.getName());
+        merchandiseLog.setMerchandiseSn(litemallMerchandise.getMerchandiseSn());
+        merchandiseLog.setOrderSn(adminOrderVo.getOrderSn());
+        merchandiseLog.setPayPrice(adminOrderVo.getOrderPrice());
+        merchandiseLog.setPurchaseQuantity(String.valueOf(adminOrderVo.getNumber()));
+        merchandiseLog.setRemainingNumber(String.valueOf(litemallMerchandise.getNumber()));
+        merchandiseLog.setShopId(adminOrderVo.getShopId());
+        merchandiseLog.setUserName(admin.getUsername());
+        merchandiseLogService.insert(merchandiseLog);
     }
 
     private void updateOrderStatus(AdminOrderVo adminOrderVo, String orderStatus) {

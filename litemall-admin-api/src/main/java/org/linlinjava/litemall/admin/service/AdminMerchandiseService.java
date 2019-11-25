@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.dto.MerchandiseAllinone;
-import org.linlinjava.litemall.admin.beans.enumerate.PromptEnum;
+import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallMerchandise;

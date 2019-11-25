@@ -34,4 +34,5 @@ public class AdminOrderVo {
     private Integer adminOrderId;
     private String orderStatus;
     private String shipSn;
+    private String orderSn;
 }

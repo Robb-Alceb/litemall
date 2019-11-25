@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallAdminOrderExample;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -42,5 +43,16 @@ public class LitemallAdminOrderService {
 
     public LitemallAdminOrder queryById(Integer id) {
         return adminOrderMapper.selectByPrimaryKey(id);
+    }
+
+    public void insert(LitemallAdminOrder adminOrder) {
+        adminOrder.setAddTime(LocalDateTime.now());
+        adminOrder.setUpdateTime(LocalDateTime.now());
+        adminOrderMapper.insertSelective(adminOrder);
+    }
+
+    public void update(LitemallAdminOrder adminOrder) {
+        adminOrder.setUpdateTime(LocalDateTime.now());
+        adminOrderMapper.updateByPrimaryKey(adminOrder);
     }
 }

@@ -40,7 +40,6 @@ public class LitemallMerchandiseService {
     }
 
     public void deleteById(LitemallMerchandise merchandise) {
-
         LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
         merchandiseExample.or().andIdEqualTo(merchandise.getId());
 
@@ -54,5 +53,9 @@ public class LitemallMerchandiseService {
         litemallMerchandise.setAddTime(LocalDateTime.now());
         litemallMerchandise.setUpdateTime(LocalDateTime.now());
         litemallMerchandiseMapper.insert(litemallMerchandise);
+    }
+
+    public LitemallMerchandise queryById(Integer merchandiseId){
+        return litemallMerchandiseMapper.selectByPrimaryKey(merchandiseId);
     }
 }

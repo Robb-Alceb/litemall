@@ -68,16 +68,17 @@ public class AdminMerchandiseController {
         return adminMerchandiseService.update(merchandiseAllinone, shopId);
     }
 
+
     /**
-     * 删除货品信息
+     * 读取货品信息
      * @param id
      * @return
      */
-    @RequiresPermissions("admin:merchandise:delete")
-    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "删除")
-    @DeleteMapping("/delete")
-    public Object delete(Integer id, @LoginAdminShopId Integer shopId) {
-        return adminMerchandiseService.delete(id, shopId);
+    @RequiresPermissions("admin:merchandise:read")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "详情")
+    @GetMapping("/read")
+    public Object read(Integer id, @LoginAdminShopId Integer shopId) {
+        return adminMerchandiseService.read(id, shopId);
     }
 
     /**

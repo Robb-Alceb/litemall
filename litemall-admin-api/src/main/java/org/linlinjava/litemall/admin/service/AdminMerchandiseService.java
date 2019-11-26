@@ -81,6 +81,17 @@ public class AdminMerchandiseService {
         return ResponseUtil.ok();
     }
 
+
+    /**
+     * 获取货品详情
+     */
+    public Object read(Integer id, Integer shopId){
+        if(null != shopId){
+            return ResponseUtil.ok(shopMerchandiseService.queryById(id, shopId));
+        }
+        return ResponseUtil.ok(merchandiseService.queryById(id));
+    }
+
     /**
      * 删除货品
      */

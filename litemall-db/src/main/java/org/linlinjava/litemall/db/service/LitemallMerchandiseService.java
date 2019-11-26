@@ -56,6 +56,6 @@ public class LitemallMerchandiseService {
     }
 
     public LitemallMerchandise queryById(Integer merchandiseId){
-        return litemallMerchandiseMapper.selectByPrimaryKey(merchandiseId);
+        return litemallMerchandiseMapper.selectByPrimaryKeyWithLogicalDelete(merchandiseId, false);
     }
 }

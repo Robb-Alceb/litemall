@@ -132,8 +132,7 @@ public class PaypalService {
         payment.setId(paymentId);
         PaymentExecution paymentExecute = new PaymentExecution();
         paymentExecute.setPayerId(payerId);
-        payment.getPayer().getPayerInfo();
-        Payment rtn = payment.execute(apiContext, paymentExecute);
+         Payment rtn = payment.execute(apiContext, paymentExecute);
 
         // 交易号
         String transationId = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getId();

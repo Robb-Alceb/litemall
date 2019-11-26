@@ -1,13 +1,15 @@
-package org.linlinjava.litemall.admin.beans.enumerate;
+package org.linlinjava.litemall.admin.beans.enums;
 
-public enum PromptEnum {
+public enum AdminPayStatusEnum {
 
-    P_101(101, "参数为空");
+    P_1(1, "待支付"),
+    P_2(2, "已支付")
+    ;
 
     private Integer code;
     private String desc;
 
-    PromptEnum(Integer code, String desc){
+    AdminPayStatusEnum(Integer code, String desc){
         this.code = code;
         this.desc = desc;
     }

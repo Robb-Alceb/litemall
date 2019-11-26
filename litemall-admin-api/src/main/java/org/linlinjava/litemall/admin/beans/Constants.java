@@ -43,6 +43,10 @@ public class Constants extends org.linlinjava.litemall.db.beans.Constants {
      * 修改商品
      */
     public static final String DELETE_GOODS="删除商品：";
+    /**
+     * 确认收货
+     */
+    public static final String TAKE_DELIVERY="确认收货";
 
 
 

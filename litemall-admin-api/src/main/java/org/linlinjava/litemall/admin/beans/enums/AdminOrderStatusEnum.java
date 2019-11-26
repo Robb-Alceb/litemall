@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.admin.beans.enumerate;
+package org.linlinjava.litemall.admin.beans.enums;
 
 public enum AdminOrderStatusEnum {
 

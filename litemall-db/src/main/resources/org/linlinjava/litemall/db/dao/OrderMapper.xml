@@ -10,11 +10,20 @@
             <if test="order.userId != null">
                 user_id = #{order.userId,jdbcType=INTEGER},
             </if>
+            <if test="order.shopId != null">
+                shop_id = #{order.shopId,jdbcType=INTEGER},
+            </if>
             <if test="order.orderSn != null">
                 order_sn = #{order.orderSn,jdbcType=VARCHAR},
             </if>
             <if test="order.orderStatus != null">
                 order_status = #{order.orderStatus,jdbcType=SMALLINT},
+            </if>
+            <if test="order.orderType != null">
+                order_type = #{order.orderType,jdbcType=TINYINT},
+            </if>
+            <if test="order.isRefund != null">
+                is_refund = #{order.isRefund,jdbcType=BIT},
             </if>
             <if test="order.consignee != null">
                 consignee = #{order.consignee,jdbcType=VARCHAR},
@@ -46,14 +55,35 @@
             <if test="order.orderPrice != null">
                 order_price = #{order.orderPrice,jdbcType=DECIMAL},
             </if>
+            <if test="order.taxPrice != null">
+                tax_price = #{order.taxPrice,jdbcType=DECIMAL},
+            </if>
             <if test="order.actualPrice != null">
                 actual_price = #{order.actualPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="order.currency != null">
+                currency = #{order.currency,jdbcType=VARCHAR},
+            </if>
+            <if test="order.payType != null">
+                pay_type = #{order.payType,jdbcType=TINYINT},
             </if>
             <if test="order.payId != null">
                 pay_id = #{order.payId,jdbcType=VARCHAR},
             </if>
+            <if test="order.outTradeNo != null">
+                out_trade_no = #{order.outTradeNo,jdbcType=VARCHAR},
+            </if>
+            <if test="order.transationId != null">
+                transation_id = #{order.transationId,jdbcType=VARCHAR},
+            </if>
             <if test="order.payTime != null">
                 pay_time = #{order.payTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="order.orderSource != null">
+                order_source = #{order.orderSource,jdbcType=TINYINT},
+            </if>
+            <if test="order.shipStatus != null">
+                ship_status = #{order.shipStatus,jdbcType=TINYINT},
             </if>
             <if test="order.shipSn != null">
                 ship_sn = #{order.shipSn,jdbcType=VARCHAR},
@@ -64,11 +94,17 @@
             <if test="order.shipTime != null">
                 ship_time = #{order.shipTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="order.shipRemark != null">
+                ship_remark = #{order.shipRemark,jdbcType=VARCHAR},
+            </if>
             <if test="order.confirmTime != null">
                 confirm_time = #{order.confirmTime,jdbcType=TIMESTAMP},
             </if>
             <if test="order.comments != null">
                 comments = #{order.comments,jdbcType=SMALLINT},
+            </if>
+            <if test="order.description != null">
+                description = #{order.description,jdbcType=VARCHAR},
             </if>
             <if test="order.endTime != null">
                 end_time = #{order.endTime,jdbcType=TIMESTAMP},

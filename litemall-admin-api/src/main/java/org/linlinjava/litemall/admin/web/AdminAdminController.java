@@ -16,14 +16,18 @@ import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
+import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
+import org.linlinjava.litemall.db.service.LitemallShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
@@ -39,6 +43,8 @@ public class AdminAdminController {
     private LogHelper logHelper;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private LitemallShopService litemallShopService;
 
     @RequiresPermissions("admin:admin:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
@@ -184,5 +190,15 @@ public class AdminAdminController {
     @GetMapping("/all")
     public Object all() {
         return adminService.all();
+    }
+
+    @GetMapping("/info")
+    public Object info() {
+        LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
+        LitemallShop shop = litemallShopService.findById(admin.getShopId());
+        Map<String, Object> map = new HashMap<>();
+        map.put("admin", admin);
+        map.put("shop", shop);
+        return ResponseUtil.ok(map);
     }
 }

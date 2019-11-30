@@ -5,12 +5,15 @@ import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.MerchandiseAllinone;
 import org.linlinjava.litemall.admin.service.AdminMerchandiseService;
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallMerchandise;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 /**
  * 货品库存
@@ -103,4 +106,19 @@ public class AdminMerchandiseController {
                        @Order @RequestParam(defaultValue = "desc") String order) {
         return adminMerchandiseService.goodsProductRecordList(merchandiseId, merchandiseName, orderSn, shopId, page, limit, sort, order);
     }
+    /**
+     * 查询所有库存
+     *
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:all")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "所有库存")
+    @GetMapping("/all")
+    public Object all(@LoginAdminShopId Integer shopId) {
+        if(null == shopId){
+            return ResponseUtil.ok();
+        }
+        return adminMerchandiseService.all();
+    }
+
 }

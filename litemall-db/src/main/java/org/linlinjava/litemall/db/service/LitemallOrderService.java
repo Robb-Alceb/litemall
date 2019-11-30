@@ -159,6 +159,13 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectOneByExample(example);
     }
 
+    public LitemallOrder findByOutTradeNo(String outTradeNo) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andOutTradeNoEqualTo(outTradeNo).andDeletedEqualTo(false);
+        return litemallOrderMapper.selectOneByExample(example);
+    }
+
+
     public Map<Object, Object> orderInfo(Integer userId) {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);

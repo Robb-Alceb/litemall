@@ -52,10 +52,16 @@ public class LitemallMerchandiseService {
     public void create(LitemallMerchandise litemallMerchandise){
         litemallMerchandise.setAddTime(LocalDateTime.now());
         litemallMerchandise.setUpdateTime(LocalDateTime.now());
-        litemallMerchandiseMapper.insert(litemallMerchandise);
+        litemallMerchandiseMapper.insertSelective(litemallMerchandise);
     }
 
     public LitemallMerchandise queryById(Integer merchandiseId){
         return litemallMerchandiseMapper.selectByPrimaryKeyWithLogicalDelete(merchandiseId, false);
+    }
+
+    public List<LitemallMerchandise> all() {
+        LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
+        merchandiseExample.or().andLogicalDeleted(true);
+        return litemallMerchandiseMapper.selectByExampleSelective(merchandiseExample);
     }
 }

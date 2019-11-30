@@ -36,7 +36,7 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:list")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "查询")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "查询")
     @GetMapping("/list")
     public Object list(String orderSn, String userName, String address,
                        @LoginAdminShopId Integer shopId,
@@ -53,9 +53,10 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:orderApplying")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "订单申请")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "订单申请")
     @PostMapping("/orderApplying")
-    public Object orderApplying(AdminOrderVo adminOrderVo){
+    public Object orderApplying(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
+        adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderApplying(adminOrderVo);
     }
 
@@ -65,9 +66,9 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:orderPass")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "同意调货")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "同意调货")
     @PostMapping("/orderPass")
-    public Object orderPass(AdminOrderVo adminOrderVo){
+    public Object orderPass(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.orderPass(adminOrderVo);
     }
 
@@ -77,9 +78,9 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:orderNoPass")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "拒绝调货")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "拒绝调货")
     @PostMapping("/orderNoPass")
-    public Object orderNoPass (AdminOrderVo adminOrderVo){
+    public Object orderNoPass (@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.orderNoPass(adminOrderVo);
     }
 
@@ -89,9 +90,10 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:orderPay")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "支付货款")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "支付货款")
     @PostMapping("/orderPay")
-    public Object orderPay(AdminOrderVo adminOrderVo){
+    public Object orderPay(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
+        adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderPass(adminOrderVo);
     }
 
@@ -101,9 +103,9 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:deliverGoods")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "同意发货")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "同意发货")
     @PostMapping("/deliverGoods")
-    public Object deliverGoods(AdminOrderVo adminOrderVo){
+    public Object deliverGoods(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.deliverGoods(adminOrderVo);
     }
 
@@ -113,9 +115,9 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:cancelDeliverGoods")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "拒绝发货")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "拒绝发货")
     @PostMapping("/cancelDeliverGoods")
-    public Object cancelDeliverGoods(AdminOrderVo adminOrderVo){
+    public Object cancelDeliverGoods(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.cancelDeliverGoods(adminOrderVo);
     }
 
@@ -126,9 +128,10 @@ public class AdminAdminOrderController {
      * @return
      */
     @RequiresPermissions("admin:order:takeDelivery")
-    @RequiresPermissionsDesc(menu = {"商场管理", "门店订单"}, button = "确认收货")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "确认收货")
     @PostMapping("/takeDelivery")
-    public Object takeDelivery (AdminOrderVo adminOrderVo){
+    public Object takeDelivery (@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
+        adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.takeDelivery(adminOrderVo);
     }
 

@@ -63,14 +63,14 @@ public class AdminOrderController {
     /**
      * 订单退款
      *
-     * @param body 订单信息，{ orderId：xxx }
+     * @param orderId 订单Id，{ orderId：xxx }
      * @return 订单退款操作结果
      */
     @RequiresPermissions("admin:order:refund")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单退款")
     @PostMapping("/refund")
-    public Object refund(@RequestBody String body, @LoginAdminShopId Integer shopId) {
-        return adminOrderService.refund(body, shopId);
+    public Object refund(@NotNull Integer orderId, @LoginAdminShopId Integer shopId) {
+        return adminOrderService.refund(orderId, shopId);
     }
 
     /**

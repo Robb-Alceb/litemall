@@ -107,9 +107,9 @@ public class PaypalService {
             String paymentId = rtn.getId();
             //保存paymentId作为PayPal的商户订单号
             litemallOrder.setOutTradeNo(paymentId);
-/*            if (orderService.updateWithOptimisticLocker(litemallOrder) == 0) {
+            if (orderService.updateWithOptimisticLocker(litemallOrder) == 0) {
                 return ResponseUtil.updatedDateExpired();
-            }*/
+            }
             //缓存paymentId用于后续模版通知
 
             LitemallUserFormid userFormid = new LitemallUserFormid();
@@ -135,9 +135,9 @@ public class PaypalService {
          Payment rtn = payment.execute(apiContext, paymentExecute);
 
         // 交易号
-        String transationId = payment.getTransactions().get(0).getRelatedResources().get(0).getSale().getId();
+        String transationId = rtn.getTransactions().get(0).getRelatedResources().get(0).getSale().getId();
         if(rtn.getState().equals("approved")){
-            LitemallOrder order = orderService.findByPayId(paymentId);
+            LitemallOrder order = orderService.findByOutTradeNo(paymentId);
             List<Transaction> transactions = rtn.getTransactions();
             BigDecimal totalFee = new BigDecimal(0.00);
             if(transactions != null){
@@ -145,7 +145,7 @@ public class PaypalService {
                     String total = transaction.getAmount().getTotal();
                     BigDecimal b = new BigDecimal(total);
                     b.setScale(2, BigDecimal.ROUND_DOWN);
-                    totalFee.add(b);
+                    totalFee = totalFee.add(b);
                 }
             }
             if (order == null) {
@@ -158,7 +158,7 @@ public class PaypalService {
             }
 
             // 检查支付订单金额
-            if (!totalFee.equals(order.getActualPrice().toString())) {
+            if (!totalFee.toString().equals(order.getActualPrice().toString())) {
                 return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, order.getOrderSn() + " : 支付金额不符合 totalFee=" + totalFee);
             }
 
@@ -192,7 +192,7 @@ public class PaypalService {
             // 订单支付成功以后，会发送短信给用户，以及发送邮件给管理员
             notifyService.notifyMail("新订单通知", order.toString());
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
-            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
+//            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
 
             return rtn;
         }else{

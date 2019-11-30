@@ -121,6 +121,17 @@ public class AdminMerchandiseService {
         return ResponseUtil.okList(merchandiseLogService.querySelective(merchandiseId, merchandiseName, orderSn, shopId, page, limit, sort, order));
     }
 
+    /**
+     * 货品列表
+     * @return
+     */
+    public Object all() {
+
+        //查询所有货品
+        return ResponseUtil.ok(merchandiseService.all());
+
+    }
+
     private LitemallAdmin getLitemallAdmin() {
         return (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
     }

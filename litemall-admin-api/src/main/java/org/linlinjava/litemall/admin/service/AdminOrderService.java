@@ -84,19 +84,17 @@ public class AdminOrderService {
      * 1. 管理员登录微信官方支付平台点击退款操作进行退款
      * 2. 管理员登录litemall管理后台点击退款操作进行订单状态修改和商品库存回库
      *
-     * @param body 订单信息，{ orderId：xxx }
+     * @param orderId 订单信息，{ orderId：xxx }
      * @return 订单退款操作结果
      */
     @Transactional
-    public Object refund(String body, Integer shopId) {
-        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
-        String refundMoney = JacksonUtil.parseString(body, "refundMoney");
+    public Object refund(Integer orderId, Integer shopId) {
         if (orderId == null) {
             return ResponseUtil.badArgument();
         }
-        if (StringUtils.isEmpty(refundMoney)) {
+/*        if (StringUtils.isEmpty(refundMoney)) {
             return ResponseUtil.badArgument();
-        }
+        }*/
 
         LitemallOrder order = orderService.findById(orderId);
         if(null != shopId && order.getShopId() != shopId){
@@ -106,13 +104,13 @@ public class AdminOrderService {
             return ResponseUtil.badArgument();
         }
 
-        if (order.getActualPrice().compareTo(new BigDecimal(refundMoney)) != 0) {
+/*        if (order.getActualPrice().compareTo(new BigDecimal(refundMoney)) != 0) {
             return ResponseUtil.badArgumentValue();
-        }
+        }*/
 
         // 如果订单不是退款状态，则不能退款
         if (!order.getOrderStatus().equals(OrderUtil.STATUS_REFUND)) {
-            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
+            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能退款");
         }
 
 /*        // 微信退款

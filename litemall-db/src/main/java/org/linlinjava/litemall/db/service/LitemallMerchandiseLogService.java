@@ -72,6 +72,6 @@ public class LitemallMerchandiseLogService {
 
     public void insert(LitemallMerchandiseLog merchandiseLog) {
         merchandiseLog.setAddTime(LocalDateTime.now());
-        litemallMerchandiseLogMapper.insert(merchandiseLog);
+        litemallMerchandiseLogMapper.insertSelective(merchandiseLog);
     }
 }

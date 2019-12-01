@@ -35,7 +35,7 @@ public class AdminAdminOrderController {
      * @param order
      * @return
      */
-    @RequiresPermissions("admin:order:list")
+    @RequiresPermissions("admin:order:shopList")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "查询")
     @GetMapping("/list")
     public Object list(String orderSn, String userName, String address,

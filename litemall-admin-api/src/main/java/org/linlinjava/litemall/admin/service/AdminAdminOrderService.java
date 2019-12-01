@@ -63,7 +63,7 @@ public class AdminAdminOrderService {
         //扣除货品剩余数量
         LitemallMerchandise m = new LitemallMerchandise();
         m.setId(adminOrderVo.getMerchandiseId());
-        m.setNumber(m.getNumber()-adminOrderVo.getNumber());
+        m.setNumber(merchandise.getNumber()-adminOrderVo.getNumber());
         merchandiseService.updateById(m);
 
         return ResponseUtil.ok();
@@ -233,6 +233,11 @@ public class AdminAdminOrderService {
         adminOrder.setAddress(adminOrderVo.getAddress());
         adminOrder.setUnitPrice(merchandise.getPurchasePrice());
         adminOrder.setOrderPrice(adminOrderVo.getOrderPrice());
+        if(null != adminOrder.getFreightPrice()){
+            adminOrder.setActualPrice(adminOrderVo.getOrderPrice().add(adminOrder.getFreightPrice()));
+        }else{
+            adminOrder.setActualPrice(adminOrderVo.getOrderPrice());
+        }
         adminOrderService.insert(adminOrder);
         return adminOrder;
     }

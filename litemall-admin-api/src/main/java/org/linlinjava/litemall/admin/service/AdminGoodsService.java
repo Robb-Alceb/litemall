@@ -46,8 +46,6 @@ public class AdminGoodsService {
     @Autowired
     private LitemallBrandService brandService;
     @Autowired
-    private LitemallShopGoodsService shopGoodsService;
-    @Autowired
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private QCodeService qCodeService;
@@ -56,21 +54,23 @@ public class AdminGoodsService {
     @Autowired
     private GoodsReviewService goodsReviewService;
 
+    /**
+     * 商品列表
+     * @return
+     */
     public Object list(String goodsSn, String name,Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        if(shopId!=null){
+        /*if(shopId!=null){
             //查询门店商品
             List<Map<String, Object>> shops = shopGoodsService.querySelective(goodsSn, name, shopId,
                     page, limit, sort, order);
             List<GoodsVo> goodsVos =  getShopGoodsVos(shops);
             return ResponseUtil.okList(goodsVos, shops);
-        }else{
-            //查询所有商品
-            List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
-            List<GoodsVo> goodsVos = new ArrayList<>();
-            getGoodsVos(goodsList, goodsVos);
-            return ResponseUtil.okList(goodsVos, goodsList);
-        }
+        }else{*/
+        List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
+        List<GoodsVo> goodsVos = new ArrayList<>();
+        getGoodsVos(goodsList, goodsVos);
+        return ResponseUtil.okList(goodsVos, goodsList);
     }
 
     private Object validate(GoodsAllinone goodsAllinone) {
@@ -162,11 +162,11 @@ public class AdminGoodsService {
     @Transactional
     public Object update(GoodsAllinone goodsAllinone, Integer shopId) {
         //更新门店内商品
-        if(!ObjectUtils.isEmpty(shopId)){
-            LitemallShopGoods litemallShopGoods = goodsAllinone.getShopGoods();
-            shopGoodsService.updateById(litemallShopGoods);
-            return ResponseUtil.ok();
-        }
+//        if(!ObjectUtils.isEmpty(shopId)){
+//            LitemallShopGoods litemallShopGoods = goodsAllinone.getShopGoods();
+//            shopGoodsService.updateById(litemallShopGoods);
+//            return ResponseUtil.ok();
+//        }
         Object error = validate(goodsAllinone);
         if (error != null) {
             return error;
@@ -217,10 +217,10 @@ public class AdminGoodsService {
     @Transactional
     public Object delete(LitemallGoods goods, Integer shopId) {
         //门店删除商品
-        if(!ObjectUtils.isEmpty(shopId)){
-            shopGoodsService.deleteById(goods.getId());
-            return ResponseUtil.ok();
-        }
+//        if(!ObjectUtils.isEmpty(shopId)){
+//            shopGoodsService.deleteById(goods.getId());
+//            return ResponseUtil.ok();
+//        }
         Integer id = goods.getId();
         if (id == null) {
             return ResponseUtil.badArgument();
@@ -348,10 +348,10 @@ public class AdminGoodsService {
     public Object detail(Integer id, Integer shopId) {
         LitemallGoods goods = goodsService.findById(id);
         //查询门店商品
-        if(!ObjectUtils.isEmpty(shopId)){
-            LitemallShopGoods shopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, id);
-            return ResponseUtil.ok(new HashMap<String, Object>(){{put("goods", goods);put("shopGoods", shopGoods);}});
-        }
+//        if(!ObjectUtils.isEmpty(shopId)){
+//            LitemallShopGoods shopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, id);
+//            return ResponseUtil.ok(new HashMap<String, Object>(){{put("goods", goods);put("shopGoods", shopGoods);}});
+//        }
         List<LitemallGoodsProduct> products = productService.queryByGid(id);
         List<LitemallGoodsSpecification> specifications = specificationService.queryByGid(id);
         List<LitemallGoodsAttribute> attributes = attributeService.queryByGid(id);

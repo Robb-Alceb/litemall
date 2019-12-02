@@ -131,6 +131,9 @@ public class LitemallGoodsService {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria = example.createCriteria();
 
+        if (!StringUtils.isEmpty(shopId)) {
+            criteria.andShopIdEqualTo(shopId);
+        }
         if (!StringUtils.isEmpty(goodsSn)) {
             criteria.andGoodsSnEqualTo(goodsSn);
         }

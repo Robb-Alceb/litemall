@@ -45,6 +45,16 @@ public class LitemallAdminOrderService {
         return adminOrderMapper.selectByPrimaryKey(id);
     }
 
+
+    public LitemallAdminOrder queryByIdAndShopId(Integer id, Integer shopId) {
+        LitemallAdminOrderExample example = new LitemallAdminOrderExample();
+        example.or().andLogicalDeleted(false).andIdEqualTo(id);
+        if(null != shopId){
+            example.or().andShopIdEqualTo(shopId);
+        }
+        return adminOrderMapper.selectByPrimaryKey(id);
+    }
+
     public void insert(LitemallAdminOrder adminOrder) {
         adminOrder.setAddTime(LocalDateTime.now());
         adminOrder.setUpdateTime(LocalDateTime.now());
@@ -53,6 +63,6 @@ public class LitemallAdminOrderService {
 
     public void update(LitemallAdminOrder adminOrder) {
         adminOrder.setUpdateTime(LocalDateTime.now());
-        adminOrderMapper.updateByPrimaryKey(adminOrder);
+        adminOrderMapper.updateByPrimaryKeySelective(adminOrder);
     }
 }

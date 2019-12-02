@@ -8,6 +8,7 @@ import org.linlinjava.litemall.admin.beans.enums.AdminOrderStatusEnum;
 import org.linlinjava.litemall.admin.beans.enums.AdminPayStatusEnum;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.admin.beans.vo.AdminOrderVo;
+import org.linlinjava.litemall.admin.beans.vo.ShopOrderVo;
 import org.linlinjava.litemall.admin.util.RandomUtils;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 
@@ -164,6 +166,19 @@ public class AdminAdminOrderService {
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_5.getCode().toString());
         saveMerchandiseLog(adminOrderVo);
         return ResponseUtil.ok();
+    }
+
+    /**
+     * 订单详情
+     * @return
+     */
+    public Object read(Integer orderId, Integer shopId) {
+        LitemallAdminOrder litemallAdminOrder = adminOrderService.queryByIdAndShopId(orderId, shopId);
+        List<LitemallAdminOrderMerchandise> litemallAdminOrderMerchandises = adminOrderMerchandiseService.querybyAdminOrderId(orderId);
+        ShopOrderVo vo = new ShopOrderVo();
+        vo.setMerchandises(litemallAdminOrderMerchandises);
+        vo.setOrder(litemallAdminOrder);
+        return ResponseUtil.ok(vo);
     }
 
     private void saveMerchandiseLog(AdminOrderVo adminOrderVo) {

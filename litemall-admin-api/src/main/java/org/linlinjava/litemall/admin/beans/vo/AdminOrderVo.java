@@ -35,4 +35,8 @@ public class AdminOrderVo {
     private String orderStatus;
     private String shipSn;
     private String orderSn;
+    //处理备注
+    private String handleRemark;
+    //运费
+    private BigDecimal shipPrice;
 }

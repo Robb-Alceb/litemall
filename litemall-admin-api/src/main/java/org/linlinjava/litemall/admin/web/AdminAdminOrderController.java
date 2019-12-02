@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+
 @RestController
 @RequestMapping("/admin/shopOrder")
 @Validated
@@ -94,7 +96,7 @@ public class AdminAdminOrderController {
     @PostMapping("/orderPay")
     public Object orderPay(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
         adminOrderVo.setShopId(shopId);
-        return adminAdminOrderService.orderPass(adminOrderVo);
+        return adminAdminOrderService.orderPay(adminOrderVo);
     }
 
     /**
@@ -130,10 +132,21 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:takeDelivery")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "确认收货")
     @PostMapping("/takeDelivery")
-    public Object takeDelivery (@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
+    public Object takeDelivery(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.takeDelivery(adminOrderVo);
     }
 
+    /**
+     * 门店订单详情
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:order:takeDelivery")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "详情")
+    @GetMapping("/read")
+    public Object read(@NotNull Integer id, @LoginAdminShopId Integer shopId){
+        return adminAdminOrderService.read(id, shopId);
+    }
 
 }

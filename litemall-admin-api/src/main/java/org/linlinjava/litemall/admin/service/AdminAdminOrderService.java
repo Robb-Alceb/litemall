@@ -67,6 +67,11 @@ public class AdminAdminOrderService {
         m.setId(adminOrderVo.getMerchandiseId());
         m.setNumber(merchandise.getNumber()-adminOrderVo.getNumber());
         merchandiseService.updateById(m);
+        //保存日志
+        adminOrderVo.setOrderSn(adminOrder.getOrderSn());
+        adminOrderVo.setAdminOrderId(adminOrder.getId());
+        adminOrderVo.setOrderPrice(adminOrder.getOrderPrice());
+        this.saveMerchandiseLog(adminOrderVo, Constants.ORDER_APPLYING);
 
         return ResponseUtil.ok();
     }
@@ -82,6 +87,8 @@ public class AdminAdminOrderService {
         }
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_2.getCode().toString());
+        //保存日志
+        this.saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.ORDER_PASS);
         return ResponseUtil.ok();
     }
 
@@ -98,7 +105,8 @@ public class AdminAdminOrderService {
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_6.getCode().toString());
         //货品数量返回
         backMerchandiseNum(adminOrderVo);
-
+        //保存日志
+        this.saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.ORDER_NO_PASS);
         return ResponseUtil.ok();
     }
 
@@ -111,8 +119,9 @@ public class AdminAdminOrderService {
         if(ObjectUtils.isEmpty(adminOrderVo.getAdminOrderId())){
             return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
         }
-
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_3.getCode().toString());
+        //保存日志
+        this.saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.ORDER_PAY);
         return ResponseUtil.ok();
     }
 
@@ -127,6 +136,8 @@ public class AdminAdminOrderService {
         }
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_4.getCode().toString());
+        //保存日志
+        this.saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.DELIVER_GOODS);
         return ResponseUtil.ok();
     }
 
@@ -142,6 +153,8 @@ public class AdminAdminOrderService {
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_6.getCode().toString());
         //货品数量返回
         backMerchandiseNum(adminOrderVo);
+        //保存日志
+        this.saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.CANCEL_DELIVER_GOODS);
         return ResponseUtil.ok();
     }
 
@@ -164,7 +177,7 @@ public class AdminAdminOrderService {
         }
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_5.getCode().toString());
-        saveMerchandiseLog(adminOrderVo);
+        saveMerchandiseLog(adminOrderVo, Constants.TAKE_DELIVERY);
         return ResponseUtil.ok();
     }
 
@@ -181,14 +194,27 @@ public class AdminAdminOrderService {
         return ResponseUtil.ok(vo);
     }
 
-    private void saveMerchandiseLog(AdminOrderVo adminOrderVo) {
+
+    private AdminOrderVo setAdminOrder(AdminOrderVo adminOrderVo) {
+        LitemallAdminOrder adminOrder = adminOrderService.queryById(adminOrderVo.getAdminOrderId());
+        List<LitemallAdminOrderMerchandise> adminOrderMerchandises = adminOrderMerchandiseService.querybyAdminOrderId(adminOrder.getId());
+        adminOrderVo.setAdminOrderId(adminOrder.getId());
+        adminOrderVo.setMerchandiseId(adminOrderMerchandises.get(0).getMerchandiseId());
+        adminOrderVo.setOrderSn(adminOrder.getOrderSn());
+        adminOrderVo.setOrderPrice(adminOrder.getOrderPrice());
+        adminOrderVo.setNumber(adminOrderMerchandises.get(0).getNumber());
+        adminOrderVo.setShopId(adminOrder.getShopId());
+        return adminOrderVo;
+    }
+
+    private void saveMerchandiseLog(AdminOrderVo adminOrderVo, String content) {
         //获取货品信息
         LitemallMerchandise litemallMerchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
         LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
         LitemallMerchandiseLog merchandiseLog = new LitemallMerchandiseLog();
         merchandiseLog.setAddUserId(admin.getId());
         merchandiseLog.setAdminOrderId(adminOrderVo.getAdminOrderId());
-        merchandiseLog.setContent(Constants.TAKE_DELIVERY);
+        merchandiseLog.setContent(content);
         merchandiseLog.setMerchandiseId(adminOrderVo.getMerchandiseId());
         merchandiseLog.setMerchandiseImage(litemallMerchandise.getPicUrl());
         merchandiseLog.setMerchandiseName(litemallMerchandise.getName());

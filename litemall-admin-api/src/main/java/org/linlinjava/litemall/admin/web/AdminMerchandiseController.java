@@ -4,6 +4,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.MerchandiseAllinone;
+import org.linlinjava.litemall.admin.beans.vo.MerchandiseVo;
 import org.linlinjava.litemall.admin.service.AdminMerchandiseService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
 /**
@@ -119,6 +121,18 @@ public class AdminMerchandiseController {
             return ResponseUtil.ok();
         }
         return adminMerchandiseService.all();
+    }
+
+    /**
+     * 补充库存
+     * @param vo
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:addNumber")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "补充库存")
+    @PutMapping("/addNumber")
+    public Object addNumber(@RequestBody MerchandiseVo vo) {
+        return adminMerchandiseService.addNumber(vo);
     }
 
 }

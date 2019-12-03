@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.dto.MerchandiseAllinone;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
+import org.linlinjava.litemall.admin.beans.vo.MerchandiseVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallMerchandise;
@@ -12,6 +13,7 @@ import org.linlinjava.litemall.db.domain.LitemallShopMerchandise;
 import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -132,7 +134,27 @@ public class AdminMerchandiseService {
 
     }
 
+    /**
+     * TODO 此处没有使用乐观锁判断数据更新，可能存在库存问题
+     *
+     * @param vo
+     * @return
+     */
+    @Transactional
+    public Object addNumber(MerchandiseVo vo) {
+        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(vo.getId());
+
+        LitemallMerchandise updateData = new LitemallMerchandise();
+        updateData.setId(vo.getId());
+        updateData.setNumber(vo.getNumber() + litemallMerchandise.getNumber());
+        litemallMerchandise.setUpdateUserId(getLitemallAdmin().getId());
+        merchandiseService.updateById(updateData);
+        return ResponseUtil.ok();
+    }
+
     private LitemallAdmin getLitemallAdmin() {
         return (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
     }
+
+
 }

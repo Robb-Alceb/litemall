@@ -16,9 +16,11 @@ import org.linlinjava.litemall.core.util.IpUtil;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
+import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallPermissionService;
 import org.linlinjava.litemall.db.service.LitemallRoleService;
+import org.linlinjava.litemall.db.service.LitemallShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
@@ -43,6 +45,8 @@ public class AdminAuthController {
     private LitemallRoleService roleService;
     @Autowired
     private LitemallPermissionService permissionService;
+    @Autowired
+    private LitemallShopService litemallShopService;
     @Autowired
     private LogHelper logHelper;
 
@@ -116,6 +120,9 @@ public class AdminAuthController {
         Map<String, Object> data = new HashMap<>();
         data.put("name", admin.getUsername());
         data.put("avatar", admin.getAvatar());
+
+        LitemallShop shop = litemallShopService.findById(admin.getShopId());
+        data.put("shop", shop);
 
         Integer[] roleIds = admin.getRoleIds();
         Set<String> roles = roleService.queryByIds(roleIds);

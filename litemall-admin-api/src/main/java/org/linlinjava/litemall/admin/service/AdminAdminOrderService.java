@@ -162,7 +162,8 @@ public class AdminAdminOrderService {
         //货品数量返回
         LitemallMerchandise m = new LitemallMerchandise();
         m.setId(adminOrderVo.getMerchandiseId());
-        m.setNumber(m.getNumber() + adminOrderVo.getNumber());
+        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
+        m.setNumber(litemallMerchandise.getNumber() + adminOrderVo.getNumber());
         merchandiseService.updateById(m);
     }
 

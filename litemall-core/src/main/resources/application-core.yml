@@ -113,10 +113,14 @@ litemall:
       secretKey: xxxxxx
       bucketName: litemall
   paypal:
-    mode: sandbox
+    mode: live
     client:
-      app: AeiR5dIbE1oYoiRl9cfUSigkoWqBjXjdzR2cCUQgplZDGIipof2-IpwLC06EVPkq0GpLc6swIPfMvmrw
-      secret: EM6dIFvtDOrJmDbtU2D5ozOCp_qPXWDYioJ1nQ2XmUqrKcd4GKNTauMpnOj5mOqOkdKPDm_qfGlRmdZ3
+      #senbox
+      #app: AeiR5dIbE1oYoiRl9cfUSigkoWqBjXjdzR2cCUQgplZDGIipof2-IpwLC06EVPkq0GpLc6swIPfMvmrw
+      #secret: EM6dIFvtDOrJmDbtU2D5ozOCp_qPXWDYioJ1nQ2XmUqrKcd4GKNTauMpnOj5mOqOkdKPDm_qfGlRmdZ3
+      #live
+      app: Aaqt5dKq4GHNKIuCHL4OWLUXFkCYVlCYJSVEsMP4ZcPsNkTOUNZ6Qdb1N2ULeHj3Riu8gQtVpU3io9YX
+      secret: EDg84jMvetcZm-Ae1NCPxR6kK0IlDk_AQM_0QeWqA6EB5K7Z02P-cGgHOEspo7Q9VPkWiYLUXBYJFfVD
     callback:
       success: http://192.168.0.101:8080/paypal/success
       cancel: http://192.168.0.101:8080/paypal/calcel

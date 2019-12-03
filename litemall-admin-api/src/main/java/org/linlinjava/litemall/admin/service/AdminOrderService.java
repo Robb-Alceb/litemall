@@ -1,6 +1,5 @@
 package org.linlinjava.litemall.admin.service;
 
-import com.alibaba.fastjson.JSON;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
@@ -22,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -263,16 +263,22 @@ public class AdminOrderService {
     }
 
     public Object goodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId){
-//        //订单数据
-//        LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTime, endTime, shopId);
-//        if(!ObjectUtils.isEmpty(litemallOrder)){
-//
-//        }
+        //订单数据
+        LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTime, endTime, shopId);
+        if(ObjectUtils.isEmpty(litemallOrder)){
+            return null;
+        }
         Map<String, Object> map = Maps.newHashMap();
         //商品订单统计
         List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTime, endTime, shopId));
+        //商品统计
+        map.put("orderGoods", orderGoods);
         //类目统计
-        //添加类目数据
+        map.put("categorys", getCategory(orderGoods));
+        return ResponseUtil.ok(map);
+    }
+
+    private List<OrderGoodsVo> getCategory(List<LitemallOrderGoods> orderGoods) {
         List<OrderGoodsVo> orderGoodsVos = new ArrayList<>();
         orderGoods.stream().forEach(og->{
             OrderGoodsVo orderGoodsVo = new OrderGoodsVo();
@@ -280,6 +286,7 @@ public class AdminOrderService {
             BeanUtils.copyProperties(og, orderGoodsVo);
             orderGoodsVo.setCategoryId(category.getId());
             orderGoodsVo.setCategoryName(category.getName());
+            orderGoodsVo.setNumber(og.getNumber());
             orderGoodsVos.add(orderGoodsVo);
         });
 
@@ -296,10 +303,7 @@ public class AdminOrderService {
                 ordergoodsVolist.add(lrgs.get(0));
             }
         });
-        //商品统计
-        map.put("orderGoods", orderGoods);
-        map.put("categorys", ordergoodsVolist);
-        return ResponseUtil.ok(map);
+        return ordergoodsVolist;
     }
 
     /**

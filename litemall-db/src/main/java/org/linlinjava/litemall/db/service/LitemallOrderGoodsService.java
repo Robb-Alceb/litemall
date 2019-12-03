@@ -4,6 +4,7 @@ import org.linlinjava.litemall.db.dao.LitemallOrderGoodsMapper;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoodsExample;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -64,5 +65,16 @@ public class LitemallOrderGoodsService {
         LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
         example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
         return orderGoodsMapper.countByExample(example) != 0;
+    }
+
+    public List<LitemallOrderGoods> queryGoodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId) {
+        LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
+        LitemallOrderGoodsExample.Criteria criteria = example.or();
+        if(!ObjectUtils.isEmpty(shopId)){
+            criteria.andShopIdEqualTo(shopId);
+        }
+//        criteria.andAddTimeBetween(startTime, endTime);
+        criteria.andDeletedEqualTo(false);
+        return orderGoodsMapper.selectByExample(example);
     }
 }

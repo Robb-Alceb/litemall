@@ -1,6 +1,5 @@
 package org.linlinjava.litemall.admin.web;
 
-import io.swagger.models.auth.In;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -14,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -100,4 +100,15 @@ public class AdminOrderController {
         return adminOrderService.reply(body);
     }
 
+    /**
+     * 商品统计
+     *
+     * @return
+     */
+    @RequiresPermissions("admin:order:goodsStatistics")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
+    @GetMapping("/goodsStatistics")
+    public Object goodsStatistics(LocalDateTime startTime,  LocalDateTime endTime, @LoginAdminShopId Integer shopId){
+        return adminOrderService.goodsStatistics(startTime, endTime, shopId);
+    }
 }

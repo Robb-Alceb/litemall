@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderExample;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -204,5 +205,16 @@ public class LitemallOrderService {
         LitemallOrderExample example = new LitemallOrderExample();
         example.or().andCommentsGreaterThan((short) 0).andConfirmTimeLessThan(expired).andDeletedEqualTo(false);
         return litemallOrderMapper.selectByExample(example);
+    }
+
+    public LitemallOrder queryGoodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId){
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.or();
+        if(!ObjectUtils.isEmpty(shopId)){
+            criteria.andShopIdEqualTo(shopId);
+        }
+        criteria.andAddTimeBetween(startTime, endTime);
+        criteria.andDeletedEqualTo(false);
+        return litemallOrderMapper.selectOneByExample(example);
     }
 }

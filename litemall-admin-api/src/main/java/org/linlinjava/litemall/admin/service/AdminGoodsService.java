@@ -129,10 +129,10 @@ public class AdminGoodsService {
                 return ResponseUtil.badArgument();
             }
 
-/*            BigDecimal price = product.getPrice();
+            BigDecimal price = product.getSellPrice();
             if (price == null) {
                 return ResponseUtil.badArgument();
-            }*/
+            }
 
             String[] productSpecifications = product.getSpecifications();
             if (productSpecifications.length == 0) {

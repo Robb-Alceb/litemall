@@ -1,26 +1,34 @@
 package org.linlinjava.litemall.admin.service;
 
+import com.alibaba.fastjson.JSON;
 import com.github.binarywang.wxpay.service.WxPayService;
+import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallComment;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.OrderUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
@@ -49,6 +57,10 @@ public class AdminOrderService {
     private LitemallAdminOrderService adminOrderService;
     @Autowired
     private PaypalService paypalService;
+    @Autowired
+    private LitemallCategoryService categoryService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
     /**
      * 订单列表
@@ -250,4 +262,66 @@ public class AdminOrderService {
         return ResponseUtil.ok();
     }
 
+    public Object goodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId){
+//        //订单数据
+//        LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTime, endTime, shopId);
+//        if(!ObjectUtils.isEmpty(litemallOrder)){
+//
+//        }
+        Map<String, Object> map = Maps.newHashMap();
+        //商品订单统计
+        List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTime, endTime, shopId));
+        //类目统计
+        //添加类目数据
+        List<OrderGoodsVo> orderGoodsVos = new ArrayList<>();
+        orderGoods.stream().forEach(og->{
+            OrderGoodsVo orderGoodsVo = new OrderGoodsVo();
+            LitemallCategory category = categoryService.findById(goodsService.findById(og.getGoodsId()).getCategoryId());
+            BeanUtils.copyProperties(og, orderGoodsVo);
+            orderGoodsVo.setCategoryId(category.getId());
+            orderGoodsVo.setCategoryName(category.getName());
+            orderGoodsVos.add(orderGoodsVo);
+        });
+
+        List<OrderGoodsVo> ordergoodsVolist = new ArrayList<>();
+        Map<Integer, List<OrderGoodsVo>> collect = orderGoodsVos.stream().collect(Collectors.groupingBy(OrderGoodsVo::getCategoryId));
+        collect.keySet().forEach(key->{
+            List<OrderGoodsVo> lrgs = collect.get(key);
+            if(lrgs.size()>1){
+                OrderGoodsVo orderGoodsVo = new OrderGoodsVo();
+                BeanUtils.copyProperties(lrgs.get(0), orderGoodsVo);
+                orderGoodsVo.setNumber((short)(lrgs.stream().mapToInt(OrderGoodsVo::getNumber).sum()));
+                ordergoodsVolist.add(orderGoodsVo);
+            }else{
+                ordergoodsVolist.add(lrgs.get(0));
+            }
+        });
+        //商品统计
+        map.put("orderGoods", orderGoods);
+        map.put("categorys", ordergoodsVolist);
+        return ResponseUtil.ok(map);
+    }
+
+    /**
+     * //商品订单 分组求和
+     * @param orderGoodsList
+     * @return
+     */
+    private List<LitemallOrderGoods> getOrderGoods(List<LitemallOrderGoods> orderGoodsList) {
+        List<LitemallOrderGoods> orderGoodss = new ArrayList<>();
+        Map<Integer, List<LitemallOrderGoods>> collect = orderGoodsList.stream().collect(Collectors.groupingBy(LitemallOrderGoods::getGoodsId));
+        collect.keySet().forEach(key->{
+            List<LitemallOrderGoods> lrgs = collect.get(key);
+            if(lrgs.size()>1){
+                LitemallOrderGoods orderGoods = new LitemallOrderGoods();
+                BeanUtils.copyProperties(lrgs.get(0), orderGoods);
+                int intStream = lrgs.stream().mapToInt(LitemallOrderGoods::getNumber).sum();
+                orderGoods.setNumber((short)intStream);
+                orderGoodss.add(orderGoods);
+            }else{
+                orderGoodss.add(lrgs.get(0));
+            }
+        });
+        return orderGoodss;
+    }
 }

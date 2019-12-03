@@ -106,8 +106,8 @@ public class WxOrderService {
     private CouponVerifyService couponVerifyService;
     @Autowired
     private LitemallGoodsService goodsService;
-    @Autowired
-    private LitemallShopGoodsService shopGoodsService;
+//    @Autowired
+//    private LitemallShopGoodsService shopGoodsService;
 
     /**
      * 订单列表
@@ -303,7 +303,7 @@ public class WxOrderService {
             Integer shopId = checkGoods.getShopId();
             Integer goodsId = checkGoods.getGoodsId();
             LitemallGoods litemallGoods = goodsService.findById(goodsId);
-            LitemallShopGoods litemallShopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, goodsId);
+//            LitemallShopGoods litemallShopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, goodsId);
             if(litemallGoods.getRetailPrice().compareTo(checkGoods.getPrice()) != 0){
                 return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
             }
@@ -313,9 +313,9 @@ public class WxOrderService {
             } else {
                 checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
             }
-            if(litemallShopGoods.getTax().compareTo(checkGoods.getTaxPrice()) != 0){
-                return ResponseUtil.fail(GOODS_TAX_CHANGE,"商品税费已更新，请重新添加商品");
-            }
+//            if(litemallShopGoods.getTax().compareTo(checkGoods.getTaxPrice()) != 0){
+//                return ResponseUtil.fail(GOODS_TAX_CHANGE,"商品税费已更新，请重新添加商品");
+//            }
             taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
         }
 

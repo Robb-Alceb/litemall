@@ -94,7 +94,7 @@ public class AdminShopController {
      * @param shop
      * @return
      */
-    @RequiresPermissions("admin:goods:create")
+    @RequiresPermissions("admin:shop:create")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "新增")
     @PostMapping("/create")
     public Object create(@RequestBody ShopDto shop) {
@@ -122,6 +122,7 @@ public class AdminShopController {
      * @return
      */
     @RequiresPermissions("admin:shop:allForPerm")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "所有有权限门店")
     @GetMapping("/allForPerm")
     public Object all(@LoginAdminShopId Integer id) {
         List<LitemallShop> shops = shopService.all(id);

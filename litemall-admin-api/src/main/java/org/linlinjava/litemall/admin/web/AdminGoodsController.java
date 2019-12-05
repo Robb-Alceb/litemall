@@ -85,7 +85,7 @@ public class AdminGoodsController {
      * @return
      */
     @RequiresPermissions("admin:goods:create")
-    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新增")
     @PostMapping("/create")
     public Object create(@RequestBody GoodsAllinone goodsAllinone) {
         return adminGoodsService.create(goodsAllinone);

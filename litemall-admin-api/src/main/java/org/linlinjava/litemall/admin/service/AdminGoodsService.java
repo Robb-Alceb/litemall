@@ -134,10 +134,10 @@ public class AdminGoodsService {
                 return ResponseUtil.badArgument();
             }
 
-            String[] productSpecifications = product.getSpecifications();
+/*            String[] productSpecifications = product.getSpecifications();
             if (productSpecifications.length == 0) {
                 return ResponseUtil.badArgument();
-            }
+            }*/
         }
 
         return null;

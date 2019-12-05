@@ -7,13 +7,18 @@ import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.service.ShopService;
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: robb
@@ -108,5 +113,18 @@ public class AdminShopController {
     public Object detail(@NotNull @LoginAdminShopId Integer id) {
         return shopService.detail(id);
 
+    }
+
+    /**
+     * 所有门店
+     *
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:shop:allForPerm")
+    @GetMapping("/allForPerm")
+    public Object all(@LoginAdminShopId Integer id) {
+        List<LitemallShop> shops = shopService.all(id);
+        return ResponseUtil.okList(shops);
     }
 }

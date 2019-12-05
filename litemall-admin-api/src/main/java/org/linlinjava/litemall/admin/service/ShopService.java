@@ -196,4 +196,13 @@ public class ShopService {
         admin.setShopId(shopId);
         litemallAdminService.updateById(admin);
     }
+
+    public List<LitemallShop> all(Integer id) {
+        if(null != id){
+            ArrayList<LitemallShop> rtn = new ArrayList<>();
+            rtn.add(litemallShopService.findById(id));
+            return rtn;
+        }
+        return litemallShopService.all();
+    }
 }

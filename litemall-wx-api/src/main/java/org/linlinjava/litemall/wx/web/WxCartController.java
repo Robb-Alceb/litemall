@@ -135,7 +135,7 @@ public class WxCartController {
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
             cart.setPrice(product.getSellPrice());
-            cart.setSpecifications(product.getSpecifications());
+//            cart.setSpecifications(product.getSpecifications());
             cart.setUserId(userId);
             cart.setChecked(true);
             cartService.add(cart);
@@ -203,7 +203,7 @@ public class WxCartController {
             cart.setGoodsSn(goods.getGoodsSn());
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
-            cart.setSpecifications(product.getSpecifications());
+//            cart.setSpecifications(product.getSpecifications());
             cart.setUserId(userId);
             cart.setChecked(true);
             cartService.add(cart);

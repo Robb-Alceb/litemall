@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.beans.dto.GoodsReviewDto;
+import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
@@ -388,6 +389,42 @@ public class AdminGoodsService {
     public Object queryGoodsLogList(Integer goodsId, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
         return ResponseUtil.okList(goodsLogService.querySelective(goodsId, userName, content, page, limit, sort, order));
+    }
+
+    public Object updateGoodsStatus( GoodsStatusDto goodsStatusDto, Integer shopId){
+        LitemallGoods goods = new LitemallGoods();
+        goods.setId(goodsStatusDto.getId());
+        if(null != goodsStatusDto.getIsHot()){
+            if(goodsStatusDto.getIsHot()){
+                saveGoodsLog(goods, Constants.GOODS_COMMENTED);
+            }else{
+                saveGoodsLog(goods, Constants.GOODS_COMMENTED_NOT);
+            }
+            goods.setIsHot(goodsStatusDto.getIsHot());
+        }
+        if(null != goodsStatusDto.getIsNew()){
+            if(goodsStatusDto.getIsNew()){
+                saveGoodsLog(goods, Constants.GOODS_NEW);
+            }else{
+                saveGoodsLog(goods, Constants.GOODS_NEW_NOT);
+            }
+            goods.setIsNew(goodsStatusDto.getIsNew());
+        }
+        if(null != goodsStatusDto.getIsOnSale()){
+            if(goodsStatusDto.getIsOnSale()){
+                saveGoodsLog(goods, Constants.GOODS_PUSH);
+            }else{
+                saveGoodsLog(goods, Constants.GOODS_PUSH);
+            }
+            goods.setIsOnSale(goodsStatusDto.getIsOnSale());
+        }
+        if(null != shopId){
+            goods.setShopId(shopId);
+            goodsService.updateByIdAndShop(goods);
+            return ResponseUtil.ok();
+        }else{
+            return goodsService.updateById(goods);
+        }
     }
 
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {

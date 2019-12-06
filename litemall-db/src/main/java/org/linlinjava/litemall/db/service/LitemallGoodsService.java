@@ -191,6 +191,12 @@ public class LitemallGoodsService {
         return goodsMapper.updateByPrimaryKeySelective(goods);
     }
 
+    public int updateByIdAndShop(LitemallGoods goods) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIdEqualTo(goods.getId()).andShopIdEqualTo(goods.getShopId()).andDeletedEqualTo(false);
+        return goodsMapper.updateByExampleSelective(goods, example);
+    }
+
     public void deleteById(Integer id) {
         goodsMapper.logicalDeleteByPrimaryKey(id);
     }

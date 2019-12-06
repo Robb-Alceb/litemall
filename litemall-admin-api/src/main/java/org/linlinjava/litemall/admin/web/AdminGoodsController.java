@@ -6,6 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
+import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
@@ -116,5 +117,47 @@ public class AdminGoodsController {
     public Object queryGoodsLogList(Integer goodsId, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
         return adminGoodsService.queryGoodsLogList(goodsId, userName, content, page, limit, sort, order);
+    }
+
+    /**
+     * 商品上架/下架
+     *
+     * @param goodsStatusDto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:push")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架/下架")
+    @PutMapping("/push")
+    public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
+
+    }
+
+    /**
+     * 商品新品/非新品
+     *
+     * @param goodsStatusDto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:newProduce")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新品/非新品")
+    @PutMapping("/newProduce")
+    public Object newProduce(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
+
+    }
+
+    /**
+     * 商品推荐/非推荐
+     *
+     * @param goodsStatusDto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:recommend")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "推荐/非推荐")
+    @PutMapping("/recommend")
+    public Object recommend(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
+
     }
 }

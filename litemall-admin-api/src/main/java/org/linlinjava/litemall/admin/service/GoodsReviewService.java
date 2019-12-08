@@ -70,9 +70,9 @@ public class GoodsReviewService {
         String content = StringUtils.isEmpty(goodsReviewDto.getContent())?"":goodsReviewDto.getContent();
         if(!ObjectUtils.isEmpty(type)){
             if(type == Constants.GOODS_REVIEW_APPROVE){
-                log.setContent(Constants.LogMessage.GOODS_REVIEW_APPROVE_LOG + content);
+                log.setContent(Constants.LogMessage.GOODS_REVIEW_APPROVE_LOG.getValue() + content);
             }else if(type == Constants.GOODS_REVIEW_REJECT){
-                log.setContent(Constants.LogMessage.GOODS_REVIEW_REJECT_LOG + content);
+                log.setContent(Constants.LogMessage.GOODS_REVIEW_REJECT_LOG.getValue() + content);
             }
         }
         goodsLogService.add(log);

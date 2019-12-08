@@ -19,12 +19,12 @@ public class LitemallGoodsLadderPriceService {
     }
     public List<LitemallGoodsLadderPrice> queryByGoodsId(Integer goodsId){
         LitemallGoodsLadderPriceExample example = new LitemallGoodsLadderPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andLogicalDeleted(true).andGoodsIdEqualTo(goodsId);
         return goodsLadderPriceMapper.selectByExample(example);
     }
     public void deleteByGoodsId(Integer goodsId){
         LitemallGoodsLadderPriceExample example = new LitemallGoodsLadderPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andGoodsIdEqualTo(goodsId);
         goodsLadderPriceMapper.logicalDeleteByExample(example);
 
     }

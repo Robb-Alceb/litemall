@@ -11,6 +11,8 @@ public class GoodsVo {
     private Integer id;
     //门店id
     private Integer shopId;
+    //门店名
+    private String shopName;
     //门店商品id
     private Integer shopGoodsId;
     //商品编号

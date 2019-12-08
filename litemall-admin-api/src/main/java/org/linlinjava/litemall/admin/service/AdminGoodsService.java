@@ -155,9 +155,9 @@ public class AdminGoodsService {
      * <p>
      * TODO
      * 目前商品修改的逻辑是
-     * 1. 更新litemall_goods、litemall_goods_product、litemall_vip_goods_price表
-     * 2. 逻辑删除litemall_goods_specification、litemall_goods_attribute、litemall_goods_ladder_price、litemall_goods_max_minus_price
-     * 3. 添加litemall_goods_specification、litemall_goods_attribute、litemall_goods_product、litemall_goods_ladder_price、litemall_goods_max_minus_price
+     * 1. 更新litemall_goods、litemall_goods_product、
+     * 2. 逻辑删除litemall_goods_specification、litemall_goods_attribute、litemall_goods_ladder_price、litemall_goods_max_minus_price、litemall_vip_goods_price表
+     * 3. 添加litemall_goods_specification、litemall_goods_attribute、litemall_goods_product、litemall_goods_ladder_price、litemall_goods_max_minus_price、litemall_vip_goods_price表
      * <p>
      * 这里商品5个表的数据采用删除再添加的策略是因为
      * 商品编辑页面，支持管理员添加删除商品规格、添加删除商品属性，因此这里仅仅更新是不可能的，
@@ -217,31 +217,35 @@ public class AdminGoodsService {
         // 商品货品表litemall_product
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
-            productService.add(product);
+            productService.updateByGoodsId(product);
         }
 
         if(null != vipGoodsPrice){
             if(vipGoodsPrice.getDiamondVipPrice() != null && vipGoodsPrice.getGoldVipPrice() != null || vipGoodsPrice.getPlatinumVipPrice() != null || vipGoodsPrice.getSilverVipPrice() != null){
                 vipGoodsPrice.setGoodsId(goods.getId());
                 vipGoodsPrice.setGoodsName(goods.getName());
-                vipGoodsService.updateByGoodsId(vipGoodsPrice);
+                vipGoodsService.add(vipGoodsPrice);
             }
         }
 
 
-        for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
-            if(null != ladderPrice.getNumber() && null != ladderPrice.getPrice()){
-                ladderPrice.setGoodsId(goods.getId());
-                ladderPrice.setGoodsName(goods.getName());
-                goodsLadderPriceService.add(ladderPrice);
+        if(null != ladderPrices){
+            for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
+                if(null != ladderPrice.getNumber() && null != ladderPrice.getPrice()){
+                    ladderPrice.setGoodsId(goods.getId());
+                    ladderPrice.setGoodsName(goods.getName());
+                    goodsLadderPriceService.add(ladderPrice);
+                }
             }
         }
 
-        for(LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices){
-            if(null != maxMinusPrice.getMaxPrice() && null != maxMinusPrice.getMinusPrice()) {
-                maxMinusPrice.setGoodsId(goods.getId());
-                maxMinusPrice.setGoodsName(goods.getName());
-                goodsMaxMinusPriceService.add(maxMinusPrice);
+        if(null != maxMinusPrices) {
+            for (LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices) {
+                if (null != maxMinusPrice.getMaxPrice() && null != maxMinusPrice.getMinusPrice()) {
+                    maxMinusPrice.setGoodsId(goods.getId());
+                    maxMinusPrice.setGoodsName(goods.getName());
+                    goodsMaxMinusPriceService.add(maxMinusPrice);
+                }
             }
         }
 
@@ -288,8 +292,9 @@ public class AdminGoodsService {
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
 
         String name = goods.getName();
-        if (goodsService.checkExistByName(name)) {
-            return ResponseUtil.fail(GOODS_NAME_EXIST, "商品名已经存在");
+        Integer shopId = goods.getShopId();
+        if (goodsService.checkExistByName(shopId, name)) {
+            return ResponseUtil.fail(GOODS_NAME_EXIST, "此门店商品名已经存在");
         }
 
         // 商品基本信息表litemall_goods
@@ -486,7 +491,7 @@ public class AdminGoodsService {
             if(goodsStatusDto.getIsOnSale()){
                 saveGoodsLog(goods, Constants.GOODS_PUSH);
             }else{
-                saveGoodsLog(goods, Constants.GOODS_PUSH);
+                saveGoodsLog(goods, Constants.GOODS_PUSH_NOT);
             }
             goods.setIsOnSale(goodsStatusDto.getIsOnSale());
         }
@@ -495,7 +500,8 @@ public class AdminGoodsService {
             goodsService.updateByIdAndShop(goods);
             return ResponseUtil.ok();
         }else{
-            return goodsService.updateById(goods);
+            goodsService.updateById(goods);
+            return ResponseUtil.ok();
         }
     }
 

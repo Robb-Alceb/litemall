@@ -22,12 +22,12 @@ public class LitemallGoodsMaxMinusPriceService {
     }
     public List<LitemallGoodsMaxMinusPrice> queryByGoodsId(Integer goodsId){
         LitemallGoodsMaxMinusPriceExample example = new LitemallGoodsMaxMinusPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andLogicalDeleted(true).andGoodsIdEqualTo(goodsId);
         return goodsMaxMinusPriceMapper.selectByExample(example);
     }
     public void deleteByGoodsId(Integer goodsId){
         LitemallGoodsMaxMinusPriceExample example = new LitemallGoodsMaxMinusPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andGoodsIdEqualTo(goodsId);
         goodsMaxMinusPriceMapper.logicalDeleteByExample(example);
 
     }

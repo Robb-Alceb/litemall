@@ -49,6 +49,12 @@ public class LitemallShopMerchandiseService {
         return litemallShopMerchandiseMapper.selectOneByExample(merchandise);
     }
 
+    public LitemallShopMerchandise queryBySn(String merchandiseSn, Integer shopId) {
+        LitemallShopMerchandiseExample merchandise = new LitemallShopMerchandiseExample();
+        merchandise.or().andMerchandiseSnEqualTo(merchandiseSn).andLogicalDeleted(false).andShopIdEqualTo(shopId);
+        return litemallShopMerchandiseMapper.selectOneByExample(merchandise);
+    }
+
     public void deleteById(Integer id) {
         LitemallShopMerchandiseExample merchandise = new LitemallShopMerchandiseExample();
         merchandise.or().andIdEqualTo(id);

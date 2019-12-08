@@ -18,12 +18,12 @@ public class LitemallVipGoodsService {
     }
     public LitemallVipGoodsPrice queryByGoodsId(Integer goodsId){
         LitemallVipGoodsPriceExample example = new LitemallVipGoodsPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andLogicalDeleted(true).andGoodsIdEqualTo(goodsId);
         return vipGoodsPriceMapper.selectOneByExample(example);
     }
     public void deleteByGoodsId(Integer goodsId){
         LitemallVipGoodsPriceExample example = new LitemallVipGoodsPriceExample();
-        example.or().andLogicalDeleted(false).andGoodsIdEqualTo(goodsId);
+        example.or().andGoodsIdEqualTo(goodsId);
         vipGoodsPriceMapper.logicalDeleteByExample(example);
 
     }

@@ -11,6 +11,7 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallShop;
+import org.linlinjava.litemall.db.service.LitemallShopMerchandiseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,8 @@ public class AdminShopController {
 
     @Autowired
     private ShopService shopService;
+    @Autowired
+    private LitemallShopMerchandiseService shopMerchandiseService;
 
     /**
      * 查询门店
@@ -127,5 +130,18 @@ public class AdminShopController {
     public Object all(@LoginAdminShopId Integer id) {
         List<LitemallShop> shops = shopService.all(id);
         return ResponseUtil.okList(shops);
+    }
+
+    /**
+     * 门店货品库存
+     *
+     * @param id
+     * @return
+     */
+//    @RequiresPermissions("admin:shop:merchandiseNumber")
+//    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店库存数量")
+    @GetMapping("/merchandiseNumber")
+    public Object all(@LoginAdminShopId Integer id, String merchandiseSn) {
+        return ResponseUtil.ok(shopMerchandiseService.queryBySn(merchandiseSn, id));
     }
 }

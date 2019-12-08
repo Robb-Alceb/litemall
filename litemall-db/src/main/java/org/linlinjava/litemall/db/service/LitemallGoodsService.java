@@ -252,9 +252,9 @@ public class LitemallGoodsService {
         return cats;
     }
 
-    public boolean checkExistByName(String name) {
+    public boolean checkExistByName(Integer shopId, String name) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andNameEqualTo(name).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andNameEqualTo(name).andShopIdEqualTo(shopId).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         return goodsMapper.countByExample(example) != 0;
     }
 

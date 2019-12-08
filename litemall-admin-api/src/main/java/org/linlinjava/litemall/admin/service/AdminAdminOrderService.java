@@ -35,6 +35,8 @@ public class AdminAdminOrderService {
     private LitemallShopService shopService;
     @Autowired
     private LitemallMerchandiseLogService merchandiseLogService;
+    @Autowired
+    private LitemallShopMerchandiseService shopMerchandiseService;
 
 
     /**

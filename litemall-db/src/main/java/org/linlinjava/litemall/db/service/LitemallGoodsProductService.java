@@ -38,6 +38,13 @@ public class LitemallGoodsProductService {
         litemallGoodsProductMapper.insertSelective(goodsProduct);
     }
 
+    public int updateByGoodsId(LitemallGoodsProduct goodsProduct) {
+        LitemallGoodsProductExample example = new LitemallGoodsProductExample();
+        example.or().andDeletedEqualTo(false).andGoodsIdEqualTo(goodsProduct.getGoodsId());
+        goodsProduct.setUpdateTime(LocalDateTime.now());
+        return litemallGoodsProductMapper.updateByExampleSelective(goodsProduct, example);
+    }
+
     public int count() {
         LitemallGoodsProductExample example = new LitemallGoodsProductExample();
         example.or().andDeletedEqualTo(false);

@@ -28,6 +28,7 @@
     <result column="is_return" jdbcType="BIT" property="isReturn" />
     <result column="is_distribution" jdbcType="BIT" property="isDistribution" />
     <result column="distribution_fee" jdbcType="DECIMAL" property="distributionFee" />
+    <result column="price_type" jdbcType="TINYINT" property="priceType" />
     <result column="is_vip_price" jdbcType="BIT" property="isVipPrice" />
     <result column="is_activity_price" jdbcType="BIT" property="isActivityPrice" />
     <result column="unit" jdbcType="VARCHAR" property="unit" />
@@ -157,9 +158,9 @@
     -->
     id, shop_id, shop_name, goods_sn, `name`, subhead, category_id, brand_id, gallery, 
     keywords, brief, is_on_sale, goods_type, review_type, sort_order, pic_url, share_url, 
-    is_new, is_hot, is_return, is_distribution, distribution_fee, is_vip_price, is_activity_price, 
-    unit, counter_price, retail_price, tax, give_away_points, add_time, update_time, 
-    deleted
+    is_new, is_hot, is_return, is_distribution, distribution_fee, price_type, is_vip_price, 
+    is_activity_price, unit, counter_price, retail_price, tax, give_away_points, add_time, 
+    update_time, deleted
   </sql>
   <sql id="Blob_Column_List">
     <!--
@@ -322,11 +323,11 @@
       goods_type, review_type, sort_order, 
       pic_url, share_url, is_new, 
       is_hot, is_return, is_distribution, 
-      distribution_fee, is_vip_price, is_activity_price, 
-      unit, counter_price, retail_price, 
-      tax, give_away_points, add_time, 
-      update_time, deleted, detail
-      )
+      distribution_fee, price_type, is_vip_price, 
+      is_activity_price, unit, counter_price, 
+      retail_price, tax, give_away_points, 
+      add_time, update_time, deleted, 
+      detail)
     values (#{shopId,jdbcType=INTEGER}, #{shopName,jdbcType=VARCHAR}, #{goodsSn,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{subhead,jdbcType=VARCHAR}, #{categoryId,jdbcType=INTEGER}, 
       #{brandId,jdbcType=INTEGER}, #{gallery,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler}, 
@@ -334,11 +335,11 @@
       #{goodsType,jdbcType=TINYINT}, #{reviewType,jdbcType=TINYINT}, #{sortOrder,jdbcType=SMALLINT}, 
       #{picUrl,jdbcType=VARCHAR}, #{shareUrl,jdbcType=VARCHAR}, #{isNew,jdbcType=BIT}, 
       #{isHot,jdbcType=BIT}, #{isReturn,jdbcType=BIT}, #{isDistribution,jdbcType=BIT}, 
-      #{distributionFee,jdbcType=DECIMAL}, #{isVipPrice,jdbcType=BIT}, #{isActivityPrice,jdbcType=BIT}, 
-      #{unit,jdbcType=VARCHAR}, #{counterPrice,jdbcType=DECIMAL}, #{retailPrice,jdbcType=DECIMAL}, 
-      #{tax,jdbcType=DECIMAL}, #{giveAwayPoints,jdbcType=DECIMAL}, #{addTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{detail,jdbcType=LONGVARCHAR}
-      )
+      #{distributionFee,jdbcType=DECIMAL}, #{priceType,jdbcType=TINYINT}, #{isVipPrice,jdbcType=BIT}, 
+      #{isActivityPrice,jdbcType=BIT}, #{unit,jdbcType=VARCHAR}, #{counterPrice,jdbcType=DECIMAL}, 
+      #{retailPrice,jdbcType=DECIMAL}, #{tax,jdbcType=DECIMAL}, #{giveAwayPoints,jdbcType=DECIMAL}, 
+      #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, 
+      #{detail,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallGoods">
     <!--
@@ -412,6 +413,9 @@
       </if>
       <if test="distributionFee != null">
         distribution_fee,
+      </if>
+      <if test="priceType != null">
+        price_type,
       </if>
       <if test="isVipPrice != null">
         is_vip_price,
@@ -510,6 +514,9 @@
       </if>
       <if test="distributionFee != null">
         #{distributionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="priceType != null">
+        #{priceType,jdbcType=TINYINT},
       </if>
       <if test="isVipPrice != null">
         #{isVipPrice,jdbcType=BIT},
@@ -629,6 +636,9 @@
       <if test="record.distributionFee != null">
         distribution_fee = #{record.distributionFee,jdbcType=DECIMAL},
       </if>
+      <if test="record.priceType != null">
+        price_type = #{record.priceType,jdbcType=TINYINT},
+      </if>
       <if test="record.isVipPrice != null">
         is_vip_price = #{record.isVipPrice,jdbcType=BIT},
       </if>
@@ -695,6 +705,7 @@
       is_return = #{record.isReturn,jdbcType=BIT},
       is_distribution = #{record.isDistribution,jdbcType=BIT},
       distribution_fee = #{record.distributionFee,jdbcType=DECIMAL},
+      price_type = #{record.priceType,jdbcType=TINYINT},
       is_vip_price = #{record.isVipPrice,jdbcType=BIT},
       is_activity_price = #{record.isActivityPrice,jdbcType=BIT},
       unit = #{record.unit,jdbcType=VARCHAR},
@@ -738,6 +749,7 @@
       is_return = #{record.isReturn,jdbcType=BIT},
       is_distribution = #{record.isDistribution,jdbcType=BIT},
       distribution_fee = #{record.distributionFee,jdbcType=DECIMAL},
+      price_type = #{record.priceType,jdbcType=TINYINT},
       is_vip_price = #{record.isVipPrice,jdbcType=BIT},
       is_activity_price = #{record.isActivityPrice,jdbcType=BIT},
       unit = #{record.unit,jdbcType=VARCHAR},
@@ -822,6 +834,9 @@
       <if test="distributionFee != null">
         distribution_fee = #{distributionFee,jdbcType=DECIMAL},
       </if>
+      <if test="priceType != null">
+        price_type = #{priceType,jdbcType=TINYINT},
+      </if>
       <if test="isVipPrice != null">
         is_vip_price = #{isVipPrice,jdbcType=BIT},
       </if>
@@ -885,6 +900,7 @@
       is_return = #{isReturn,jdbcType=BIT},
       is_distribution = #{isDistribution,jdbcType=BIT},
       distribution_fee = #{distributionFee,jdbcType=DECIMAL},
+      price_type = #{priceType,jdbcType=TINYINT},
       is_vip_price = #{isVipPrice,jdbcType=BIT},
       is_activity_price = #{isActivityPrice,jdbcType=BIT},
       unit = #{unit,jdbcType=VARCHAR},
@@ -925,6 +941,7 @@
       is_return = #{isReturn,jdbcType=BIT},
       is_distribution = #{isDistribution,jdbcType=BIT},
       distribution_fee = #{distributionFee,jdbcType=DECIMAL},
+      price_type = #{priceType,jdbcType=TINYINT},
       is_vip_price = #{isVipPrice,jdbcType=BIT},
       is_activity_price = #{isActivityPrice,jdbcType=BIT},
       unit = #{unit,jdbcType=VARCHAR},

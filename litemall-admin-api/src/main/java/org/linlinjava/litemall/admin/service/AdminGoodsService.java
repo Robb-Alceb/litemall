@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -54,6 +53,12 @@ public class AdminGoodsService {
     private LitemallGoodsLogService goodsLogService;
     @Autowired
     private GoodsReviewService goodsReviewService;
+    @Autowired
+    private LitemallVipGoodsService vipGoodsService;
+    @Autowired
+    private LitemallGoodsLadderPriceService goodsLadderPriceService;
+    @Autowired
+    private LitemallGoodsMaxMinusPriceService goodsMaxMinusPriceService;
 
     /**
      * 商品列表
@@ -141,6 +146,7 @@ public class AdminGoodsService {
             }*/
         }
 
+
         return null;
     }
 
@@ -149,16 +155,13 @@ public class AdminGoodsService {
      * <p>
      * TODO
      * 目前商品修改的逻辑是
-     * 1. 更新litemall_goods表
-     * 2. 逻辑删除litemall_goods_specification、litemall_goods_attribute、litemall_goods_product
-     * 3. 添加litemall_goods_specification、litemall_goods_attribute、litemall_goods_product
+     * 1. 更新litemall_goods、litemall_goods_product、litemall_vip_goods_price表
+     * 2. 逻辑删除litemall_goods_specification、litemall_goods_attribute、litemall_goods_ladder_price、litemall_goods_max_minus_price
+     * 3. 添加litemall_goods_specification、litemall_goods_attribute、litemall_goods_product、litemall_goods_ladder_price、litemall_goods_max_minus_price
      * <p>
-     * 这里商品三个表的数据采用删除再添加的策略是因为
+     * 这里商品5个表的数据采用删除再添加的策略是因为
      * 商品编辑页面，支持管理员添加删除商品规格、添加删除商品属性，因此这里仅仅更新是不可能的，
-     * 只能删除三个表旧的数据，然后添加新的数据。
-     * 但是这里又会引入新的问题，就是存在订单商品货品ID指向了失效的商品货品表。
-     * 因此这里会拒绝管理员编辑商品，如果订单或购物车中存在商品。
-     * 所以这里可能需要重新设计。
+     * 只能删除5个表旧的数据，然后添加新的数据。
      */
     @Transactional
     public Object update(GoodsAllinone goodsAllinone, Integer shopId) {
@@ -177,6 +180,9 @@ public class AdminGoodsService {
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
         LitemallGoodsProduct[] products = goodsAllinone.getProducts();
+        LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
+        LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
+        LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
 
         Integer id = goods.getId();
 
@@ -192,7 +198,9 @@ public class AdminGoodsService {
         Integer gid = goods.getId();
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
-        productService.deleteByGid(gid);
+//        productService.deleteByGid(gid);
+        goodsLadderPriceService.deleteByGoodsId(gid);
+        goodsMaxMinusPriceService.deleteByGoodsId(gid);
 
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {
@@ -210,6 +218,31 @@ public class AdminGoodsService {
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
             productService.add(product);
+        }
+
+        if(null != vipGoodsPrice){
+            if(vipGoodsPrice.getDiamondVipPrice() != null && vipGoodsPrice.getGoldVipPrice() != null || vipGoodsPrice.getPlatinumVipPrice() != null || vipGoodsPrice.getSilverVipPrice() != null){
+                vipGoodsPrice.setGoodsId(goods.getId());
+                vipGoodsPrice.setGoodsName(goods.getName());
+                vipGoodsService.updateByGoodsId(vipGoodsPrice);
+            }
+        }
+
+
+        for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
+            if(null != ladderPrice.getNumber() && null != ladderPrice.getPrice()){
+                ladderPrice.setGoodsId(goods.getId());
+                ladderPrice.setGoodsName(goods.getName());
+                goodsLadderPriceService.add(ladderPrice);
+            }
+        }
+
+        for(LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices){
+            if(null != maxMinusPrice.getMaxPrice() && null != maxMinusPrice.getMinusPrice()) {
+                maxMinusPrice.setGoodsId(goods.getId());
+                maxMinusPrice.setGoodsName(goods.getName());
+                goodsMaxMinusPriceService.add(maxMinusPrice);
+            }
         }
 
         return ResponseUtil.ok();
@@ -233,6 +266,9 @@ public class AdminGoodsService {
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
         productService.deleteByGid(gid);
+        goodsLadderPriceService.deleteByGoodsId(gid);
+        goodsMaxMinusPriceService.deleteByGoodsId(gid);
+        vipGoodsService.deleteByGoodsId(gid);
         return ResponseUtil.ok();
     }
 
@@ -247,6 +283,9 @@ public class AdminGoodsService {
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
         LitemallGoodsProduct[] products = goodsAllinone.getProducts();
+        LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
+        LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
+        LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
 
         String name = goods.getName();
         if (goodsService.checkExistByName(name)) {
@@ -281,6 +320,27 @@ public class AdminGoodsService {
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
             productService.add(product);
+        }
+
+        // vip价格
+        if(null != vipGoodsPrice){
+            vipGoodsPrice.setGoodsId(goods.getId());
+            vipGoodsPrice.setGoodsName(goods.getName());
+            vipGoodsService.updateByGoodsId(vipGoodsPrice);
+        }
+
+        //阶梯价格
+        for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
+            ladderPrice.setGoodsId(goods.getId());
+            ladderPrice.setGoodsName(goods.getName());
+            goodsLadderPriceService.add(ladderPrice);
+        }
+
+        //满减价格
+        for(LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices){
+            maxMinusPrice.setGoodsId(goods.getId());
+            maxMinusPrice.setGoodsName(goods.getName());
+            goodsMaxMinusPriceService.add(maxMinusPrice);
         }
         return ResponseUtil.ok();
     }
@@ -356,6 +416,9 @@ public class AdminGoodsService {
         List<LitemallGoodsProduct> products = productService.queryByGid(id);
         List<LitemallGoodsSpecification> specifications = specificationService.queryByGid(id);
         List<LitemallGoodsAttribute> attributes = attributeService.queryByGid(id);
+        LitemallVipGoodsPrice vipGoodsPrice = vipGoodsService.queryByGoodsId(id);
+        List<LitemallGoodsLadderPrice> ladderPrices = goodsLadderPriceService.queryByGoodsId(id);
+        List<LitemallGoodsMaxMinusPrice> maxMinusPrices = goodsMaxMinusPriceService.queryByGoodsId(id);
 
         Integer categoryId = goods.getCategoryId();
         LitemallCategory category = categoryService.findById(categoryId);
@@ -372,6 +435,9 @@ public class AdminGoodsService {
         data.put("products", products);
         data.put("attributes", attributes);
         data.put("categoryIds", categoryIds);
+        data.put("vipGoodsPrice", vipGoodsPrice);
+        data.put("ladderPrices", ladderPrices);
+        data.put("maxMinusPrices", maxMinusPrices);
 
         return ResponseUtil.ok(data);
     }
@@ -391,6 +457,12 @@ public class AdminGoodsService {
         return ResponseUtil.okList(goodsLogService.querySelective(goodsId, userName, content, page, limit, sort, order));
     }
 
+    /**
+     * 修改商品上架、推荐、新品
+     * @param goodsStatusDto
+     * @param shopId
+     * @return
+     */
     public Object updateGoodsStatus( GoodsStatusDto goodsStatusDto, Integer shopId){
         LitemallGoods goods = new LitemallGoods();
         goods.setId(goodsStatusDto.getId());
@@ -434,6 +506,7 @@ public class AdminGoodsService {
                 BeanUtils.copyProperties(goods, goodsVo);
                 //库存查询
                 goodsVo.setNumber(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
+                goodsVo.setRetailPrice(productService.queryByGid(goodsVo.getId()).get(0).getSellPrice());
                 //销量查询
                 List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryByGid(goodsVo.getId());
                 if(!CollectionUtils.isEmpty(litemallOrderGoods)){

@@ -5,6 +5,7 @@ import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoodsExample;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -67,13 +68,39 @@ public class LitemallOrderGoodsService {
         return orderGoodsMapper.countByExample(example) != 0;
     }
 
-    public List<LitemallOrderGoods> queryGoodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId) {
+    public List<LitemallOrderGoods> queryGoodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId, Integer goodsId) {
         LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
         LitemallOrderGoodsExample.Criteria criteria = example.or();
         if(!ObjectUtils.isEmpty(shopId)){
             criteria.andShopIdEqualTo(shopId);
         }
-//        criteria.andAddTimeBetween(startTime, endTime);
+        if(!ObjectUtils.isEmpty(goodsId)){
+            criteria.andGoodsIdEqualTo(goodsId);
+        }
+        if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+            criteria.andAddTimeBetween(startTime, endTime);
+        }
+        criteria.andDeletedEqualTo(false);
+        return orderGoodsMapper.selectByExample(example);
+    }
+
+    public List<LitemallOrderGoods> queryGoodsSalesStatistics(Integer goodsId, Integer categoryId, LocalDateTime startTime,  LocalDateTime endTime, Integer page,
+                                                         Integer limit, String sort, String order) {
+        LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
+        LitemallOrderGoodsExample.Criteria criteria = example.or();
+        if(!ObjectUtils.isEmpty(goodsId)){
+            criteria.andGoodsIdEqualTo(goodsId);
+        }
+        if(!ObjectUtils.isEmpty(categoryId)){
+            criteria.andCategoryIdEqualTo(categoryId);
+        }
+        if (!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)) {
+            criteria.andAddTimeBetween(startTime, endTime);
+        }
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+//        PageHelper.startPage(page, limit);
         criteria.andDeletedEqualTo(false);
         return orderGoodsMapper.selectByExample(example);
     }

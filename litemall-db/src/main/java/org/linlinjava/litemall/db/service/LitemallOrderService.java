@@ -217,4 +217,20 @@ public class LitemallOrderService {
         criteria.andDeletedEqualTo(false);
         return litemallOrderMapper.selectOneByExample(example);
     }
+
+    public List<Map<String, Object>>queryGoodsSales(LocalDateTime startTime, LocalDateTime endTime, Integer page, Integer limit){
+        Map<String, Object> map = new HashMap<>();
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        PageHelper.startPage(page, limit);
+        return orderMapper.queryGoodsSales(map);
+    }
+
+    public List<Map<String, Object>>queryGoodsCategorySales(LocalDateTime startTime, LocalDateTime endTime, Integer page, Integer limit){
+        Map<String, Object> map = new HashMap<>();
+        map.put("startTime", startTime);
+        map.put("endTime", endTime);
+        PageHelper.startPage(page, limit);
+        return orderMapper.queryGoodsCategorySales(map);
+    }
 }

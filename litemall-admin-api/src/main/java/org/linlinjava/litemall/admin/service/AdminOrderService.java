@@ -5,26 +5,26 @@ import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.domain.LitemallCategory;
-import org.linlinjava.litemall.db.domain.LitemallComment;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
+import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +61,8 @@ public class AdminOrderService {
     private LitemallCategoryService categoryService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallBrowseRecordService browseRecordService;
 
     /**
      * 订单列表
@@ -262,6 +264,10 @@ public class AdminOrderService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 商品统计
+     * @return
+     */
     public Object goodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId){
         //订单数据
         LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTime, endTime, shopId);
@@ -270,13 +276,90 @@ public class AdminOrderService {
         }
         Map<String, Object> map = Maps.newHashMap();
         //商品订单统计
-        List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTime, endTime, shopId));
+        List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTime, endTime, shopId, null));
         //商品统计
         map.put("orderGoods", orderGoods);
         //类目统计
         map.put("categorys", getCategory(orderGoods));
         return ResponseUtil.ok(map);
     }
+
+    /**
+     * 商品销售统计
+     * @return
+     */
+    public Object goodsSalesStatistics(String type, String startTime,  String endTime, Integer page,
+                                       Integer limit, String sort, String order){
+        if(ObjectUtils.isEmpty(type)){
+            return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
+        }
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
+        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
+
+        List<Map<String, Object>> maps;
+        if(type.equals(Constants.GOODS_TYPE)){
+            maps = getGoodsInfo(page, limit, sort, order, startTimes, endTimes);
+        }else{
+            maps = getCategoryInfo(page, limit, sort, order, startTimes, endTimes);
+        }
+
+        return ResponseUtil.okList(maps);
+    }
+
+    private List<Map<String, Object>> getCategoryInfo(Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
+        //时间段内商品类目 销售总额 goodsId, goodsName, salesNum(销售件数), actualPrice(金额)
+        List<Map<String, Object>> maps;
+        maps = orderService.queryGoodsCategorySales(startTimes, endTimes, page, limit);
+        if(!CollectionUtils.isEmpty(maps)){
+            maps.stream().forEach(map -> {
+                Integer cId = (Integer)map.get("categoryId");
+                //查询商品浏览量
+                List<LitemallBrowseRecord> litemallBrowseRecords = browseRecordService.querySelective(null, cId, startTimes, endTimes, page, limit, sort, order);
+                if(!CollectionUtils.isEmpty(litemallBrowseRecords)){
+                    //浏览人数
+                    map.put("browseUserNum", litemallBrowseRecords.size());
+                    //商品类目浏览量
+                    Integer browseNum = litemallBrowseRecords.stream().collect(Collectors.summingInt(LitemallBrowseRecord::getBrowseNumber));
+                    map.put("browseNum", browseNum);
+                    //付款人数
+                    //根据商品类目ID查询订单
+                    List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryGoodsSalesStatistics(null, cId, startTimes, endTimes, page, limit, sort, order);
+                    map.put("payUserNum", !CollectionUtils.isEmpty(litemallOrderGoods) ? litemallOrderGoods.size() : 0);
+                    //单品转化率
+                    map.put("goodsConversionRate", browseNum/Integer.valueOf((String)map.get("salesNum")));
+                }
+            });
+        }
+        return maps;
+    }
+
+    private List<Map<String, Object>> getGoodsInfo(Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
+        //时间段内商品销售总额 goodsId, goodsName, salesNum(销售件数), actualPrice(金额)
+        List<Map<String, Object>> maps = orderService.queryGoodsSales(startTimes, endTimes, page, limit);
+        if(!CollectionUtils.isEmpty(maps)){
+            maps.stream().forEach(map -> {
+                Integer gId = (Integer)map.get("goodsId");
+                //查询商品浏览量
+                List<LitemallBrowseRecord> litemallBrowseRecords = browseRecordService.querySelective(gId, null, startTimes, endTimes, page, limit, sort, order);
+                if(!CollectionUtils.isEmpty(litemallBrowseRecords)){
+                    //浏览人数
+                    map.put("browseUserNum", litemallBrowseRecords.size());
+                    //商品浏览量
+                    Integer browseNum = litemallBrowseRecords.stream().collect(Collectors.summingInt(LitemallBrowseRecord::getBrowseNumber));
+                    map.put("browseNum", browseNum);
+                    //付款人数
+                    //根据商品ID查询订单
+                    List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryGoodsStatistics(startTimes, endTimes, null, gId);
+                    map.put("payUserNum", !CollectionUtils.isEmpty(litemallOrderGoods) ? litemallOrderGoods.size() : 0);
+                    //单品转化率
+                    map.put("goodsConversionRate", browseNum/Integer.valueOf((String)map.get("salesNum")));
+                }
+            });
+        }
+        return maps;
+    }
+
 
     private List<OrderGoodsVo> getCategory(List<LitemallOrderGoods> orderGoods) {
         List<OrderGoodsVo> orderGoodsVos = new ArrayList<>();

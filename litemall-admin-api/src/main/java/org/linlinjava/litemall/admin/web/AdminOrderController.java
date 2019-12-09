@@ -123,6 +123,9 @@ public class AdminOrderController {
      * @param order
      * @return
      */
+    @RequiresPermissions("admin:order:goodsSalesStatistics")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品销售统计")
+    @GetMapping("/goodsSalesStatistics")
     public Object goodsSalesStatistics(String type, String startTime,  String endTime,
                                        @RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer limit,

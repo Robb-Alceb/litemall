@@ -122,7 +122,7 @@
         where id = #{order.id,jdbcType=INTEGER} and update_time = #{lastUpdateTime,jdbcType=INTEGER}
     </update>
 
-    <select id="queryGoodsSales" resultType="map">
+    <select id="queryGoodsSales" parameterType="map" resultType="map">
         SELECT
             g.goods_id goodsId,
             g.goods_name goodsName,
@@ -132,13 +132,12 @@
             litemall_order_goods g
         LEFT JOIN litemall_order o
         ON o.id=g.order_id
-        WHERE g.add_time BETWEEN #{startTime, jdbcType=VARCHAR} and #{endTime, jdbcType=VARCHAR}
+        WHERE g.add_time BETWEEN #{map.startTime} and #{map.endTime}
         GROUP BY g.goods_id
         ORDER BY g.add_time DESC
---         LIMIT #{page}, #{limit}
     </select>
 
-    <select id="queryGoodsCategorySales" resultType="map">
+    <select id="queryGoodsCategorySales" parameterType="map" resultType="map">
         SELECT
             g.category_id categoryId,
             g.category_name categoryName,
@@ -148,7 +147,7 @@
             litemall_order_goods g
         LEFT JOIN litemall_order o
         ON o.id=g.order_id
-        WHERE g.add_time BETWEEN #{startTime, jdbcType=VARCHAR} and #{endTime, jdbcType=VARCHAR}
+        WHERE g.add_time BETWEEN #{map.startTime} and #{map.endTime}
         GROUP BY g.category_id
         ORDER BY g.add_time DESC
     </select>

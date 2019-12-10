@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
+import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
@@ -81,7 +82,18 @@ public class AdminOrderService {
      * @return
      */
     public Object detail(Integer id) {
-        return ResponseUtil.ok(adminOrderService.queryById(id));
+        if(null == id){
+            return ResponseUtil.badArgument();
+        }
+        LitemallOrder order = orderService.findById(id);
+        Integer userId = order.getUserId();
+        UserVo user = userService.findUserVoById(userId);
+        List<LitemallOrderGoods> orderGoods = orderGoodsService.queryByOid(order.getId());
+        OrderDetailVo vo = new OrderDetailVo();
+        vo.setOrder(order);
+        vo.setOrderGoods(orderGoods);
+        vo.setUser(user);
+        return ResponseUtil.ok(vo);
     }
 
     /**

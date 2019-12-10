@@ -176,6 +176,7 @@ public class AdminGoodsService {
             return error;
         }
 
+
         LitemallGoods goods = goodsAllinone.getGoods();
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
@@ -185,6 +186,10 @@ public class AdminGoodsService {
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
 
         Integer id = goods.getId();
+        LitemallGoods litemallGoods = goodsService.findById(id);
+        if(litemallGoods.getIsOnSale()){
+            return ResponseUtil.fail(1,"商品已经上架不能修改");
+        }
 
         //将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
@@ -265,8 +270,8 @@ public class AdminGoodsService {
         }
 
         Integer gid = goods.getId();
-        goodsService.deleteById(gid);
         saveGoodsLog(goods, Constants.DELETE_GOODS);
+        goodsService.deleteById(gid);
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
         productService.deleteByGid(gid);

@@ -23,6 +23,10 @@ public class AdminResponseCode {
     public static final Integer ORDER_REFUND_FAILED = 621;
     //订单已回复
     public static final Integer ORDER_REPLY_EXIST = 622;
+    //订单不存在
+    public static final Integer ORDER_NOT_EXIST = 623;
+    //无权处理该订单
+    public static final Integer ORDER_NOT_PERMISSION = 624;
     public static final Integer USER_INVALID_NAME = 630;
     public static final Integer USER_INVALID_PASSWORD = 631;
     public static final Integer USER_INVALID_MOBILE = 632;

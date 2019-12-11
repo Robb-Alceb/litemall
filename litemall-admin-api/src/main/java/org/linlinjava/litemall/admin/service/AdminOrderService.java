@@ -4,10 +4,13 @@ import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
+import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
+import org.linlinjava.litemall.admin.beans.vo.OrderVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
@@ -64,15 +67,21 @@ public class AdminOrderService {
     private LitemallGoodsService goodsService;
     @Autowired
     private LitemallBrowseRecordService browseRecordService;
+    @Autowired
+    private LitemallOrderRecordService orderRecordService;
 
     /**
      * 订单列表
      * @return
      */
-    public Object list(Integer userId, String orderSn, List<Short> orderStatusArray,
+    public Object list(Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        return ResponseUtil.okList(orderService.querySelective(userId, orderSn, orderStatusArray, page, limit,
-                sort, order));
+        List<LitemallOrder> litemallOrders = orderService.querySelective(userId, orderSn, orderStatusArray, shopId, page, limit,
+                sort, order);
+        List<OrderVo> collect = litemallOrders.stream().map(o -> {
+            return BeanConvert.toOrderVo(o, userService.findById(o.getUserId()));
+        }).collect(Collectors.toList());
+        return ResponseUtil.okList(collect);
     }
 
 
@@ -276,6 +285,48 @@ public class AdminOrderService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 备注订单商品
+     *
+     * @param body 订单信息，{ orderId：xxx }
+     * @return 订单操作结果
+     * 成功则 { errno: 0, errmsg: '成功' }
+     * 失败则 { errno: XXX, errmsg: XXX }
+     */
+    public Object remark(String body, Integer shopId) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+        if (orderId == null || orderId == 0) {
+            return ResponseUtil.badArgument();
+        }
+        // 目前只支持回复一次
+        LitemallOrder order = orderService.findById(orderId);
+        if (order == null) {
+            return ResponseUtil.fail(ORDER_NOT_EXIST, "订单不存在！");
+        }
+        if(shopId != null){
+            if(!shopId.equals(order.getShopId())){
+                return ResponseUtil.fail(ORDER_NOT_PERMISSION, "无权处理该订单！");
+            }
+        }
+        String remark = JacksonUtil.parseString(body, "remark");
+        if (StringUtils.isEmpty(remark)) {
+            return ResponseUtil.badArgument();
+        }
+        // 创建备注
+        LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
+        LitemallOrderRecord record = new LitemallOrderRecord();
+        record.setOrderId(order.getId());
+        record.setAddUserId(admin.getId());
+        record.setOrderStatus(order.getOrderStatus());
+        record.setPayStatus(order.getPayType());
+        record.setRemark(remark);
+        record.setShipStatus(order.getShipStatus());
+        record.setUserId(admin.getId());
+        record.setUserName(admin.getNickName());
+        orderRecordService.add(record);
+
+        return ResponseUtil.ok();
+    }
     /**
      * 商品统计
      * @return

@@ -64,7 +64,7 @@ public class LitemallOrderRecord {
      *
      * @mbg.generated
      */
-    private Byte orderStatus;
+    private Short orderStatus;
 
     /**
      *
@@ -224,7 +224,7 @@ public class LitemallOrderRecord {
      *
      * @mbg.generated
      */
-    public Byte getOrderStatus() {
+    public Short getOrderStatus() {
         return orderStatus;
     }
 
@@ -236,7 +236,7 @@ public class LitemallOrderRecord {
      *
      * @mbg.generated
      */
-    public void setOrderStatus(Byte orderStatus) {
+    public void setOrderStatus(Short orderStatus) {
         this.orderStatus = orderStatus;
     }
 
@@ -557,7 +557,7 @@ public class LitemallOrderRecord {
         orderId("order_id", "orderId", "INTEGER", false),
         userId("user_id", "userId", "INTEGER", false),
         userName("user_name", "userName", "VARCHAR", false),
-        orderStatus("order_status", "orderStatus", "TINYINT", false),
+        orderStatus("order_status", "orderStatus", "SMALLINT", false),
         payStatus("pay_status", "payStatus", "TINYINT", false),
         shipStatus("ship_status", "shipStatus", "TINYINT", false),
         remark("remark", "remark", "VARCHAR", false),

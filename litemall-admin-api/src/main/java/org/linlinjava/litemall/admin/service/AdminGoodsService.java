@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_NAME_EXIST;
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_UPDATE_NOT_ALLOWED;
 
 @Service
 public class AdminGoodsService {
@@ -59,6 +60,8 @@ public class AdminGoodsService {
     private LitemallGoodsLadderPriceService goodsLadderPriceService;
     @Autowired
     private LitemallGoodsMaxMinusPriceService goodsMaxMinusPriceService;
+    @Autowired
+    private LitemallCartService cartService;
 
     /**
      * 商品列表
@@ -176,6 +179,7 @@ public class AdminGoodsService {
             return error;
         }
 
+
         LitemallGoods goods = goodsAllinone.getGoods();
         LitemallGoodsAttribute[] attributes = goodsAllinone.getAttributes();
         LitemallGoodsSpecification[] specifications = goodsAllinone.getSpecifications();
@@ -185,7 +189,15 @@ public class AdminGoodsService {
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
 
         Integer id = goods.getId();
+        LitemallGoods litemallGoods = goodsService.findById(id);
+        if(litemallGoods.getIsOnSale()){
+            return ResponseUtil.fail(GOODS_UPDATE_NOT_ALLOWED,"商品已经上架不能修改");
+        }
 
+        //已被添加到购物车的商品不能修改
+        if(cartService.checkExist(id)){
+            return ResponseUtil.fail(GOODS_UPDATE_NOT_ALLOWED,"商品已经被添加到购物车不能修改");
+        }
         //将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
         goods.setShareUrl(url);
@@ -265,8 +277,8 @@ public class AdminGoodsService {
         }
 
         Integer gid = goods.getId();
-        goodsService.deleteById(gid);
         saveGoodsLog(goods, Constants.DELETE_GOODS);
+        goodsService.deleteById(gid);
         specificationService.deleteByGid(gid);
         attributeService.deleteByGid(gid);
         productService.deleteByGid(gid);

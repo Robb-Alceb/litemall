@@ -60,8 +60,13 @@ public class AdminRoleController {
     }
 
     @GetMapping("/options")
-    public Object options() {
-        List<LitemallRole> roleList = roleService.queryAll();
+    public Object options(@LoginAdminShopId Integer shopId) {
+        List<LitemallRole> roleList = new ArrayList<>();
+        if(null != shopId){
+            roleList = roleService.queryByType(true);
+        }else{
+            roleList = roleService.queryAll();
+        }
 
         List<Map<String, Object>> options = new ArrayList<>(roleList.size());
         for (LitemallRole role : roleList) {

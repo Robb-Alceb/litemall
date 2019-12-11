@@ -49,13 +49,13 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String username,
+    public Object list(String nickname,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAdmin> adminList = litemallAdminService.querySelective(username, shopId, page, limit, sort, order);
+        List<LitemallAdmin> adminList = litemallAdminService.querySelective(nickname, shopId, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
 

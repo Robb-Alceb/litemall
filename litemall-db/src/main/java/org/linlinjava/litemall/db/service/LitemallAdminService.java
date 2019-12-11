@@ -28,12 +28,12 @@ public class LitemallAdminService {
         return adminMapper.selectByPrimaryKey(id);
     }
 
-    public List<LitemallAdmin> querySelective(String username, Integer shopId, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallAdmin> querySelective(String nickname, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
 
-        if (!StringUtils.isEmpty(username)) {
-            criteria.andUsernameLike("%" + username + "%");
+        if (!StringUtils.isEmpty(nickname)) {
+            criteria.andNickNameLike("%" + nickname + "%");
         }
         if(null != shopId){
             criteria.andShopIdEqualTo(shopId);
@@ -77,7 +77,7 @@ public class LitemallAdminService {
     public List<LitemallAdmin> findByShopId(Integer shopId) {
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
-        criteria.andShopIdEqualTo(shopId);
+        criteria.andShopIdEqualTo(shopId).andDeletedEqualTo(false);
         return adminMapper.selectByExampleSelective(example, result);
     }
 

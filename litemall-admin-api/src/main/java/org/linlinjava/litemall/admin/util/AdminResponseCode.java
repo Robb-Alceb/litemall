@@ -17,6 +17,8 @@ public class AdminResponseCode {
     public static final Integer GOODS_UPDATE_NOT_ALLOWED = 610;
     //商品名已存在
     public static final Integer GOODS_NAME_EXIST = 611;
+    //商品不存在
+    public static final Integer GOODS_NOT_EXIST = 612;
     //订单不能确认
     public static final Integer ORDER_CONFIRM_NOT_ALLOWED = 620;
     //订单退款错误

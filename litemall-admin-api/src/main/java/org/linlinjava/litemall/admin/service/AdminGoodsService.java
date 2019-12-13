@@ -8,6 +8,7 @@ import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.beans.dto.GoodsReviewDto;
 import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
+import org.linlinjava.litemall.admin.beans.dto.PriceDto;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
@@ -27,8 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_NAME_EXIST;
-import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_UPDATE_NOT_ALLOWED;
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
 @Service
 public class AdminGoodsService {
@@ -517,6 +517,52 @@ public class AdminGoodsService {
         }
     }
 
+    /**
+     * 修改商品价格
+     * @param price
+     * @param shopId
+     * @return
+     */
+    public Object updateGoodsPrice(PriceDto price, Integer shopId){
+        LitemallGoods goods = goodsService.findById(price.getId());
+        if(null == goods){
+            return ResponseUtil.fail(GOODS_NOT_EXIST,"商品不存在");
+        }
+        if(null != shopId){
+            if(shopId != goods.getShopId()){
+                return ResponseUtil.fail(GOODS_UPDATE_NOT_ALLOWED,"商品允许修改");
+            }
+        }
+        LitemallGoods updateData = new LitemallGoods();
+        updateData.setId(price.getId());
+        updateData.setRetailPrice(price.getPrice());
+        goodsService.updateById(updateData);
+        return ResponseUtil.ok();
+    }
+
+    /**
+     * 修改规格价格
+     * @param price
+     * @param shopId
+     * @return
+     */
+    public Object updateSpecPrice(PriceDto price, Integer shopId){
+        LitemallGoodsSpecification specification = specificationService.findById(price.getId());
+        LitemallGoods goods = goodsService.findById(specification.getGoodsId());
+        if(null == goods){
+            return ResponseUtil.fail(GOODS_NOT_EXIST,"商品不存在");
+        }
+        if(null != shopId){
+            if(shopId != goods.getShopId()){
+                return ResponseUtil.fail(GOODS_UPDATE_NOT_ALLOWED,"商品允许修改");
+            }
+        }
+        LitemallGoodsSpecification updateData = new LitemallGoodsSpecification();
+        updateData.setId(price.getId());
+        updateData.setPrice(price.getPrice());
+        specificationService.updateById(updateData);
+        return ResponseUtil.ok();
+    }
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {
         if(!CollectionUtils.isEmpty(goodsList)){
             goodsList.stream().forEach(goods->{

@@ -80,6 +80,11 @@ public class LitemallGoodsSpecificationService {
         return specificationVoList;
     }
 
+    public int updateById(LitemallGoodsSpecification updateData) {
+        updateData.setUpdateTime(LocalDateTime.now());
+        return goodsSpecificationMapper.updateByPrimaryKeySelective(updateData);
+    }
+
     private class VO {
         private String name;
         private List<LitemallGoodsSpecification> valueList;

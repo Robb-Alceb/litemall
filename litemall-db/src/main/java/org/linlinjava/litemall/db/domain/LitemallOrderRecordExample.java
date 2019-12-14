@@ -787,7 +787,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusEqualTo(Byte value) {
+        public Criteria andOrderStatusEqualTo(Short value) {
             addCriterion("order_status =", value, "orderStatus");
             return (Criteria) this;
         }
@@ -803,7 +803,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusNotEqualTo(Byte value) {
+        public Criteria andOrderStatusNotEqualTo(Short value) {
             addCriterion("order_status <>", value, "orderStatus");
             return (Criteria) this;
         }
@@ -819,7 +819,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusGreaterThan(Byte value) {
+        public Criteria andOrderStatusGreaterThan(Short value) {
             addCriterion("order_status >", value, "orderStatus");
             return (Criteria) this;
         }
@@ -835,7 +835,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusGreaterThanOrEqualTo(Byte value) {
+        public Criteria andOrderStatusGreaterThanOrEqualTo(Short value) {
             addCriterion("order_status >=", value, "orderStatus");
             return (Criteria) this;
         }
@@ -851,7 +851,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusLessThan(Byte value) {
+        public Criteria andOrderStatusLessThan(Short value) {
             addCriterion("order_status <", value, "orderStatus");
             return (Criteria) this;
         }
@@ -867,7 +867,7 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusLessThanOrEqualTo(Byte value) {
+        public Criteria andOrderStatusLessThanOrEqualTo(Short value) {
             addCriterion("order_status <=", value, "orderStatus");
             return (Criteria) this;
         }
@@ -883,22 +883,22 @@ public class LitemallOrderRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusIn(List<Byte> values) {
+        public Criteria andOrderStatusIn(List<Short> values) {
             addCriterion("order_status in", values, "orderStatus");
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusNotIn(List<Byte> values) {
+        public Criteria andOrderStatusNotIn(List<Short> values) {
             addCriterion("order_status not in", values, "orderStatus");
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusBetween(Byte value1, Byte value2) {
+        public Criteria andOrderStatusBetween(Short value1, Short value2) {
             addCriterion("order_status between", value1, value2, "orderStatus");
             return (Criteria) this;
         }
 
-        public Criteria andOrderStatusNotBetween(Byte value1, Byte value2) {
+        public Criteria andOrderStatusNotBetween(Short value1, Short value2) {
             addCriterion("order_status not between", value1, value2, "orderStatus");
             return (Criteria) this;
         }

@@ -10,7 +10,7 @@
     <result column="order_id" jdbcType="INTEGER" property="orderId" />
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
-    <result column="order_status" jdbcType="TINYINT" property="orderStatus" />
+    <result column="order_status" jdbcType="SMALLINT" property="orderStatus" />
     <result column="pay_status" jdbcType="TINYINT" property="payStatus" />
     <result column="ship_status" jdbcType="TINYINT" property="shipStatus" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
@@ -216,7 +216,7 @@
       remark, deleted, add_time, 
       add_user_id)
     values (#{orderId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, 
-      #{orderStatus,jdbcType=TINYINT}, #{payStatus,jdbcType=TINYINT}, #{shipStatus,jdbcType=TINYINT}, 
+      #{orderStatus,jdbcType=SMALLINT}, #{payStatus,jdbcType=TINYINT}, #{shipStatus,jdbcType=TINYINT}, 
       #{remark,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{addTime,jdbcType=TIMESTAMP}, 
       #{addUserId,jdbcType=INTEGER})
   </insert>
@@ -272,7 +272,7 @@
         #{userName,jdbcType=VARCHAR},
       </if>
       <if test="orderStatus != null">
-        #{orderStatus,jdbcType=TINYINT},
+        #{orderStatus,jdbcType=SMALLINT},
       </if>
       <if test="payStatus != null">
         #{payStatus,jdbcType=TINYINT},
@@ -324,7 +324,7 @@
         user_name = #{record.userName,jdbcType=VARCHAR},
       </if>
       <if test="record.orderStatus != null">
-        order_status = #{record.orderStatus,jdbcType=TINYINT},
+        order_status = #{record.orderStatus,jdbcType=SMALLINT},
       </if>
       <if test="record.payStatus != null">
         pay_status = #{record.payStatus,jdbcType=TINYINT},
@@ -359,7 +359,7 @@
       order_id = #{record.orderId,jdbcType=INTEGER},
       user_id = #{record.userId,jdbcType=INTEGER},
       user_name = #{record.userName,jdbcType=VARCHAR},
-      order_status = #{record.orderStatus,jdbcType=TINYINT},
+      order_status = #{record.orderStatus,jdbcType=SMALLINT},
       pay_status = #{record.payStatus,jdbcType=TINYINT},
       ship_status = #{record.shipStatus,jdbcType=TINYINT},
       remark = #{record.remark,jdbcType=VARCHAR},
@@ -387,7 +387,7 @@
         user_name = #{userName,jdbcType=VARCHAR},
       </if>
       <if test="orderStatus != null">
-        order_status = #{orderStatus,jdbcType=TINYINT},
+        order_status = #{orderStatus,jdbcType=SMALLINT},
       </if>
       <if test="payStatus != null">
         pay_status = #{payStatus,jdbcType=TINYINT},
@@ -419,7 +419,7 @@
     set order_id = #{orderId,jdbcType=INTEGER},
       user_id = #{userId,jdbcType=INTEGER},
       user_name = #{userName,jdbcType=VARCHAR},
-      order_status = #{orderStatus,jdbcType=TINYINT},
+      order_status = #{orderStatus,jdbcType=SMALLINT},
       pay_status = #{payStatus,jdbcType=TINYINT},
       ship_status = #{shipStatus,jdbcType=TINYINT},
       remark = #{remark,jdbcType=VARCHAR},

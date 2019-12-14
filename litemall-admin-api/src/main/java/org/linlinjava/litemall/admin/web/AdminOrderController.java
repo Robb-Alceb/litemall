@@ -39,12 +39,13 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(Integer userId, String orderSn,
+                       @LoginAdminShopId Integer shopId,
                        @RequestParam(required = false) List<Short> orderStatusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminOrderService.list(userId, orderSn, orderStatusArray, page, limit, sort, order);
+        return adminOrderService.list(userId, orderSn, orderStatusArray, shopId, page, limit, sort, order);
     }
 
     /**
@@ -98,6 +99,19 @@ public class AdminOrderController {
     @PostMapping("/reply")
     public Object reply(@RequestBody String body) {
         return adminOrderService.reply(body);
+    }
+
+    /**
+     * 添加订单备注
+     *
+     * @param body 订单信息，{ orderId：xxx }
+     * @return 订单操作结果
+     */
+    @RequiresPermissions("admin:order:remark")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品备注")
+    @PostMapping("/remark")
+    public Object mark(@RequestBody String body, @LoginAdminShopId Integer shopId) {
+        return adminOrderService.remark(body, shopId);
     }
 
     /**

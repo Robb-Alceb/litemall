@@ -61,7 +61,8 @@ public class LitemallMerchandiseService {
 
     public List<LitemallMerchandise> all() {
         LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
-        merchandiseExample.or().andLogicalDeleted(true);
+        merchandiseExample.or().andLogicalDeleted(false);
         return litemallMerchandiseMapper.selectByExampleSelective(merchandiseExample);
     }
+
 }

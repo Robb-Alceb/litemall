@@ -193,6 +193,7 @@ public class LitemallGoodsService {
 
     public int updateByIdAndShop(LitemallGoods goods) {
         LitemallGoodsExample example = new LitemallGoodsExample();
+        goods.setUpdateTime(LocalDateTime.now());
         example.or().andIdEqualTo(goods.getId()).andShopIdEqualTo(goods.getShopId()).andDeletedEqualTo(false);
         return goodsMapper.updateByExampleSelective(goods, example);
     }

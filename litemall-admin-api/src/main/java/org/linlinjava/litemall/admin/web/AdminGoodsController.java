@@ -7,6 +7,7 @@ import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
+import org.linlinjava.litemall.admin.beans.dto.GoodsStoreDto;
 import org.linlinjava.litemall.admin.beans.dto.PriceDto;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
@@ -115,9 +116,9 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goodsLog:read")
     @RequiresPermissionsDesc(menu = {"商品日志", "商品日志"}, button = "详情")
     @GetMapping("/queryGoodsLogList")
-    public Object queryGoodsLogList(Integer goodsId, String userName, String content, Integer page,
+    public Object queryGoodsLogList(Integer goodsId, String goodsSn, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
-        return adminGoodsService.queryGoodsLogList(goodsId, userName, content, page, limit, sort, order);
+        return adminGoodsService.queryGoodsLogList(goodsId, goodsSn, userName, content, page, limit, sort, order);
     }
 
     /**
@@ -187,6 +188,20 @@ public class AdminGoodsController {
     @PutMapping("/updateSpecPrice")
     public Object updateSpecPrice(@RequestBody PriceDto price, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateSpecPrice(price, shopId);
+
+    }
+
+    /**
+     * 修改商品库存
+     *
+     * @param storeDto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:updateStore")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品库存")
+    @PutMapping("/updateStore")
+    public Object updateStore(@RequestBody GoodsStoreDto storeDto, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.updateStore(storeDto, shopId);
 
     }
 }

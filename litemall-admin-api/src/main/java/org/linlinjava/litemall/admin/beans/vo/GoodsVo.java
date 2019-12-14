@@ -31,8 +31,10 @@ public class GoodsVo {
     private Boolean isNew;
     //是否推荐
     private Boolean isHot;
-    //上架时间
+    //添加时间
     private LocalDateTime addTime;
+    //修改时间
+    private LocalDateTime updateTime;
     //库存
     private int number;
     //销量

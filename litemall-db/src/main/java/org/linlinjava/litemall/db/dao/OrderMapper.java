@@ -11,4 +11,5 @@ public interface OrderMapper {
     int updateWithOptimisticLocker(@Param("lastUpdateTime") LocalDateTime lastUpdateTime, @Param("order") LitemallOrder order);
     List<Map<String, Object>> queryGoodsSales(@Param("map") Map<String, Object> map);
     List<Map<String, Object>> queryGoodsCategorySales(@Param("map") Map<String, Object> map);
+    Long queryOrderGoodsNum(@Param("type") String type);
 }

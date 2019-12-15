@@ -1,14 +1,21 @@
 package org.linlinjava.litemall.admin.beans.enums;
 
-public enum PromptEnum {
+public enum OrderStatusEnum {
 
     P_101(101, "参数为空"),
-    P_102(102, "没有订单");
+    P_102(102, "没有订单"),
+    P_103(103, "没有订单"),
+    P_201(201, "没有订单"),
+    P_202(202, "没有订单"),
+    P_203(203, "没有订单"),
+    P_301(301, "没有订单"),
+    P_401(401, "没有订单"),
+    P_402(402, "没有订单");
 
     private Integer code;
     private String desc;
 
-    PromptEnum(Integer code, String desc){
+    OrderStatusEnum(Integer code, String desc){
         this.code = code;
         this.desc = desc;
     }

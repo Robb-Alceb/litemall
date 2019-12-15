@@ -101,6 +101,16 @@ public class Constants extends org.linlinjava.litemall.db.beans.Constants {
      */
     public static final String GOODS_TYPE="1";
 
+    /**
+     * 下单件数
+     */
+    public static final String ORDER_GOODS_NUM="1";
+
+    /**
+     * 付款件数
+     */
+    public static final String PAY_ORDER_GOODS_NUM="2";
+
 
 
     /**

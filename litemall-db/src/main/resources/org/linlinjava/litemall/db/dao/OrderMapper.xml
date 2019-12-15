@@ -151,4 +151,17 @@
         GROUP BY g.category_id
         ORDER BY g.add_time DESC
     </select>
+
+    <select id="queryOrderGoodsNum" resultType="long">
+        SELECT
+            SUM(g.number)
+        FROM
+            litemall_order_goods g
+        LEFT JOIN litemall_order o
+        ON o.id=g.order_id
+        WHERE 1=1
+        <if test="type!=null and type!='' and type==2">
+            AND o.order_status!=101 AND o.order_status!=102 AND o.order_status!=103
+        </if>
+    </select>
 </mapper>

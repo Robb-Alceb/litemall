@@ -221,6 +221,14 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectOneByExample(example);
     }
 
+    public List<LitemallOrder> queryGoodsStatistics(LocalDateTime startTime, LocalDateTime endTime){
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.or();
+        criteria.andAddTimeBetween(startTime, endTime);
+        criteria.andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
+    }
+
     public List<Map<String, Object>>queryGoodsSales(LocalDateTime startTime, LocalDateTime endTime, Integer page, Integer limit){
         Map<String, Object> map = new HashMap<>();
         map.put("startTime", startTime);
@@ -235,5 +243,9 @@ public class LitemallOrderService {
         map.put("endTime", endTime);
         PageHelper.startPage(page, limit);
         return orderMapper.queryGoodsCategorySales(map);
+    }
+
+    public Long queryOrderGoodsNum(String type){
+        return orderMapper.queryOrderGoodsNum(type);
     }
 }

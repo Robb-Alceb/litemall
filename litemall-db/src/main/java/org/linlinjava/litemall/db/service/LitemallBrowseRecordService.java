@@ -36,4 +36,13 @@ public class LitemallBrowseRecordService {
         return browseRecordMapper.selectByExample(example);
     }
 
+    public List<LitemallBrowseRecord> queryBrowseUserCount(LocalDateTime startTimes, LocalDateTime endTimes) {
+        LitemallBrowseRecordExample example = new LitemallBrowseRecordExample();
+        LitemallBrowseRecordExample.Criteria criteria1 = example.or();
+
+        criteria1.andAddTimeBetween(startTimes, endTimes);
+        criteria1.andDeletedEqualTo(false);
+        return browseRecordMapper.selectByExample(example);
+    }
+
 }

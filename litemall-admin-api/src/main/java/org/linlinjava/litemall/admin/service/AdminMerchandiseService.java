@@ -152,9 +152,25 @@ public class AdminMerchandiseService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 查询门店库存数量
+     *
+     * @param shopId
+     * @param merchandiseSn
+     * @return
+     */
+    public Object count(Integer shopId, String merchandiseSn) {
+        LitemallShopMerchandise litemallShopMerchandise = shopMerchandiseService.queryBySn(merchandiseSn, shopId);
+        if(null != litemallShopMerchandise && null != litemallShopMerchandise.getNumber()){
+            return ResponseUtil.ok(litemallShopMerchandise.getNumber());
+        }
+        return ResponseUtil.ok(0);
+    }
+
     private LitemallAdmin getLitemallAdmin() {
         return (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
     }
+
 
 
 }

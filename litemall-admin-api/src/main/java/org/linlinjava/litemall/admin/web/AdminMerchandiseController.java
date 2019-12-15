@@ -135,4 +135,15 @@ public class AdminMerchandiseController {
         return adminMerchandiseService.addNumber(vo);
     }
 
+
+    /**
+     * 门店查询库存数量
+     * @param shopId
+     * @param merchandiseSn
+     * @return
+     */
+    @GetMapping("/count")
+    public Object count(@LoginAdminShopId Integer shopId, @NotNull String merchandiseSn) {
+        return adminMerchandiseService.count(shopId, merchandiseSn);
+    }
 }

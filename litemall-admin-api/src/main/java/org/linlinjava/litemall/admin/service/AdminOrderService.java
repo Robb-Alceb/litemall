@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.enums.OrderStatusEnum;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
@@ -27,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -353,9 +355,6 @@ public class AdminOrderService {
      */
     public Object goodsSalesStatistics(String type, String startTime,  String endTime, Integer page,
                                        Integer limit, String sort, String order){
-        if(ObjectUtils.isEmpty(type)){
-            return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
-        }
         DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
         LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
@@ -368,6 +367,105 @@ public class AdminOrderService {
         }
 
         return ResponseUtil.okList(maps);
+    }
+
+    /**
+     * 销售统计
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public Object salesStatistics(String startTime,  String endTime){
+
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
+        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
+
+        Map<String, Object> map = Maps.newHashMap();
+        //订单查询
+        List<LitemallOrder> litemallOrder = orderService.queryGoodsStatistics(startTimes, endTimes);
+        if(CollectionUtils.isEmpty(litemallOrder)){
+            return ResponseUtil.fail(PromptEnum.P_102.getCode(), PromptEnum.P_102.getDesc());
+        }
+        //过滤 取消和自动取消 退款和自动退款状态
+        List<LitemallOrder> ordreList = litemallOrder.stream().filter(order -> !(Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_102.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_103.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_202.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_203.getCode())).collect(Collectors.toList());
+
+        //浏览人数
+        List<LitemallBrowseRecord> browseRecords = browseRecordService.queryBrowseUserCount(startTimes, endTimes);
+        map.put("browseUserNum", !CollectionUtils.isEmpty(browseRecords)?browseRecords.size():0);
+        //下单人数
+        Map<Integer, List<LitemallOrder>>collect = litemallOrder.stream().collect(Collectors.groupingBy(LitemallOrder::getUserId));
+        map.put("userOrderNum", !CollectionUtils.isEmpty(collect)?collect.size():0);
+        //订单数
+        map.put("orderNum", !CollectionUtils.isEmpty(litemallOrder)?litemallOrder.size():0);
+        //下单件数
+        map.put("orderGoodsNum", orderService.queryOrderGoodsNum(Constants.ORDER_GOODS_NUM));
+        //有效订单数
+        map.put("validOrderNum", !CollectionUtils.isEmpty(ordreList)?ordreList.size():0);
+        //下单金额
+        BigDecimal b = new BigDecimal(litemallOrder.stream().mapToDouble(order -> Double.valueOf(order.getOrderPrice().toString())).sum());
+        map.put("orderPrice", b.setScale(2, BigDecimal.ROUND_HALF_UP));
+        //退款金额
+        List<LitemallOrder> refundList = litemallOrder.stream().filter(order -> Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_202.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_203.getCode()).collect(Collectors.toList());
+        map.put("refundPrice", !CollectionUtils.isEmpty(refundList)?refundList.stream().mapToDouble(refund-> Double.valueOf(refund.getActualPrice().toString())).sum():0);
+        //付款人数 过滤下单和取消订单状态 再人员分组
+        List<LitemallOrder> collect1 = litemallOrder.stream().filter(order -> !(Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_101.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_102.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_103.getCode())).collect(Collectors.toList());
+        Map<Integer, List<LitemallOrder>> collect2 = collect1.stream().collect(Collectors.groupingBy(LitemallOrder::getUserId));
+        map.put("payUserNum", !CollectionUtils.isEmpty(collect2)?collect2.size():0);
+        //付款订单数
+        map.put("payOrderNum", !CollectionUtils.isEmpty(collect1)?collect1.size():0);
+        //付款件数
+        map.put("PayOrderGoodsNum", orderService.queryOrderGoodsNum(Constants.PAY_ORDER_GOODS_NUM));
+        //付款金额
+        BigDecimal bd = new BigDecimal(collect1.stream().mapToDouble(cc->Double.valueOf(cc.getActualPrice().toString())).sum());
+        map.put("payPrice", bd.setScale(2, BigDecimal.ROUND_HALF_UP));
+
+        return map;
+    }
+
+    /**
+     * 交易数据
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    public Object transactionData(String startTime,  String endTime){
+        if(StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime)){
+            return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
+        }
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
+        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
+
+        //订单查询
+        List<LitemallOrder> litemallOrder = orderService.queryGoodsStatistics(startTimes, endTimes);
+        if(CollectionUtils.isEmpty(litemallOrder)){
+            return ResponseUtil.fail(PromptEnum.P_102.getCode(), PromptEnum.P_102.getDesc());
+        }
+
+        Map<String, Object> map = Maps.newHashMap();
+        //0~50
+        map.put("fifty", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(50)) <= 0).collect(Collectors.toList()).size());
+        //51~100
+        map.put("hundred", getActualPrice(litemallOrder,50, 100));
+        //101~200
+        map.put("twoHundred", getActualPrice(litemallOrder,100, 200));
+        //201~500
+        map.put("fiveHundred", getActualPrice(litemallOrder,200, 500));
+        //501~1000
+        map.put("thousand", getActualPrice(litemallOrder,500, 1000));
+        //1001~5000
+        map.put("fiveThousand", getActualPrice(litemallOrder,1000, 5000));
+        //5001~10000
+        map.put("tenThousand", getActualPrice(litemallOrder,5000, 10000));
+        //10001
+        map.put("greaterThanTenThousand", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(10000)) > 0).collect(Collectors.toList()).size());
+
+        return map;
+    }
+
+    private int getActualPrice(List<LitemallOrder> litemallOrder, int start, int end) {
+        return litemallOrder.stream().filter(order -> (order.getActualPrice().compareTo(new BigDecimal(end)) <= 0 && order.getActualPrice().compareTo(new BigDecimal(start)) > 0)).collect(Collectors.toList()).size();
     }
 
     private List<Map<String, Object>> getCategoryInfo(Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {

@@ -122,7 +122,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
     @GetMapping("/goodsStatistics")
-    public Object goodsStatistics(@LoginAdminShopId Integer shopId, LocalDateTime startTime,  LocalDateTime endTime){
+    public Object goodsStatistics(@LoginAdminShopId Integer shopId,@NotNull LocalDateTime startTime,@NotNull  LocalDateTime endTime){
         return adminOrderService.goodsStatistics(startTime, endTime, shopId);
     }
 
@@ -140,11 +140,37 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsSalesStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品销售统计")
     @GetMapping("/goodsSalesStatistics")
-    public Object goodsSalesStatistics(String type, String startTime,  String endTime,
+    public Object goodsSalesStatistics(@NotNull String type,@NotNull String startTime,@NotNull  String endTime,
                                        @RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer limit,
                                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                                        @Order @RequestParam(defaultValue = "desc") String order){
         return adminOrderService.goodsSalesStatistics(type, startTime, endTime, page, limit, sort, order);
+    }
+
+    /**
+     * 销售统计
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequiresPermissions("admin:order:salesStatistics")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "销售统计")
+    @GetMapping("/salesStatistics")
+    public Object salesStatistics(@NotNull String startTime,@NotNull String endTime){
+        return adminOrderService.salesStatistics(startTime, endTime);
+    }
+
+    /**
+     * 交易数据
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    @RequiresPermissions("admin:order:transactionData")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "交易数据")
+    @GetMapping("/transactionData")
+    public Object transactionData(@NotNull String startTime,@NotNull  String endTime){
+        return adminOrderService.transactionData(startTime, endTime);
     }
 }

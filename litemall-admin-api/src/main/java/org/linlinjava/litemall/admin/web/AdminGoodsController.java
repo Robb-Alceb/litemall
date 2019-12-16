@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
@@ -42,6 +43,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String goodsSn, String name, @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -51,6 +53,7 @@ public class AdminGoodsController {
     }
 
     @GetMapping("/catAndBrand")
+    @LogAnno
     public Object list2() {
         return adminGoodsService.list2();
     }
@@ -64,6 +67,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:update")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody GoodsAllinone goodsAllinone, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.update(goodsAllinone, shopId);
     }
@@ -77,6 +81,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:delete")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallGoods goods, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.delete(goods, shopId);
     }
@@ -90,6 +95,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:create")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新增")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody GoodsAllinone goodsAllinone) {
         return adminGoodsService.create(goodsAllinone);
     }
@@ -103,6 +109,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:read")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "详情")
     @GetMapping("/detail")
+    @LogAnno
     public Object detail(@NotNull Integer id, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.detail(id, shopId);
 
@@ -116,6 +123,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goodsLog:read")
     @RequiresPermissionsDesc(menu = {"商品日志", "商品日志"}, button = "详情")
     @GetMapping("/queryGoodsLogList")
+    @LogAnno
     public Object queryGoodsLogList(Integer goodsId, String goodsSn, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
         return adminGoodsService.queryGoodsLogList(goodsId, goodsSn, userName, content, page, limit, sort, order);
@@ -130,6 +138,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:push")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架/下架")
     @PutMapping("/push")
+    @LogAnno
     public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
@@ -144,6 +153,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:newProduce")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新品/非新品")
     @PutMapping("/newProduce")
+    @LogAnno
     public Object newProduce(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
@@ -158,6 +168,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:recommend")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "推荐/非推荐")
     @PutMapping("/recommend")
+    @LogAnno
     public Object recommend(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
@@ -172,6 +183,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:updatePrice")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品价格")
     @PutMapping("/updatePrice")
+    @LogAnno
     public Object updatePrice(@RequestBody PriceDto price, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsPrice(price, shopId);
 
@@ -186,11 +198,26 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:updateSpecPrice")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改规格价格")
     @PutMapping("/updateSpecPrice")
+    @LogAnno
     public Object updateSpecPrice(@RequestBody PriceDto price, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateSpecPrice(price, shopId);
 
     }
 
+    /**
+     * 查询商品的价格详情
+     *
+     * @param goodsId
+     * @return
+     */
+    @RequiresPermissions("admin:goods:allPrice")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改规格价格")
+    @PutMapping("/allPrice")
+    @LogAnno
+    public Object allPrice(@NotNull Integer goodsId, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.allPrice(goodsId, shopId);
+
+    }
     /**
      * 修改商品库存
      *
@@ -200,6 +227,7 @@ public class AdminGoodsController {
     @RequiresPermissions("admin:goods:updateStore")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品库存")
     @PutMapping("/updateStore")
+    @LogAnno
     public Object updateStore(@RequestBody GoodsStoreDto storeDto, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateStore(storeDto, shopId);
 

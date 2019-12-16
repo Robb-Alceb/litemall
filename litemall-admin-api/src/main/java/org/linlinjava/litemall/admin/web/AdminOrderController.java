@@ -122,7 +122,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
     @GetMapping("/goodsStatistics")
-    public Object goodsStatistics(@LoginAdminShopId Integer shopId,@NotNull LocalDateTime startTime,@NotNull  LocalDateTime endTime){
+    public Object goodsStatistics(@LoginAdminShopId Integer shopId,@NotNull String startTime,@NotNull  String endTime){
         return adminOrderService.goodsStatistics(startTime, endTime, shopId);
     }
 
@@ -140,12 +140,12 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsSalesStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品销售统计")
     @GetMapping("/goodsSalesStatistics")
-    public Object goodsSalesStatistics(@NotNull String type,@NotNull String startTime,@NotNull  String endTime,
+    public Object goodsSalesStatistics(@LoginAdminShopId Integer shopId, @NotNull String type,@NotNull String startTime,@NotNull  String endTime,
                                        @RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer limit,
                                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                                        @Order @RequestParam(defaultValue = "desc") String order){
-        return adminOrderService.goodsSalesStatistics(type, startTime, endTime, page, limit, sort, order);
+        return adminOrderService.goodsSalesStatistics(shopId, type, startTime, endTime, page, limit, sort, order);
     }
 
     /**

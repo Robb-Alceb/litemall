@@ -333,15 +333,18 @@ public class AdminOrderService {
      * 商品统计
      * @return
      */
-    public Object goodsStatistics(LocalDateTime startTime, LocalDateTime endTime, Integer shopId){
+    public Object goodsStatistics(String startTime, String endTime, Integer shopId){
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
+        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
         //订单数据
-        LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTime, endTime, shopId);
+        LitemallOrder litemallOrder = orderService.queryGoodsStatistics(startTimes, endTimes, shopId);
         if(ObjectUtils.isEmpty(litemallOrder)){
-            return null;
+            return ResponseUtil.ok(null);
         }
         Map<String, Object> map = Maps.newHashMap();
         //商品订单统计
-        List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTime, endTime, shopId, null));
+        List<LitemallOrderGoods> orderGoods = getOrderGoods(orderGoodsService.queryGoodsStatistics(startTimes, endTimes, shopId, null));
         //商品统计
         map.put("orderGoods", orderGoods);
         //类目统计
@@ -353,17 +356,17 @@ public class AdminOrderService {
      * 商品销售统计
      * @return
      */
-    public Object goodsSalesStatistics(String type, String startTime,  String endTime, Integer page,
+    public Object goodsSalesStatistics(Integer shopId, String type, String startTime,  String endTime, Integer page,
                                        Integer limit, String sort, String order){
-        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
         LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
 
         List<Map<String, Object>> maps;
         if(type.equals(Constants.GOODS_TYPE)){
-            maps = getGoodsInfo(page, limit, sort, order, startTimes, endTimes);
+            maps = getGoodsInfo(shopId, page, limit, sort, order, startTimes, endTimes);
         }else{
-            maps = getCategoryInfo(page, limit, sort, order, startTimes, endTimes);
+            maps = getCategoryInfo(shopId, page, limit, sort, order, startTimes, endTimes);
         }
 
         return ResponseUtil.okList(maps);
@@ -468,7 +471,7 @@ public class AdminOrderService {
         return litemallOrder.stream().filter(order -> (order.getActualPrice().compareTo(new BigDecimal(end)) <= 0 && order.getActualPrice().compareTo(new BigDecimal(start)) > 0)).collect(Collectors.toList()).size();
     }
 
-    private List<Map<String, Object>> getCategoryInfo(Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
+    private List<Map<String, Object>> getCategoryInfo(Integer shopId, Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
         //时间段内商品类目 销售总额 goodsId, goodsName, salesNum(销售件数), actualPrice(金额)
         List<Map<String, Object>> maps;
         maps = orderService.queryGoodsCategorySales(startTimes, endTimes, page, limit);
@@ -495,9 +498,9 @@ public class AdminOrderService {
         return maps;
     }
 
-    private List<Map<String, Object>> getGoodsInfo(Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
+    private List<Map<String, Object>> getGoodsInfo(Integer shopId, Integer page, Integer limit, String sort, String order, LocalDateTime startTimes, LocalDateTime endTimes) {
         //时间段内商品销售总额 goodsId, goodsName, salesNum(销售件数), actualPrice(金额)
-        List<Map<String, Object>> maps = orderService.queryGoodsSales(startTimes, endTimes, page, limit);
+        List<Map<String, Object>> maps = orderService.queryGoodsSales(shopId, startTimes, endTimes, page, limit);
         if(!CollectionUtils.isEmpty(maps)){
             maps.stream().forEach(map -> {
                 Integer gId = (Integer)map.get("goodsId");

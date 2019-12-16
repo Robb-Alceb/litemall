@@ -133,6 +133,9 @@
         LEFT JOIN litemall_order o
         ON o.id=g.order_id
         WHERE g.add_time BETWEEN #{map.startTime} and #{map.endTime}
+        <if test="map.shopId != null">
+            and g.shop_id = #{map.shopId}
+        </if>
         GROUP BY g.goods_id
         ORDER BY g.add_time DESC
     </select>

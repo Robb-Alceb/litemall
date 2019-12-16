@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.*;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
+import org.linlinjava.litemall.admin.beans.vo.GoodsPriceVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
 import org.linlinjava.litemall.core.qcode.QCodeService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -340,21 +341,26 @@ public class AdminGoodsService {
         if(null != vipGoodsPrice){
             vipGoodsPrice.setGoodsId(goods.getId());
             vipGoodsPrice.setGoodsName(goods.getName());
-            vipGoodsService.updateByGoodsId(vipGoodsPrice);
+            vipGoodsService.add(vipGoodsPrice);
         }
 
         //阶梯价格
-        for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
-            ladderPrice.setGoodsId(goods.getId());
-            ladderPrice.setGoodsName(goods.getName());
-            goodsLadderPriceService.add(ladderPrice);
+        if(null != ladderPrices && ladderPrices.length > 0){
+            for(LitemallGoodsLadderPrice ladderPrice : ladderPrices){
+                ladderPrice.setGoodsId(goods.getId());
+                ladderPrice.setGoodsName(goods.getName());
+                goodsLadderPriceService.add(ladderPrice);
+            }
         }
 
+
         //满减价格
-        for(LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices){
-            maxMinusPrice.setGoodsId(goods.getId());
-            maxMinusPrice.setGoodsName(goods.getName());
-            goodsMaxMinusPriceService.add(maxMinusPrice);
+        if(null != maxMinusPrices && maxMinusPrices.length > 0) {
+            for (LitemallGoodsMaxMinusPrice maxMinusPrice : maxMinusPrices) {
+                maxMinusPrice.setGoodsId(goods.getId());
+                maxMinusPrice.setGoodsName(goods.getName());
+                goodsMaxMinusPriceService.add(maxMinusPrice);
+            }
         }
         return ResponseUtil.ok();
     }
@@ -586,6 +592,29 @@ public class AdminGoodsService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 查询商品的所有价格
+     * @param goodsId
+     * @param shopId
+     * @return
+     */
+    public Object allPrice(Integer goodsId, Integer shopId) {
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if(null != shopId){
+            if(goods.getShopId() != shopId){
+                return ResponseUtil.fail(GOODS_NOT_PERMISSION, "无权处理该商品");
+            }
+        }
+        List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByGid(goodsId);
+        GoodsPriceVo vo = new GoodsPriceVo();
+        vo.setSpecifications(litemallGoodsSpecifications);
+        vo.setId(goods.getId());
+        vo.setGoodsName(goods.getName());
+        vo.setGoodsSn(goods.getGoodsSn());
+        vo.setGoodsSellPrice(goods.getRetailPrice());
+        return ResponseUtil.ok(vo);
+    }
+
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {
         if(!CollectionUtils.isEmpty(goodsList)){
             goodsList.stream().forEach(goods->{
@@ -618,4 +647,6 @@ public class AdminGoodsService {
         }
         return goodsVos;
     }
+
+
 }

@@ -229,10 +229,13 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByExample(example);
     }
 
-    public List<Map<String, Object>>queryGoodsSales(LocalDateTime startTime, LocalDateTime endTime, Integer page, Integer limit){
+    public List<Map<String, Object>>queryGoodsSales(Integer shopId, LocalDateTime startTime, LocalDateTime endTime, Integer page, Integer limit){
         Map<String, Object> map = new HashMap<>();
         map.put("startTime", startTime);
         map.put("endTime", endTime);
+        if(null != shopId){
+            map.put("shopId", shopId);
+        }
         PageHelper.startPage(page, limit);
         return orderMapper.queryGoodsSales(map);
     }

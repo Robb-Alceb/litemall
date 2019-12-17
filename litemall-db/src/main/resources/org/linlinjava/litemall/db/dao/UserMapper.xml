@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.linlinjava.litemall.db.dao.UserMapper">
+    <select id="queryUserStatistics" parameterType="map" resultType="map">
+        SELECT
+          u.add_time as addTime,
+          COUNT(1)
+        FROM
+          litemall_user u
+        WHERE 1=1
+          AND u.add_time BETWEEN #{map.startTime} and #{map.endTime}
+        <if test="map.type==1">
+            GROUP BY DATE(u.add_time)
+        </if>
+        <if test="map.type==2">
+            GROUP BY DATE_FORMAT(u.add_time, '%Y %M')
+        </if>
+    </select>
+</mapper>

@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
 @Service
-
 public class AdminOrderService {
     private final Log logger = LogFactory.getLog(AdminOrderService.class);
 

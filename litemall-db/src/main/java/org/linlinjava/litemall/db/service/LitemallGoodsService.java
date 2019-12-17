@@ -264,4 +264,10 @@ public class LitemallGoodsService {
         example.or().andIdIn(Arrays.asList(ids)).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         return goodsMapper.selectByExampleSelective(example, columns);
     }
+
+    public List<LitemallGoods> findByCategoryId(Integer id) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andCategoryIdEqualTo(id).andDeletedEqualTo(false);
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
 }

@@ -3,7 +3,10 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.service.AdService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
@@ -24,17 +27,20 @@ public class AdminAdController {
     private final Log logger = LogFactory.getLog(AdminAdController.class);
 
     @Autowired
-    private LitemallAdService adService;
+    private LitemallAdService litemallAdService;
+    @Autowired
+    private AdService adService;
 
     @RequiresPermissions("admin:ad:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String name, String content,
+                       @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAd> adList = adService.querySelective(name, content, page, limit, sort, order);
+        List<LitemallAd> adList = litemallAdService.querySelective(shopId, name, content, page, limit, sort, order);
         return ResponseUtil.okList(adList);
     }
 
@@ -53,12 +59,15 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:create")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "添加")
     @PostMapping("/create")
-    public Object create(@RequestBody LitemallAd ad) {
+    public Object create(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;
         }
-        adService.add(ad);
+        if(null != shopId){
+            ad.setType(Constants.AD_TYPE_SHOP);
+        }
+        litemallAdService.add(ad);
         return ResponseUtil.ok(ad);
     }
 
@@ -66,23 +75,22 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
-        LitemallAd ad = adService.findById(id);
+        LitemallAd ad = litemallAdService.findById(id);
         return ResponseUtil.ok(ad);
     }
 
     @RequiresPermissions("admin:ad:update")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "编辑")
     @PostMapping("/update")
-    public Object update(@RequestBody LitemallAd ad) {
+    public Object update(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;
         }
-        if (adService.updateById(ad) == 0) {
-            return ResponseUtil.updatedDataFailed();
+        if(null != shopId){
+            ad.setType(Constants.AD_TYPE_SHOP);
         }
-
-        return ResponseUtil.ok(ad);
+        return adService.update(ad, shopId);
     }
 
     @RequiresPermissions("admin:ad:delete")
@@ -93,7 +101,7 @@ public class AdminAdController {
         if (id == null) {
             return ResponseUtil.badArgument();
         }
-        adService.deleteById(id);
+        litemallAdService.deleteById(id);
         return ResponseUtil.ok();
     }
 

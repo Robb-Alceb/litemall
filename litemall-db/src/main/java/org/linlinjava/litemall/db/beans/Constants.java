@@ -49,4 +49,23 @@ public class Constants {
     public static final Byte PAY_TYPE_PAYPAL = 2;    //PayPal支付
 
 
+    /**
+     * 用户反馈状态
+     */
+    public static final Integer FEEDBACK_STATUS_REPLY = 1;
+    public static final Integer FEEDBACK_STATUS_IGNORE = 2;
+
+    /**
+     * 广告类型
+     */
+    public static final Boolean AD_TYPE_COMMON = false;     //  通用
+    public static final Boolean AD_TYPE_SHOP= true;         //  指定门店
+
+
+    /**
+     * 商品分类级别
+     */
+    public static final String CATEGORY_LEVEL_L1 = "L1";     //  分类级别
+    public static final String CATEGORY_LEVEL_L2 = "L2";     //
+    public static final String CATEGORY_LEVEL_L3 = "L3";     //
 }

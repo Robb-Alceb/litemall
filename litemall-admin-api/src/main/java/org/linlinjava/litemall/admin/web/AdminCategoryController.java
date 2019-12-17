@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.vo.CategoryVo;
+import org.linlinjava.litemall.admin.service.CategoryService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
@@ -24,7 +25,9 @@ public class AdminCategoryController {
     private final Log logger = LogFactory.getLog(AdminCategoryController.class);
 
     @Autowired
-    private LitemallCategoryService categoryService;
+    private LitemallCategoryService litemallCategoryService;
+    @Autowired
+    private CategoryService categoryService;
 
     @RequiresPermissions("admin:category:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "查询")
@@ -32,17 +35,17 @@ public class AdminCategoryController {
     public Object list() {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
-        List<LitemallCategory> categoryList = categoryService.queryByPid(0);
+        List<LitemallCategory> categoryList = litemallCategoryService.queryByPid(0);
         for (LitemallCategory category : categoryList) {
             CategoryVo categoryVO = getCategoryVo(category);
 
             List<CategoryVo> children = new ArrayList<>();
-            List<LitemallCategory> subCategoryList = categoryService.queryByPid(category.getId());
+            List<LitemallCategory> subCategoryList = litemallCategoryService.queryByPid(category.getId());
             for (LitemallCategory subCategory : subCategoryList) {
                 CategoryVo subCategoryVo = getCategoryVo(subCategory);
 
                 List<CategoryVo> childrenLThree = new ArrayList<>();
-                List<LitemallCategory> litemallCategories = categoryService.queryByPid(subCategory.getId());
+                List<LitemallCategory> litemallCategories = litemallCategoryService.queryByPid(subCategory.getId());
                 if(!CollectionUtils.isEmpty(litemallCategories)){
                     for(LitemallCategory litemallCategory : litemallCategories){
                         CategoryVo categoryVoThree = getCategoryVo(litemallCategory);
@@ -103,7 +106,7 @@ public class AdminCategoryController {
         if (error != null) {
             return error;
         }
-        categoryService.add(category);
+        litemallCategoryService.add(category);
         return ResponseUtil.ok(category);
     }
 
@@ -111,7 +114,7 @@ public class AdminCategoryController {
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
-        LitemallCategory category = categoryService.findById(id);
+        LitemallCategory category = litemallCategoryService.findById(id);
         return ResponseUtil.ok(category);
     }
 
@@ -124,7 +127,7 @@ public class AdminCategoryController {
             return error;
         }
 
-        if (categoryService.updateById(category) == 0) {
+        if (litemallCategoryService.updateById(category) == 0) {
             return ResponseUtil.updatedDataFailed();
         }
         return ResponseUtil.ok();
@@ -134,19 +137,14 @@ public class AdminCategoryController {
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "删除")
     @PostMapping("/delete")
     public Object delete(@RequestBody LitemallCategory category) {
-        Integer id = category.getId();
-        if (id == null) {
-            return ResponseUtil.badArgument();
-        }
-        categoryService.deleteById(id);
-        return ResponseUtil.ok();
+        return categoryService.delete(category);
     }
 
     @RequiresPermissions("admin:category:list")
     @GetMapping("/l1")
     public Object catL1() {
         // 所有一级分类目录
-        List<LitemallCategory> l1CatList = categoryService.queryL1();
+        List<LitemallCategory> l1CatList = litemallCategoryService.queryL1();
         List<Map<String, Object>> data = new ArrayList<>(l1CatList.size());
         for (LitemallCategory category : l1CatList) {
             Map<String, Object> d = new HashMap<>(2);
@@ -155,5 +153,11 @@ public class AdminCategoryController {
             data.add(d);
         }
         return ResponseUtil.okList(data);
+    }
+    @RequiresPermissions("admin:category:list")
+    @GetMapping("/l2")
+    public Object catL2() {
+        // 所有一、二级分类目录
+        return categoryService.queryL2();
     }
 }

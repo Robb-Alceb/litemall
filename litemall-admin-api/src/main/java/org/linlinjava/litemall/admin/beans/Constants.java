@@ -112,7 +112,6 @@ public class Constants extends org.linlinjava.litemall.db.beans.Constants {
     public static final String PAY_ORDER_GOODS_NUM="2";
 
 
-
     /**
      * 日志信息enum
      */

@@ -246,6 +246,7 @@ public class WxGoodsController {
 	 */
 	@GetMapping("list")
 	public Object list(
+			Integer shopId,
 		Integer categoryId,
 		Integer brandId,
 		String keyword,
@@ -267,7 +268,7 @@ public class WxGoodsController {
 		}
 
 		//查询列表数据
-		List<LitemallGoods> goodsList = goodsService.querySelective(categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
+		List<LitemallGoods> goodsList = goodsService.querySelective(shopId, categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
 
 		// 查询商品所属类目列表。
 		List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);

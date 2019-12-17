@@ -2,7 +2,7 @@ package org.linlinjava.litemall.wx.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.service.LitemallShopService;
-import org.linlinjava.litemall.wx.service.ShopService;
+import org.linlinjava.litemall.wx.service.WxShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,15 +24,15 @@ public class ShopController {
     @Autowired
     private LitemallShopService litemallShopService;
     @Autowired
-    private ShopService shopService;
+    private WxShopService shopService;
 
     /**
      * 所有门店
      * @return
      */
     @GetMapping("all")
-    public Object all(@NotNull BigDecimal longitude, @NotNull BigDecimal latitude){
-        return shopService.all(longitude, latitude);
+    public Object all(BigDecimal longitude, BigDecimal latitude, Integer type){
+        return shopService.all(longitude, latitude, type);
     }
 
     /**

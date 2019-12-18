@@ -28,20 +28,20 @@ public class UserService {
         List<LitemallUser> litemallUsers = litemallUserService.queryUserByTime(startTimes, endTimes);
         Map<String, Object> map = Maps.newHashMap();
         //今日新增
-        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN);
-        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MAX);//当天零点
-        map.put("userTodayCount",litemallUserService.queryUserByTime(todayStart, todayEnd).size());
+        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);//当天零点
+        map.put("todayCount",litemallUserService.queryUserByTime(todayStart, todayEnd).size());
         //昨日新增
-        LocalDateTime yesterdayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        LocalDateTime yesterdayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);//当天零点
-        map.put("userYesterdayCount", litemallUserService.queryUserByTime(yesterdayStart, yesterdayEnd).size());
+        LocalDateTime yesterdayStart = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN);
+        LocalDateTime yesterdayEnd = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MAX);//当天零点
+        map.put("yesterdayCount", litemallUserService.queryUserByTime(yesterdayStart, yesterdayEnd).size());
         //本月新增
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalDateTime firstday = LocalDateTime.of(localDateTime.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate(), LocalTime.MIN);
         LocalDateTime lastDay = LocalDateTime.of(localDateTime.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate(), LocalTime.MAX);
-        map.put("userMonthCount", litemallUserService.queryUserByTime(firstday, lastDay).size());
+        map.put("monthCount", litemallUserService.queryUserByTime(firstday, lastDay).size());
         //会员总数
-        map.put("userTotal", litemallUsers.size());
+        map.put("total", litemallUsers.size());
 
         return ResponseUtil.ok(map);
     }

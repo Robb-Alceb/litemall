@@ -29,6 +29,12 @@ public class RegexUtil {
      */
     public static final String REGEX_MOBILE_EXACT = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(16[6])|(17[0,1,3,5-8])|" +
             "(18[0-9])|(19[8,9]))\\d{8}$";
+
+    /**
+     * Regex of exact email.
+     */
+    public static final String REGEX_EMAIL_EXACT = "^\\s*\\w+(?:\\.{0,1}[\\w-]+)*@[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*\\.[a-zA-Z]+\\s*$";
+
     /**
      * Regex of telephone number.
      */
@@ -147,6 +153,16 @@ public class RegexUtil {
      */
     public static boolean isMobileExact(final CharSequence input) {
         return isMatch(REGEX_MOBILE_EXACT, input);
+    }
+
+    /**
+     * Return whether input matches regex of exact email.
+     *
+     * @param input The input.
+     * @return {@code true}: yes<br>{@code false}: no
+     */
+    public static boolean isEmailExact(final CharSequence input) {
+        return isMatch(REGEX_EMAIL_EXACT, input);
     }
 
     /**

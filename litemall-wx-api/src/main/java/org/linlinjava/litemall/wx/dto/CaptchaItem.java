@@ -6,9 +6,18 @@ import java.time.LocalDateTime;
  * 验证码实体类，用于缓存验证码发送
  */
 public class CaptchaItem {
+    private String email;
     private String phoneNumber;
     private String code;
     private LocalDateTime expireTime;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getPhoneNumber() {
         return phoneNumber;

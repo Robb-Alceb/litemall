@@ -246,7 +246,7 @@ public class WxGoodsController {
 	 */
 	@GetMapping("list")
 	public Object list(
-			Integer shopId,
+		@NotNull Integer shopId,
 		Integer categoryId,
 		Integer brandId,
 		String keyword,

@@ -212,7 +212,7 @@ public class AdminGoodsController {
      */
     @RequiresPermissions("admin:goods:allPrice")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询价格详情")
-    @PutMapping("/allPrice")
+    @GetMapping("/allPrice")
     @LogAnno
     public Object allPrice(@NotNull Integer goodsId, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.allPrice(goodsId, shopId);

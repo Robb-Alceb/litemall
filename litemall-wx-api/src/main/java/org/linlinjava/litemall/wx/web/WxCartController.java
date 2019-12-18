@@ -14,10 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.GOODS_NO_STOCK;
 import static org.linlinjava.litemall.wx.util.WxResponseCode.GOODS_UNSHELVE;
@@ -46,7 +43,10 @@ public class WxCartController {
     @Autowired
     private LitemallCouponUserService couponUserService;
     @Autowired
+    private LitemallGoodsSpecificationService specificationService;
+    @Autowired
     private CouponVerifyService couponVerifyService;
+
 
     /**
      * 用户购物车信息
@@ -108,6 +108,7 @@ public class WxCartController {
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
+        Integer[] specIds = cart.getSpecificationIds();
         if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
             return ResponseUtil.badArgument();
         }
@@ -124,7 +125,7 @@ public class WxCartController {
         LitemallGoodsProduct product = productService.findById(productId);
         //判断购物车中是否存在此规格商品
         LitemallCart existCart = cartService.queryExist(goodsId, productId, userId);
-        if (existCart == null) {
+        if (existCart == null || (existCart.getSpecificationIds() == specIds) ||  Arrays.equals(existCart.getSpecificationIds(), specIds)) {
             //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
@@ -134,9 +135,20 @@ public class WxCartController {
             cart.setGoodsSn(goods.getGoodsSn());
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
-            cart.setPrice(product.getSellPrice());
-//            cart.setSpecifications(product.getSpecifications());
+            BigDecimal sellPrice = product.getSellPrice();
+            List<String> specifications = new ArrayList<>();
+            if(null != specIds && specIds.length > 0 ){
+                cart.setSpecificationIds(specIds);
+                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
+                for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
+                    sellPrice = sellPrice.add(item.getPrice());
+                    specifications.add(item.getValue());
+                }
+            }
+            cart.setPrice(sellPrice);
+            cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setUserId(userId);
+            cart.setTaxPrice(goods.getTax());
             cart.setChecked(true);
             cartService.add(cart);
         } else {
@@ -177,6 +189,7 @@ public class WxCartController {
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
+        Integer[] specIds = cart.getSpecificationIds();
         if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
             return ResponseUtil.badArgument();
         }
@@ -203,7 +216,18 @@ public class WxCartController {
             cart.setGoodsSn(goods.getGoodsSn());
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
-//            cart.setSpecifications(product.getSpecifications());
+            BigDecimal sellPrice = product.getSellPrice();
+            List<String> specifications = new ArrayList<>();
+            if(null != specIds && specIds.length > 0 ){
+                cart.setSpecificationIds(specIds);
+                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
+                for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
+                    sellPrice = sellPrice.add(item.getPrice());
+                    specifications.add(item.getValue());
+                }
+            }
+            cart.setPrice(sellPrice);
+            cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setUserId(userId);
             cart.setChecked(true);
             cartService.add(cart);

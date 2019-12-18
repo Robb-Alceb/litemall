@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class LitemallGoodsSpecificationService {
@@ -25,6 +22,12 @@ public class LitemallGoodsSpecificationService {
 
     public LitemallGoodsSpecification findById(Integer id) {
         return goodsSpecificationMapper.selectByPrimaryKey(id);
+    }
+
+    public List<LitemallGoodsSpecification> findByIds(Integer[] ids) {
+        LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
+        example.or().andIdIn(Arrays.asList(ids)).andDeletedEqualTo(false);
+        return goodsSpecificationMapper.selectByExampleSelective(example);
     }
 
     public void deleteByGid(Integer gid) {

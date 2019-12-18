@@ -3,8 +3,6 @@ package org.linlinjava.litemall.wx.service;
 import org.linlinjava.litemall.wx.dto.CaptchaItem;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,29 +14,29 @@ public class CaptchaCodeManager {
     /**
      * 添加到缓存
      *
-     * @param phoneNumber 电话号码
+     * @param cacheKey 电话号码或者邮箱地址
      * @param code        验证码
      */
-    public static boolean addToCache(String phoneNumber, String code) {
+    public static boolean addToCache(String cacheKey, String code) {
 
 
         //已经发过验证码且验证码还未过期
-        if (captchaCodeCache.get(phoneNumber) != null) {
-            if (captchaCodeCache.get(phoneNumber).getExpireTime().isAfter(LocalDateTime.now())) {
+        if (captchaCodeCache.get(cacheKey) != null) {
+            if (captchaCodeCache.get(cacheKey).getExpireTime().isAfter(LocalDateTime.now())) {
                 return false;
             } else {
                 //存在但是已过期，删掉
-                captchaCodeCache.remove(phoneNumber);
+                captchaCodeCache.remove(cacheKey);
             }
         }
 
         CaptchaItem captchaItem = new CaptchaItem();
-        captchaItem.setPhoneNumber(phoneNumber);
+        captchaItem.setPhoneNumber(cacheKey);
         captchaItem.setCode(code);
         // 有效期为1分钟
         captchaItem.setExpireTime(LocalDateTime.now().plusMinutes(1));
 
-        captchaCodeCache.put(phoneNumber, captchaItem);
+        captchaCodeCache.put(cacheKey, captchaItem);
 
         return true;
     }
@@ -46,19 +44,19 @@ public class CaptchaCodeManager {
     /**
      * 获取缓存的验证码
      *
-     * @param phoneNumber 关联的电话号码
+     * @param cachekey 关联的电话号码或邮箱地址
      * @return 验证码
      */
-    public static String getCachedCaptcha(String phoneNumber) {
+    public static String getCachedCaptcha(String cachekey) {
         //没有这个电话记录
-        if (captchaCodeCache.get(phoneNumber) == null)
+        if (captchaCodeCache.get(cachekey) == null)
             return null;
 
         //有电话记录但是已经过期
-        if (captchaCodeCache.get(phoneNumber).getExpireTime().isBefore(LocalDateTime.now())) {
+        if (captchaCodeCache.get(cachekey).getExpireTime().isBefore(LocalDateTime.now())) {
             return null;
         }
 
-        return captchaCodeCache.get(phoneNumber).getCode();
+        return captchaCodeCache.get(cachekey).getCode();
     }
 }

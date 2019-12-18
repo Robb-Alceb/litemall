@@ -133,6 +133,18 @@ public class NotifyService {
      */
     @Async
     public void notifyMail(String subject, String content) {
+        notifyMail(subject, content, sendTo);
+    }
+
+    /**
+     * 邮件消息通知,
+     * 接收者在spring.mail.sendto中指定
+     *
+     * @param subject 邮件标题
+     * @param content 邮件内容
+     */
+    @Async
+    public void notifyMail(String subject, String content, String sendTo) {
         if (mailSender == null)
             return;
 

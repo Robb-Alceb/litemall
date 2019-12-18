@@ -212,6 +212,10 @@ public class AdminGoodsService {
         goodsLadderPriceService.deleteByGoodsId(gid);
         goodsMaxMinusPriceService.deleteByGoodsId(gid);
 
+        if(goods.getPriceType() != 1){
+            vipGoodsService.deleteByGoodsId(goods.getId());
+        }
+
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {
             specification.setGoodsId(goods.getId());
@@ -537,10 +541,13 @@ public class AdminGoodsService {
                 return ResponseUtil.fail(GOODS_UPDATE_NOT_ALLOWED,"商品允许修改");
             }
         }
-        LitemallGoods updateData = new LitemallGoods();
+/*        LitemallGoods updateData = new LitemallGoods();
         updateData.setId(price.getId());
-        updateData.setRetailPrice(price.getPrice());
-        goodsService.updateById(updateData);
+        updateData.setRetailPrice(price.getPrice());*/
+        LitemallGoodsProduct product = new LitemallGoodsProduct();
+        product.setGoodsId(price.getId());
+        product.setSellPrice(price.getPrice());
+        productService.updateByGoodsId(product);
         return ResponseUtil.ok();
     }
 
@@ -568,14 +575,14 @@ public class AdminGoodsService {
         return ResponseUtil.ok();
     }
     /**
-     * 修改规格价格
+     * 修改规格数量
      * @param storeDto
      * @param shopId
      * @return
      */
     public Object updateStore(GoodsStoreDto storeDto, Integer shopId){
-        LitemallGoodsProduct product = productService.findById(storeDto.getId());
-        LitemallGoods goods = goodsService.findById(product.getGoodsId());
+//        LitemallGoodsProduct product = productService.findById(storeDto.getId());
+        LitemallGoods goods = goodsService.findById(storeDto.getId());
         if(null == goods){
             return ResponseUtil.fail(GOODS_NOT_EXIST,"商品不存在");
         }
@@ -605,13 +612,16 @@ public class AdminGoodsService {
                 return ResponseUtil.fail(GOODS_NOT_PERMISSION, "无权处理该商品");
             }
         }
+        List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGid(goods.getId());
         List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByGid(goodsId);
         GoodsPriceVo vo = new GoodsPriceVo();
         vo.setSpecifications(litemallGoodsSpecifications);
         vo.setId(goods.getId());
         vo.setGoodsName(goods.getName());
         vo.setGoodsSn(goods.getGoodsSn());
-        vo.setGoodsSellPrice(goods.getRetailPrice());
+        if(litemallGoodsProducts.size() > 0){
+            vo.setGoodsSellPrice(litemallGoodsProducts.get(0).getSellPrice());
+        }
         return ResponseUtil.ok(vo);
     }
 

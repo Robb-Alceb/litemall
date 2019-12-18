@@ -95,6 +95,13 @@ public class LitemallUserService {
         return litemallUserMapper.selectByExample(example);
     }
 
+
+    public List<LitemallUser> queryByEmail(String email) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andEmailEqualTo(email).andDeletedEqualTo(false);
+        return litemallUserMapper.selectByExample(example);
+    }
+
     public List<LitemallUser> queryByOpenid(String openid) {
         LitemallUserExample example = new LitemallUserExample();
         example.or().andWeixinOpenidEqualTo(openid).andDeletedEqualTo(false);

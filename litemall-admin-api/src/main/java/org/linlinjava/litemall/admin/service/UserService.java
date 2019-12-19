@@ -28,12 +28,12 @@ public class UserService {
         long  userTotal = litemallUserService.count();
         Map<String, Object> map = Maps.newHashMap();
         //今日新增
-        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN);
-        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MAX);//当天零点
+        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);//当天零点
         map.put("userTodayCount",litemallUserService.queryUserByTime(todayStart, todayEnd).size());
         //昨日新增
-        LocalDateTime yesterdayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        LocalDateTime yesterdayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);//当天零点
+        LocalDateTime yesterdayStart = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN);
+        LocalDateTime yesterdayEnd = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MAX);//当天零点
         map.put("userYesterdayCount", litemallUserService.queryUserByTime(yesterdayStart, yesterdayEnd).size());
         //本月新增
         LocalDateTime localDateTime = LocalDateTime.now();

@@ -44,6 +44,12 @@ public class AdminUserController {
         return ResponseUtil.okList(userList);
     }
 
+    /**
+     * 新增数量统计
+     * @param startTime
+     * @param endTime
+     * @return
+     */
     @RequiresPermissions("admin:user:queryUserStatistics")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员统计"}, button = "会员统计")
     @GetMapping("/queryUserStatistics")

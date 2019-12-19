@@ -20,12 +20,12 @@ public class UserService {
     private LitemallUserService litemallUserService;
 
     public Object queryUserStatistics(String startTime, String endTime) {
-        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
-        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
+//        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
+//        LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
 
         //查询用户信息
-        List<LitemallUser> litemallUsers = litemallUserService.queryUserByTime(startTimes, endTimes);
+        long  userTotal = litemallUserService.count();
         Map<String, Object> map = Maps.newHashMap();
         //今日新增
         LocalDateTime todayStart = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIN);
@@ -41,7 +41,7 @@ public class UserService {
         LocalDateTime lastDay = LocalDateTime.of(localDateTime.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate(), LocalTime.MAX);
         map.put("userMonthCount", litemallUserService.queryUserByTime(firstday, lastDay).size());
         //会员总数
-        map.put("userTotal", litemallUsers.size());
+        map.put("userTotal", userTotal);
 
         return ResponseUtil.ok(map);
     }

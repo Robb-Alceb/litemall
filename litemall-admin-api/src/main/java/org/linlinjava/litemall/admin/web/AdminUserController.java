@@ -47,7 +47,7 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:queryUserStatistics")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员统计"}, button = "会员统计")
     @GetMapping("/queryUserStatistics")
-    public Object queryUserStatistics(@NotNull String startTime, @NotNull String endTime) {
+    public Object queryUserStatistics(String startTime, String endTime) {
         return ResponseUtil.ok(userService.queryUserStatistics(startTime, endTime));
     }
 

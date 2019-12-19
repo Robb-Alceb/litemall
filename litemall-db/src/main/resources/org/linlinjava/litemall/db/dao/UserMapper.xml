@@ -3,8 +3,13 @@
 <mapper namespace="org.linlinjava.litemall.db.dao.UserMapper">
     <select id="queryUserStatistics" parameterType="map" resultType="map">
         SELECT
-          u.add_time as addTime,
-          COUNT(1)
+            <if test="map.type==1">
+                DATE_FORMAT(u.add_time, '%Y-%m-%d') as addTime,
+            </if>
+            <if test="map.type==2">
+                DATE_FORMAT(u.add_time, '%Y-%m') as addTime,
+            </if>
+          COUNT(1) as count
         FROM
           litemall_user u
         WHERE 1=1

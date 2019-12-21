@@ -122,11 +122,17 @@ public class LitemallUserService {
 
     public long total() {
         LitemallUserExample example = new LitemallUserExample();
-        example.or().andLogicalDeleted(false);
+        example.or().andDeletedEqualTo(false);
         return litemallUserMapper.countByExample(example);
     }
 
     public List<Map<String, Object>>  queryAddUserStatistics(Map<String, Object> map){
         return userMapper.queryUserStatistics(map);
+    }
+
+    public List<LitemallUser> queryAll() {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andDeletedEqualTo(false);
+        return litemallUserMapper.selectByExample(example);
     }
 }

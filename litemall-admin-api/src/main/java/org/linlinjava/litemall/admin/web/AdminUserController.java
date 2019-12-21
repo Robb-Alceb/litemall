@@ -74,4 +74,10 @@ public class AdminUserController {
     public Object queryAddUserStatistics(@NotNull String type, @NotNull String startTime, @NotNull String endTime) {
         return ResponseUtil.ok(userService.queryAddUserStatistics(type, startTime, endTime));
     }
+
+    @GetMapping("/option")
+    @LogAnno
+    public Object queryAll() {
+        return ResponseUtil.ok(userService.queryAll());
+    }
 }

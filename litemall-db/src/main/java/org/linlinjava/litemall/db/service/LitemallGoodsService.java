@@ -190,6 +190,12 @@ public class LitemallGoodsService {
         return (int) goodsMapper.countByExample(example);
     }
 
+    public Integer queryOnSaleByShop(Integer shopId) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andShopIdEqualTo(shopId).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        return (int) goodsMapper.countByExample(example);
+    }
+
     public int updateById(LitemallGoods goods) {
         goods.setUpdateTime(LocalDateTime.now());
         return goodsMapper.updateByPrimaryKeySelective(goods);

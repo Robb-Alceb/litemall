@@ -31,9 +31,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
@@ -422,7 +420,7 @@ public class AdminOrderService {
         BigDecimal bd = new BigDecimal(collect1.stream().mapToDouble(cc->Double.valueOf(cc.getActualPrice().toString())).sum());
         map.put("payPrice", bd.setScale(2, BigDecimal.ROUND_HALF_UP));
 
-        return map;
+        return ResponseUtil.ok(map);
     }
 
     /**
@@ -445,7 +443,7 @@ public class AdminOrderService {
             return ResponseUtil.fail(PromptEnum.P_102.getCode(), PromptEnum.P_102.getDesc());
         }
 
-        Map<String, Object> map = Maps.newHashMap();
+        LinkedHashMap<String, Object> map = Maps.newLinkedHashMap();
         //0~50
         map.put("fifty", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(50)) <= 0).collect(Collectors.toList()).size());
         //51~100
@@ -463,7 +461,7 @@ public class AdminOrderService {
         //10001
         map.put("greaterThanTenThousand", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(10000)) > 0).collect(Collectors.toList()).size());
 
-        return map;
+        return ResponseUtil.ok(map);
     }
 
     private int getActualPrice(List<LitemallOrder> litemallOrder, int start, int end) {

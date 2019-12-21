@@ -11,6 +11,7 @@ import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
+import org.linlinjava.litemall.wx.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * 商品服务
@@ -269,6 +271,22 @@ public class WxGoodsController {
 
 		//查询列表数据
 		List<LitemallGoods> goodsList = goodsService.querySelective(shopId, categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
+		List<GoodsVo> goodsVos = goodsList.stream().map(goods->{
+			List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGid(goods.getId());
+			GoodsVo vo = new GoodsVo();
+			vo.setBrief(goods.getBrief());
+			vo.setIsHot(goods.getIsHot());
+			vo.setId(goods.getId());
+			vo.setName(goods.getName());
+			vo.setIsNew(goods.getIsNew());
+
+			if(litemallGoodsProducts.size() > 0){
+				vo.setTax(litemallGoodsProducts.get(0).getTax());
+				vo.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
+			}
+			return vo;
+		}).collect(Collectors.toList());
+
 
 		// 查询商品所属类目列表。
 		List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);
@@ -282,12 +300,12 @@ public class WxGoodsController {
 		PageInfo<LitemallGoods> pagedList = PageInfo.of(goodsList);
 
 		Map<String, Object> entity = new HashMap<>();
-		entity.put("list", goodsList);
+		entity.put("list", goodsVos);
 		entity.put("total", pagedList.getTotal());
 		entity.put("page", pagedList.getPageNum());
 		entity.put("limit", pagedList.getPageSize());
 		entity.put("pages", pagedList.getPages());
-		entity.put("filterCategoryList", categoryList);
+//		entity.put("filterCategoryList", categoryList);
 
 		// 因为这里需要返回额外的filterCategoryList参数，因此不能方便使用ResponseUtil.okList
 		return ResponseUtil.ok(entity);
@@ -321,8 +339,8 @@ public class WxGoodsController {
 	 * @return 在售的商品总数
 	 */
 	@GetMapping("count")
-	public Object count() {
-		Integer goodsCount = goodsService.queryOnSale();
+	public Object count(@NotNull Integer shopId) {
+		Integer goodsCount = goodsService.queryOnSaleByShop(shopId);
 		return ResponseUtil.ok(goodsCount);
 	}
 

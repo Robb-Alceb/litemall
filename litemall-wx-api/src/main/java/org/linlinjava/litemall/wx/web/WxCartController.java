@@ -148,7 +148,7 @@ public class WxCartController {
             cart.setPrice(sellPrice);
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setUserId(userId);
-            cart.setTaxPrice(goods.getTax());
+            cart.setTaxPrice(product.getTax());
             cart.setChecked(true);
             cartService.add(cart);
         } else {

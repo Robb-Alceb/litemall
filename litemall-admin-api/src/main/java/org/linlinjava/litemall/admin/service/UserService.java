@@ -1,11 +1,14 @@
 package org.linlinjava.litemall.admin.service;
 
 import com.google.common.collect.Maps;
+import org.linlinjava.litemall.admin.beans.vo.UserOptionVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -54,5 +58,16 @@ public class UserService {
         map.put("endTime", LocalDateTime.parse(endTime, timeDtf));
 
         return ResponseUtil.ok(litemallUserService.queryAddUserStatistics(map));
+    }
+
+    public Object queryAll() {
+        List<LitemallUser> litemallUsers = litemallUserService.queryAll();
+        List<UserOptionVo> collect = litemallUsers.stream().map(user -> {
+            UserOptionVo vo = new UserOptionVo();
+            vo.setKey(user.getId());
+            vo.setLabel(StringUtils.isEmpty(user.getNickname())?user.getUsername():user.getNickname());
+            return vo;
+        }).collect(Collectors.toList());
+        return collect;
     }
 }

@@ -6,7 +6,9 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
+import org.linlinjava.litemall.wx.vo.CategoryVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +110,55 @@ public class WxCatalogController {
         //缓存数据
         HomeCacheManager.loadData(HomeCacheManager.CATALOG, data);
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * 所有分类数据
+     * @return
+     */
+    @GetMapping("list")
+    public Object list() {
+        List<CategoryVo> categoryVoList = new ArrayList<>();
+
+        List<LitemallCategory> categoryList = categoryService.queryByPid(0);
+        for (LitemallCategory category : categoryList) {
+            CategoryVo categoryVO = getCategoryVo(category);
+
+            List<CategoryVo> children = new ArrayList<>();
+            List<LitemallCategory> subCategoryList = categoryService.queryByPid(category.getId());
+            for (LitemallCategory subCategory : subCategoryList) {
+                CategoryVo subCategoryVo = getCategoryVo(subCategory);
+
+                List<CategoryVo> childrenLThree = new ArrayList<>();
+                List<LitemallCategory> litemallCategories = categoryService.queryByPid(subCategory.getId());
+                if(!CollectionUtils.isEmpty(litemallCategories)){
+                    for(LitemallCategory litemallCategory : litemallCategories){
+                        CategoryVo categoryVoThree = getCategoryVo(litemallCategory);
+                        childrenLThree.add(categoryVoThree);
+                    }
+                }
+
+                subCategoryVo.setChildren(childrenLThree);
+                children.add(subCategoryVo);
+            }
+
+            categoryVO.setChildren(children);
+            categoryVoList.add(categoryVO);
+        }
+
+        return ResponseUtil.okList(categoryVoList);
+    }
+
+    private CategoryVo getCategoryVo(LitemallCategory litemallCategory) {
+        CategoryVo categoryVoThree = new CategoryVo();
+        categoryVoThree.setId(litemallCategory.getId());
+        categoryVoThree.setDesc(litemallCategory.getDesc());
+        categoryVoThree.setIconUrl(litemallCategory.getIconUrl());
+        categoryVoThree.setPicUrl(litemallCategory.getPicUrl());
+        categoryVoThree.setKeywords(litemallCategory.getKeywords());
+        categoryVoThree.setName(litemallCategory.getName());
+        categoryVoThree.setLevel(litemallCategory.getLevel());
+        return categoryVoThree;
     }
 
     /**

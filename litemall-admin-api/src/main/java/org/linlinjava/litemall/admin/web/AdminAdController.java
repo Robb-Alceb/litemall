@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdService;
@@ -34,6 +35,7 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String name, String content,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
@@ -59,6 +61,7 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:create")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
@@ -74,6 +77,7 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:read")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallAd ad = litemallAdService.findById(id);
         return ResponseUtil.ok(ad);
@@ -82,6 +86,7 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:update")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
@@ -96,6 +101,7 @@ public class AdminAdController {
     @RequiresPermissions("admin:ad:delete")
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallAd ad) {
         Integer id = ad.getId();
         if (id == null) {

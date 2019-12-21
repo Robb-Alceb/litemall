@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminService;
@@ -49,6 +50,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String nickname,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
@@ -86,6 +88,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:create")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallAdmin admin) {
         Object error = validate(admin);
         if (error != null) {
@@ -110,6 +113,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:read")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallAdmin admin = litemallAdminService.findById(id);
         return ResponseUtil.ok(admin);
@@ -118,6 +122,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:update")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallAdmin admin) {
         Object error = validatePassword(admin);
         if (error != null) {
@@ -151,6 +156,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:delete")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallAdmin admin) {
         Integer anotherAdminId = admin.getId();
         if (anotherAdminId == null) {
@@ -170,10 +176,12 @@ public class AdminAdminController {
     }
 
     @GetMapping("/shop/shopkeeper")
+    @LogAnno
     public Object getShopkeeper(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }
     @GetMapping("/shop/manager")
+    @LogAnno
     public Object getShopManager(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOP_MANAGER_ROLE_ID);
     }
@@ -181,6 +189,7 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:shopMembers")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
     @GetMapping("/shop/members")
+    @LogAnno
     public Object getShopMembers(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMembers(shopId);
     }
@@ -188,11 +197,13 @@ public class AdminAdminController {
     @RequiresPermissions("admin:admin:all")
     @RequiresPermissionsDesc(menu = {"系统管理员", "系统管理员"}, button = "所有")
     @GetMapping("/all")
+    @LogAnno
     public Object all() {
         return adminService.all();
     }
 
     @GetMapping("/info")
+    @LogAnno
     public Object info() {
         LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
         LitemallShop shop = litemallShopService.findById(admin.getShopId());

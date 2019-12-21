@@ -2,6 +2,7 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
@@ -32,6 +33,7 @@ public class AdminDashbordController {
     private LitemallOrderService orderService;
 
     @GetMapping("")
+    @LogAnno
     public Object info() {
         int userTotal = userService.count();
         int goodsTotal = goodsService.count();

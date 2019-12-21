@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -30,6 +31,7 @@ public class AdminBrandController {
     @RequiresPermissions("admin:brand:list")
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String id, String name,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -60,6 +62,7 @@ public class AdminBrandController {
     @RequiresPermissions("admin:brand:create")
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallBrand brand) {
         Object error = validate(brand);
         if (error != null) {
@@ -72,6 +75,7 @@ public class AdminBrandController {
     @RequiresPermissions("admin:brand:read")
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallBrand brand = brandService.findById(id);
         return ResponseUtil.ok(brand);
@@ -80,6 +84,7 @@ public class AdminBrandController {
     @RequiresPermissions("admin:brand:update")
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallBrand brand) {
         Object error = validate(brand);
         if (error != null) {
@@ -94,6 +99,7 @@ public class AdminBrandController {
     @RequiresPermissions("admin:brand:delete")
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallBrand brand) {
         Integer id = brand.getId();
         if (id == null) {

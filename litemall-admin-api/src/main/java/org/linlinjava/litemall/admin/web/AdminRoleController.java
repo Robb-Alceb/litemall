@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
@@ -49,6 +50,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String name,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
@@ -60,6 +62,7 @@ public class AdminRoleController {
     }
 
     @GetMapping("/options")
+    @LogAnno
     public Object options(@LoginAdminShopId Integer shopId) {
         List<LitemallRole> roleList = new ArrayList<>();
         if(null != shopId){
@@ -82,6 +85,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:read")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallRole role = roleService.findById(id);
         return ResponseUtil.ok(role);
@@ -100,6 +104,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:create")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallRole role) {
         Object error = validate(role);
         if (error != null) {
@@ -118,6 +123,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:update")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallRole role) {
         Object error = validate(role);
         if (error != null) {
@@ -131,6 +137,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:delete")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "角色删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallRole role) {
         Integer id = role.getId();
         if (id == null) {
@@ -213,6 +220,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:permission:get")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "权限详情")
     @GetMapping("/permissions")
+    @LogAnno
     public Object getPermissions(Integer roleId) {
         List<PermVo> systemPermissions = getSystemPermissions();
         Set<String> assignedPermissions = getAssignedPermissions(roleId);
@@ -233,6 +241,7 @@ public class AdminRoleController {
     @RequiresPermissions("admin:role:permission:update")
     @RequiresPermissionsDesc(menu = {"系统管理", "角色管理"}, button = "权限变更")
     @PostMapping("/permissions")
+    @LogAnno
     public Object updatePermissions(@RequestBody String body) {
         Integer roleId = JacksonUtil.parseInteger(body, "roleId");
         List<String> permissions = JacksonUtil.parseStringList(body, "permissions");

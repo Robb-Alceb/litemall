@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.vo.CategoryVo;
 import org.linlinjava.litemall.admin.service.CategoryService;
@@ -32,6 +33,7 @@ public class AdminCategoryController {
     @RequiresPermissions("admin:category:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list() {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
@@ -101,6 +103,7 @@ public class AdminCategoryController {
     @RequiresPermissions("admin:category:create")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallCategory category) {
         Object error = validate(category);
         if (error != null) {
@@ -113,6 +116,7 @@ public class AdminCategoryController {
     @RequiresPermissions("admin:category:read")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallCategory category = litemallCategoryService.findById(id);
         return ResponseUtil.ok(category);
@@ -121,6 +125,7 @@ public class AdminCategoryController {
     @RequiresPermissions("admin:category:update")
     @RequiresPermissionsDesc(menu = {"商场管理", "类目管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallCategory category) {
         Object error = validate(category);
         if (error != null) {
@@ -136,12 +141,14 @@ public class AdminCategoryController {
     @RequiresPermissions("admin:category:delete")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallCategory category) {
         return categoryService.delete(category);
     }
 
     @RequiresPermissions("admin:category:list")
     @GetMapping("/l1")
+    @LogAnno
     public Object catL1() {
         // 所有一级分类目录
         List<LitemallCategory> l1CatList = litemallCategoryService.queryL1();
@@ -156,6 +163,7 @@ public class AdminCategoryController {
     }
     @RequiresPermissions("admin:category:list")
     @GetMapping("/l2")
+    @LogAnno
     public Object catL2() {
         // 所有一、二级分类目录
         return categoryService.queryL2();

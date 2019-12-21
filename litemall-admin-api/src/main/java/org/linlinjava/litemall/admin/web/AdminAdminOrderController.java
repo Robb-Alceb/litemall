@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.vo.AdminOrderVo;
@@ -40,6 +41,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:shopList")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String orderSn, String userName, String address,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
@@ -57,6 +59,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:orderApplying")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "订单申请")
     @PostMapping("/orderApplying")
+    @LogAnno
     public Object orderApplying(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderApplying(adminOrderVo);
@@ -70,6 +73,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:orderPass")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "同意调货")
     @PostMapping("/orderPass")
+    @LogAnno
     public Object orderPass(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.orderPass(adminOrderVo);
     }
@@ -94,6 +98,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:orderPay")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "支付货款")
     @PostMapping("/orderPay")
+    @LogAnno
     public Object orderPay(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderPay(adminOrderVo);
@@ -107,6 +112,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:deliverGoods")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "同意发货")
     @PostMapping("/deliverGoods")
+    @LogAnno
     public Object deliverGoods(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.deliverGoods(adminOrderVo);
     }
@@ -119,6 +125,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:cancelDeliverGoods")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "拒绝发货")
     @PostMapping("/cancelDeliverGoods")
+    @LogAnno
     public Object cancelDeliverGoods(@RequestBody AdminOrderVo adminOrderVo){
         return adminAdminOrderService.cancelDeliverGoods(adminOrderVo);
     }
@@ -132,6 +139,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:takeDelivery")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "确认收货")
     @PostMapping("/takeDelivery")
+    @LogAnno
     public Object takeDelivery(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.takeDelivery(adminOrderVo);
@@ -145,6 +153,7 @@ public class AdminAdminOrderController {
     @RequiresPermissions("admin:order:takeDelivery")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id, @LoginAdminShopId Integer shopId){
         return adminAdminOrderService.read(id, shopId);
     }

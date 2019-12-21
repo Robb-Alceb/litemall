@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminOrderService;
@@ -38,6 +39,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:list")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(Integer userId, String orderSn,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(required = false) List<Short> orderStatusArray,
@@ -57,6 +59,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:read")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "详情")
     @GetMapping("/detail")
+    @LogAnno
     public Object detail(@NotNull Integer id) {
         return adminOrderService.detail(id);
     }
@@ -70,6 +73,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:refund")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单退款")
     @PostMapping("/refund")
+    @LogAnno
     public Object refund(@NotNull Integer orderId, @LoginAdminShopId Integer shopId) {
         return adminOrderService.refund(orderId, shopId);
     }
@@ -83,6 +87,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:ship")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单发货")
     @PostMapping("/ship")
+    @LogAnno
     public Object ship(@RequestBody String body) {
         return adminOrderService.ship(body);
     }
@@ -97,6 +102,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:reply")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品回复")
     @PostMapping("/reply")
+    @LogAnno
     public Object reply(@RequestBody String body) {
         return adminOrderService.reply(body);
     }
@@ -110,6 +116,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:remark")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品备注")
     @PostMapping("/remark")
+    @LogAnno
     public Object mark(@RequestBody String body, @LoginAdminShopId Integer shopId) {
         return adminOrderService.remark(body, shopId);
     }
@@ -122,6 +129,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
     @GetMapping("/goodsStatistics")
+    @LogAnno
     public Object goodsStatistics(@LoginAdminShopId Integer shopId,@NotNull String startTime,@NotNull  String endTime){
         return adminOrderService.goodsStatistics(startTime, endTime, shopId);
     }
@@ -140,6 +148,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:goodsSalesStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品销售统计")
     @GetMapping("/goodsSalesStatistics")
+    @LogAnno
     public Object goodsSalesStatistics(@LoginAdminShopId Integer shopId, @NotNull String type,@NotNull String startTime,@NotNull  String endTime,
                                        @RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer limit,
@@ -157,6 +166,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:salesStatistics")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "销售统计")
     @GetMapping("/salesStatistics")
+    @LogAnno
     public Object salesStatistics(@NotNull String startTime,@NotNull String endTime){
         return adminOrderService.salesStatistics(startTime, endTime);
     }
@@ -170,6 +180,7 @@ public class AdminOrderController {
     @RequiresPermissions("admin:order:transactionData")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "交易数据")
     @GetMapping("/transactionData")
+    @LogAnno
     public Object transactionData(@NotNull String startTime,@NotNull  String endTime){
         return adminOrderService.transactionData(startTime, endTime);
     }

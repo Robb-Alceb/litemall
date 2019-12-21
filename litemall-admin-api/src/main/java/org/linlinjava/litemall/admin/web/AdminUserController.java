@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.UserService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -35,6 +36,7 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String username, String mobile,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -53,6 +55,7 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:queryUserStatistics")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员统计"}, button = "会员统计")
     @GetMapping("/queryUserStatistics")
+    @LogAnno
     public Object queryUserStatistics(String startTime, String endTime) {
         return ResponseUtil.ok(userService.queryUserStatistics(startTime, endTime));
     }
@@ -67,6 +70,7 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:queryAddUserStatistics")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员增长统计"}, button = "会员增长统计")
     @GetMapping("/queryAddUserStatistics")
+    @LogAnno
     public Object queryAddUserStatistics(@NotNull String type, @NotNull String startTime, @NotNull String endTime) {
         return ResponseUtil.ok(userService.queryAddUserStatistics(type, startTime, endTime));
     }

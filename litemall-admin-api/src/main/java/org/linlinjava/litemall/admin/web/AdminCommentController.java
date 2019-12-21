@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -27,6 +28,7 @@ public class AdminCommentController {
     @RequiresPermissions("admin:comment:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "评论管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String userId, String valueId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -39,6 +41,7 @@ public class AdminCommentController {
     @RequiresPermissions("admin:comment:delete")
     @RequiresPermissionsDesc(menu = {"商品管理", "评论管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallComment comment) {
         Integer id = comment.getId();
         if (id == null) {

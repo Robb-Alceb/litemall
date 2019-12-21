@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -37,6 +38,7 @@ public class AdminTopicController {
     @RequiresPermissions("admin:topic:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String title, String subtitle,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -65,6 +67,7 @@ public class AdminTopicController {
     @RequiresPermissions("admin:topic:create")
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallTopic topic) {
         Object error = validate(topic);
         if (error != null) {
@@ -77,6 +80,7 @@ public class AdminTopicController {
     @RequiresPermissions("admin:topic:read")
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallTopic topic = topicService.findById(id);
         Integer[] goodsIds = topic.getGoods();
@@ -95,6 +99,7 @@ public class AdminTopicController {
     @RequiresPermissions("admin:topic:update")
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallTopic topic) {
         Object error = validate(topic);
         if (error != null) {
@@ -109,6 +114,7 @@ public class AdminTopicController {
     @RequiresPermissions("admin:topic:delete")
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallTopic topic) {
         topicService.deleteById(topic.getId());
         return ResponseUtil.ok();

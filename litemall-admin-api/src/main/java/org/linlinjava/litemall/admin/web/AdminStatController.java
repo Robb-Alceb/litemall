@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.vo.StatVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -28,6 +29,7 @@ public class AdminStatController {
     @RequiresPermissions("admin:stat:user")
     @RequiresPermissionsDesc(menu = {"统计管理", "用户统计"}, button = "查询")
     @GetMapping("/user")
+    @LogAnno
     public Object statUser() {
         List<Map> rows = statService.statUser();
         String[] columns = new String[]{"day", "users"};
@@ -40,6 +42,7 @@ public class AdminStatController {
     @RequiresPermissions("admin:stat:order")
     @RequiresPermissionsDesc(menu = {"统计管理", "订单统计"}, button = "查询")
     @GetMapping("/order")
+    @LogAnno
     public Object statOrder() {
         List<Map> rows = statService.statOrder();
         String[] columns = new String[]{"day", "orders", "customers", "amount", "pcr"};
@@ -53,6 +56,7 @@ public class AdminStatController {
     @RequiresPermissions("admin:stat:goods")
     @RequiresPermissionsDesc(menu = {"统计管理", "商品统计"}, button = "查询")
     @GetMapping("/goods")
+    @LogAnno
     public Object statGoods() {
         List<Map> rows = statService.statGoods();
         String[] columns = new String[]{"day", "orders", "products", "amount"};

@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
@@ -31,6 +32,7 @@ public class AdminProfileController {
 
     @RequiresAuthentication
     @PostMapping("/password")
+    @LogAnno
     public Object create(@RequestBody String body) {
         String oldPassword = JacksonUtil.parseString(body, "oldPassword");
         String newPassword = JacksonUtil.parseString(body, "newPassword");

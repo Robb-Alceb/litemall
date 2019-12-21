@@ -9,6 +9,7 @@ import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.admin.util.Permission;
 import org.linlinjava.litemall.admin.util.PermissionUtil;
@@ -54,6 +55,7 @@ public class AdminAuthController {
      *  { username : value, password : value }
      */
     @PostMapping("/login")
+    @LogAnno
     public Object login(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -102,6 +104,7 @@ public class AdminAuthController {
      */
     @RequiresAuthentication
     @PostMapping("/logout")
+    @LogAnno
     public Object logout() {
         Subject currentUser = SecurityUtils.getSubject();
 
@@ -113,6 +116,7 @@ public class AdminAuthController {
 
     @RequiresAuthentication
     @GetMapping("/info")
+    @LogAnno
     public Object info() {
         Subject currentUser = SecurityUtils.getSubject();
         LitemallAdmin admin = (LitemallAdmin) currentUser.getPrincipal();

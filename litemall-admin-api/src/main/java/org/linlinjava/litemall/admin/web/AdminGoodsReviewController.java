@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.admin.web;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.beans.dto.GoodsReviewDto;
 import org.linlinjava.litemall.admin.service.GoodsReviewService;
@@ -28,6 +29,7 @@ public class AdminGoodsReviewController {
     @RequiresPermissions("admin:goods:approve")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品审核"}, button = "通过")
     @PostMapping("/approve")
+    @LogAnno
     public Object create(@RequestBody GoodsReviewDto goodsReviewDto) {
         return goodsReviewService.approve(goodsReviewDto);
     }
@@ -41,6 +43,7 @@ public class AdminGoodsReviewController {
     @RequiresPermissions("admin:goods:reject")
     @RequiresPermissionsDesc(menu = {"商品管理", "商品审核"}, button = "不通过")
     @PostMapping("/reject")
+    @LogAnno
     public Object detail(@RequestBody GoodsReviewDto goodsReviewDto) {
         return goodsReviewService.reject(goodsReviewDto);
     }

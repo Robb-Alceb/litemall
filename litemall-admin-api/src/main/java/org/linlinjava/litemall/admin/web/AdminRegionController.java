@@ -2,6 +2,7 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.vo.RegionVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallRegion;
@@ -26,12 +27,14 @@ public class AdminRegionController {
     private LitemallRegionService regionService;
 
     @GetMapping("/clist")
+    @LogAnno
     public Object clist(@NotNull Integer id) {
         List<LitemallRegion> regionList = regionService.queryByPid(id);
         return ResponseUtil.okList(regionList);
     }
 
     @GetMapping("/list")
+    @LogAnno
     public Object list() {
         List<RegionVo> regionVoList = new ArrayList<>();
 

@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.ShopLogService;
@@ -41,6 +42,7 @@ public class AdminShopLogController {
     @RequiresPermissions("admin:shopLog:list")
     @RequiresPermissionsDesc(menu = {"门店管理", "操作日志"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String content,
                        @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,

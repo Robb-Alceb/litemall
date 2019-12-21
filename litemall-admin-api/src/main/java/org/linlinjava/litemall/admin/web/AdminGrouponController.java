@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -40,6 +41,7 @@ public class AdminGrouponController {
     @RequiresPermissions("admin:groupon:read")
     @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "详情")
     @GetMapping("/listRecord")
+    @LogAnno
     public Object listRecord(String grouponId,
                              @RequestParam(defaultValue = "1") Integer page,
                              @RequestParam(defaultValue = "10") Integer limit,
@@ -72,6 +74,7 @@ public class AdminGrouponController {
     @RequiresPermissions("admin:groupon:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String goodsId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -105,6 +108,7 @@ public class AdminGrouponController {
     @RequiresPermissions("admin:groupon:update")
     @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallGrouponRules grouponRules) {
         Object error = validate(grouponRules);
         if (error != null) {
@@ -130,6 +134,7 @@ public class AdminGrouponController {
     @RequiresPermissions("admin:groupon:create")
     @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallGrouponRules grouponRules) {
         Object error = validate(grouponRules);
         if (error != null) {
@@ -153,6 +158,7 @@ public class AdminGrouponController {
     @RequiresPermissions("admin:groupon:delete")
     @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallGrouponRules grouponRules) {
         Integer id = grouponRules.getId();
         if (id == null) {

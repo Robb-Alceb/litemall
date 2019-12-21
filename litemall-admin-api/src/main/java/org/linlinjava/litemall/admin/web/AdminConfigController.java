@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
@@ -26,6 +27,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:mall:list")
     @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
     @GetMapping("/mall")
+    @LogAnno
     public Object listMall() {
         Map<String, String> data = systemConfigService.listMail();
         return ResponseUtil.ok(data);
@@ -34,6 +36,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:mall:updateConfigs")
     @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
     @PostMapping("/mall")
+    @LogAnno
     public Object updateMall(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
@@ -44,6 +47,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:express:list")
     @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "详情")
     @GetMapping("/express")
+    @LogAnno
     public Object listExpress() {
         Map<String, String> data = systemConfigService.listExpress();
         return ResponseUtil.ok(data);
@@ -52,6 +56,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:express:updateConfigs")
     @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "编辑")
     @PostMapping("/express")
+    @LogAnno
     public Object updateExpress(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
@@ -62,6 +67,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:order:list")
     @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "详情")
     @GetMapping("/order")
+    @LogAnno
     public Object lisOrder() {
         Map<String, String> data = systemConfigService.listOrder();
         return ResponseUtil.ok(data);
@@ -70,6 +76,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:order:updateConfigs")
     @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "编辑")
     @PostMapping("/order")
+    @LogAnno
     public Object updateOrder(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
@@ -79,6 +86,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:wx:list")
     @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "详情")
     @GetMapping("/wx")
+    @LogAnno
     public Object listWx() {
         Map<String, String> data = systemConfigService.listWx();
         return ResponseUtil.ok(data);
@@ -87,6 +95,7 @@ public class AdminConfigController {
     @RequiresPermissions("admin:config:wx:updateConfigs")
     @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "编辑")
     @PostMapping("/wx")
+    @LogAnno
     public Object updateWx(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);

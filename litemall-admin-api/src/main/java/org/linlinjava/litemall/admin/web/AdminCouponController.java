@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -34,6 +35,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询")
     @GetMapping("/list")
+    @LogAnno
     public Object list(String name, Short type, Short status,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -46,6 +48,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:listuser")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询用户")
     @GetMapping("/listuser")
+    @LogAnno
     public Object listuser(Integer userId, Integer couponId, Short status,
                            @RequestParam(defaultValue = "1") Integer page,
                            @RequestParam(defaultValue = "10") Integer limit,
@@ -67,6 +70,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:create")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "添加")
     @PostMapping("/create")
+    @LogAnno
     public Object create(@RequestBody LitemallCoupon coupon) {
         Object error = validate(coupon);
         if (error != null) {
@@ -86,6 +90,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:read")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "详情")
     @GetMapping("/read")
+    @LogAnno
     public Object read(@NotNull Integer id) {
         LitemallCoupon coupon = couponService.findById(id);
         return ResponseUtil.ok(coupon);
@@ -94,6 +99,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:update")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "编辑")
     @PostMapping("/update")
+    @LogAnno
     public Object update(@RequestBody LitemallCoupon coupon) {
         Object error = validate(coupon);
         if (error != null) {
@@ -108,6 +114,7 @@ public class AdminCouponController {
     @RequiresPermissions("admin:coupon:delete")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "删除")
     @PostMapping("/delete")
+    @LogAnno
     public Object delete(@RequestBody LitemallCoupon coupon) {
         couponService.deleteById(coupon.getId());
         return ResponseUtil.ok();

@@ -379,7 +379,7 @@ public class AdminOrderService {
      */
     public Object salesStatistics(String startTime,  String endTime){
 
-        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
         LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
 
@@ -389,12 +389,12 @@ public class AdminOrderService {
         if(CollectionUtils.isEmpty(litemallOrder)){
             return ResponseUtil.fail(PromptEnum.P_102.getCode(), PromptEnum.P_102.getDesc());
         }
-        //过滤 取消和自动取消 退款和自动退款状态
-        List<LitemallOrder> ordreList = litemallOrder.stream().filter(order -> !(Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_102.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_103.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_202.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_203.getCode())).collect(Collectors.toList());
-
         //浏览人数
         List<LitemallBrowseRecord> browseRecords = browseRecordService.queryBrowseUserCount(startTimes, endTimes);
         map.put("browseUserNum", !CollectionUtils.isEmpty(browseRecords)?browseRecords.size():0);
+        //过滤 取消和自动取消 退款和自动退款状态
+        List<LitemallOrder> ordreList = litemallOrder.stream().filter(order -> !(Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_102.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_103.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_202.getCode() || Integer.valueOf(order.getOrderStatus()) == OrderStatusEnum.P_203.getCode())).collect(Collectors.toList());
+
         //下单人数
         Map<Integer, List<LitemallOrder>>collect = litemallOrder.stream().collect(Collectors.groupingBy(LitemallOrder::getUserId));
         map.put("userOrderNum", !CollectionUtils.isEmpty(collect)?collect.size():0);
@@ -435,7 +435,7 @@ public class AdminOrderService {
         if(StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime)){
             return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
         }
-        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime startTimes = LocalDateTime.parse(startTime, timeDtf);
         LocalDateTime endTimes = LocalDateTime.parse(endTime, timeDtf);
 
@@ -528,7 +528,7 @@ public class AdminOrderService {
         List<OrderGoodsVo> orderGoodsVos = new ArrayList<>();
         orderGoods.stream().forEach(og->{
             OrderGoodsVo orderGoodsVo = new OrderGoodsVo();
-            LitemallCategory category = categoryService.findById(goodsService.findById(og.getGoodsId()).getCategoryId());
+            LitemallCategory category = categoryService.findById(goodsService.findByGoodsSn(og.getGoodsSn()).getCategoryId());
             BeanUtils.copyProperties(og, orderGoodsVo);
             orderGoodsVo.setCategoryId(category.getId());
             orderGoodsVo.setCategoryName(category.getName());
@@ -559,7 +559,7 @@ public class AdminOrderService {
      */
     private List<LitemallOrderGoods> getOrderGoods(List<LitemallOrderGoods> orderGoodsList) {
         List<LitemallOrderGoods> orderGoodss = new ArrayList<>();
-        Map<Integer, List<LitemallOrderGoods>> collect = orderGoodsList.stream().collect(Collectors.groupingBy(LitemallOrderGoods::getGoodsId));
+        Map<String, List<LitemallOrderGoods>> collect = orderGoodsList.stream().collect(Collectors.groupingBy(LitemallOrderGoods::getGoodsSn));
         collect.keySet().forEach(key->{
             List<LitemallOrderGoods> lrgs = collect.get(key);
             if(lrgs.size()>1){

@@ -47,7 +47,7 @@ public class UserService {
     }
 
     public Object queryAddUserStatistics(String type, String startTime, String endTime) {
-        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         Map<String, Object> map = Maps.newHashMap();
         map.put("type", type);
         map.put("startTime", LocalDateTime.parse(startTime, timeDtf));

@@ -152,4 +152,18 @@ public class AdminShopController {
     public Object all(@LoginAdminShopId Integer id, String merchandiseSn) {
         return ResponseUtil.ok(shopMerchandiseService.queryBySn(merchandiseSn, id));
     }
+
+
+    /**
+     * 查询门店商品信息 销售情况 订单情况  商品情况
+     * @param shopId
+     * @return
+     */
+    @RequiresPermissions("admin:shop:allForPerm")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "所有有权限门店")
+    @GetMapping("/allForPerm")
+    @LogAnno
+    public Object querShopGoodsInfo(@NotNull Integer shopId){
+        return ResponseUtil.ok(shopService.querShopGoodsInfo(shopId));
+    }
 }

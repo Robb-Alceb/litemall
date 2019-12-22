@@ -7,7 +7,6 @@ import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminOrderService;
-import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -184,5 +182,20 @@ public class AdminOrderController {
     @LogAnno
     public Object transactionData(@NotNull String startTime,@NotNull  String endTime){
         return adminOrderService.transactionData(startTime, endTime);
+    }
+
+
+
+    /**
+     * 根据订单ID 查询订单是否完成 或者已评价 1：已完成 2：已评价 3：未完成
+     * @param orderId
+     * @return
+     */
+    @RequiresPermissions("admin:order:queryOrderIsCompletionById")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询订单是否完成")
+    @GetMapping("/queryOrderIsCompletionById")
+    @LogAnno
+    public Object queryOrderIsCompletionById(@NotNull Integer orderId){
+        return adminOrderService.queryOrderIsCompletionById(orderId);
     }
 }

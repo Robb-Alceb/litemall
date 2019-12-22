@@ -14,10 +14,7 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class LitemallOrderService {
@@ -250,5 +247,35 @@ public class LitemallOrderService {
 
     public Long queryOrderGoodsNum(String type){
         return orderMapper.queryOrderGoodsNum(type);
+    }
+
+    public List<LitemallOrder> querShopGoodsSalesInfo(Integer shopId, LocalDateTime startTime, LocalDateTime endTime){
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.or();
+        if(!ObjectUtils.isEmpty(shopId)){
+            criteria.andShopIdEqualTo(shopId);
+        }
+        criteria.andDeletedEqualTo(false);
+        if(!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)){
+            criteria.andAddTimeBetween(startTime, endTime);
+        }
+
+        return litemallOrderMapper.selectByExample(example);
+    }
+    public List<LitemallOrder> querNotCompletedOrder(Integer shopId, LocalDateTime startTime, LocalDateTime endTime){
+        LitemallOrderExample example = new LitemallOrderExample();
+        LitemallOrderExample.Criteria criteria = example.or();
+        if(!ObjectUtils.isEmpty(shopId)){
+            criteria.andShopIdEqualTo(shopId);
+        }
+        if(!ObjectUtils.isEmpty(startTime) && !ObjectUtils.isEmpty(endTime)){
+            criteria.andAddTimeBetween(startTime, endTime);
+        }
+        Short i = 401;
+        Short ii = 402;
+        criteria.andOrderStatusNotEqualTo(i);
+        criteria.andOrderStatusNotEqualTo(ii);
+        criteria.andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
     }
 }

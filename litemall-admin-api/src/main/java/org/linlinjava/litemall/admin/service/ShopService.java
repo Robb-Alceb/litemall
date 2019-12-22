@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.admin.service;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
@@ -8,19 +9,20 @@ import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.domain.LitemallAdmin;
-import org.linlinjava.litemall.db.domain.LitemallShop;
-import org.linlinjava.litemall.db.domain.LitemallShopLog;
-import org.linlinjava.litemall.db.service.LitemallAdminService;
-import org.linlinjava.litemall.db.service.LitemallShopLogService;
-import org.linlinjava.litemall.db.service.LitemallShopService;
+import org.linlinjava.litemall.db.domain.*;
+import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +36,10 @@ public class ShopService {
     private LitemallAdminService litemallAdminService;
     @Autowired
     private LitemallShopLogService litemallShopLogService;
+    @Autowired
+    private LitemallOrderService litemallOrderService;
+    @Autowired
+    private LitemallGoodsService litemallGoodsService;
 
     public Object list(Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
@@ -152,6 +158,51 @@ public class ShopService {
         }
 
         return ResponseUtil.ok();
+    }
+
+
+    /**
+     * 查询门店商品信息 销售情况 订单情况  商品情况
+     * @param shopId
+     * @return
+     */
+    public Object querShopGoodsInfo(Integer shopId){
+
+        Map<String, Object> map = Maps.newHashMap();
+        //今日销售
+        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);//当天零点
+        map.put("todayAmount", getSalesAmount(shopId, todayStart, todayEnd));
+        //最近7天内销售
+        LocalDateTime sevenStart = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.MIN);
+        LocalDateTime sevenEnd = LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MAX);
+        System.out.println(sevenStart+" "+sevenEnd);
+        map.put("sevenAmount", getSalesAmount(shopId, sevenStart, sevenEnd));
+        //历史总销售额
+        map.put("allAmount", getSalesAmount(shopId, null, null));
+        //今日订单数量
+        List<LitemallOrder> todayOrders = litemallOrderService.querShopGoodsSalesInfo(shopId, todayStart, todayEnd);
+        map.put("todayCount", !CollectionUtils.isEmpty(todayOrders)?todayOrders.size():0);
+        //正在进行的订单
+        List<LitemallOrder> sevenOrder = litemallOrderService.querNotCompletedOrder(shopId, todayStart, todayEnd);
+        map.put("sevenCount", !CollectionUtils.isEmpty(sevenOrder)?sevenOrder.size():0);
+        //历史总订单
+        List<LitemallOrder> allOrder = litemallOrderService.querShopGoodsSalesInfo(shopId, null, null);
+        map.put("allAmount", !CollectionUtils.isEmpty(allOrder)?allOrder.size():0);
+        //总上架商品
+        List<LitemallGoods> litemallGoods = litemallGoodsService.queryPutOnSale(shopId);
+        map.put("putOnSaleGoods", !CollectionUtils.isEmpty(litemallGoods)?litemallGoods.size():0);
+        //待处理进货请求
+
+        return map;
+    }
+
+    private Double getSalesAmount(Integer shopId, LocalDateTime todayStart, LocalDateTime todayEnd) {
+        List<LitemallOrder> litemallOrders = litemallOrderService.querShopGoodsSalesInfo(shopId, todayStart, todayEnd);
+        if(!CollectionUtils.isEmpty(litemallOrders)){
+            return litemallOrders.stream().mapToDouble(orders->Double.valueOf(orders.getActualPrice().toString())).sum();
+        }
+        return 0d;
     }
 
     /**

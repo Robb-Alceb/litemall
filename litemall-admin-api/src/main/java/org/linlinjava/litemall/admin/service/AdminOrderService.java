@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -464,6 +465,20 @@ public class AdminOrderService {
         return ResponseUtil.ok(map);
     }
 
+
+    /**
+     * 根据订单ID 查询商品是否完成 或者已评价 1：已完成 2：已评价 3：未完成
+     * @param orderId
+     * @return
+     */
+    public Object queryOrderIsCompletionById(Integer orderId){
+
+        LitemallOrder order = orderService.findById(orderId);
+        if(order.getOrderStatus().toString().equals(OrderStatusEnum.P_401) || order.getOrderStatus().toString().equals(OrderStatusEnum.P_402)){
+            return ResponseUtil.ok(1);
+        }
+        return null;
+    }
     private int getActualPrice(List<LitemallOrder> litemallOrder, int start, int end) {
         return litemallOrder.stream().filter(order -> (order.getActualPrice().compareTo(new BigDecimal(end)) <= 0 && order.getActualPrice().compareTo(new BigDecimal(start)) > 0)).collect(Collectors.toList()).size();
     }

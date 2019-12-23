@@ -278,4 +278,5 @@ public class LitemallOrderService {
         criteria.andDeletedEqualTo(false);
         return litemallOrderMapper.selectByExample(example);
     }
+
 }

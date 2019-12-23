@@ -15,6 +15,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallVipGoodsPrice;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,8 @@ public class AdminGoodsController {
 
     @Autowired
     private AdminGoodsService adminGoodsService;
+    @Autowired
+    private LitemallGoodsService litemallGoodsService;
 
     /**
      * 查询商品
@@ -141,6 +144,7 @@ public class AdminGoodsController {
     @PutMapping("/push")
     @LogAnno
     public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
+
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
     }

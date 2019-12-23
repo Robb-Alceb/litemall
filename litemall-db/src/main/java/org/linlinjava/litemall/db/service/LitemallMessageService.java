@@ -48,9 +48,9 @@ public class LitemallMessageService {
         litemallMessageMapper.updateByExample(litemallMessage, messageExample);
     }
 
-    public void create(LitemallMessage litemallMessage){
+    public int create(LitemallMessage litemallMessage){
         litemallMessage.setAddTime(LocalDateTime.now());
-        litemallMessageMapper.insertSelective(litemallMessage);
+        return litemallMessageMapper.insertSelective(litemallMessage);
     }
 
 

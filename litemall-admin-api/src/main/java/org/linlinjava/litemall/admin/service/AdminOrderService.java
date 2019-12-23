@@ -264,9 +264,9 @@ public class AdminOrderService {
             return ResponseUtil.badArgument();
         }
         // 目前只支持回复一次
-        if (commentService.findById(commentId) != null) {
+/*        if (commentService.findById(commentId) != null) {
             return ResponseUtil.fail(ORDER_REPLY_EXIST, "订单商品已回复！");
-        }
+        }*/
         String content = JacksonUtil.parseString(body, "content");
         if (StringUtils.isEmpty(content)) {
             return ResponseUtil.badArgument();

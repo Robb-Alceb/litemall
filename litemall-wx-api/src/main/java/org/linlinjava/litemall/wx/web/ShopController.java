@@ -27,7 +27,10 @@ public class ShopController {
     private WxShopService shopService;
 
     /**
-     * 所有门店
+     *
+     * @param longitude 经度
+     * @param latitude  纬度
+     * @param type      类型（1：自取；2：配送）
      * @return
      */
     @GetMapping("all")
@@ -35,14 +38,9 @@ public class ShopController {
         return shopService.all(longitude, latitude, type);
     }
 
-    /**
-     * 根据经纬度获取最近的门店
-     * @param longitude
-     * @param latitude
-     * @return
-     */
-    @GetMapping("nearby")
-    public Object nearby(@NotNull BigDecimal longitude, @NotNull BigDecimal latitude){
-        return ResponseUtil.ok(litemallShopService.all());
+
+    @GetMapping("detail")
+    public Object detail(@NotNull Integer id){
+        return ResponseUtil.ok(litemallShopService.findById(id));
     }
 }

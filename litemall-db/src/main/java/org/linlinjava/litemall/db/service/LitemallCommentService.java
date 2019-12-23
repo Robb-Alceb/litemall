@@ -67,7 +67,7 @@ public class LitemallCommentService {
             criteria.andUserIdEqualTo(Integer.valueOf(userId));
         }
         if (!StringUtils.isEmpty(valueId)) {
-            criteria.andValueIdEqualTo(Integer.valueOf(valueId)).andTypeEqualTo((byte) 0);
+            criteria.andValueIdEqualTo(Integer.valueOf(valueId));
         }
         criteria.andDeletedEqualTo(false);
 

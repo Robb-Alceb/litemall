@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.dto.MessageDto;
 import org.linlinjava.litemall.admin.service.MessageService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
@@ -48,31 +49,17 @@ public class AdminMessageController {
 
     /**
      * 新增
-     * @param litemallMessage
+     * @param messageDto
      * @return
      */
-    @RequiresPermissions("admin:message:insert")
+    @RequiresPermissions("admin:message:create")
     @RequiresPermissionsDesc(menu = {"消息通知", "消息管理"}, button = "新增")
-    @GetMapping("/insert")
+    @PostMapping("/create")
     @LogAnno
-    public Object insert(LitemallMessage litemallMessage) {
-        logger.info("===message===insert===litemallMessage:"+ JSON.toJSONString(litemallMessage));
-        return messageService.insert(litemallMessage);
+    public Object insert(@RequestBody MessageDto messageDto) {
+        return messageService.insert(messageDto);
     }
 
-    /**
-     * 修改
-     * @param litemallMessage
-     * @return
-     */
-    @RequiresPermissions("admin:message:update")
-    @RequiresPermissionsDesc(menu = {"消息通知", "消息管理"}, button = "修改")
-    @GetMapping("/update")
-    @LogAnno
-    public Object update(LitemallMessage litemallMessage) {
-        logger.info("===message===update===litemallMessage:"+ JSON.toJSONString(litemallMessage));
-        return messageService.update(litemallMessage);
-    }
 
     /**
      * 删除
@@ -81,7 +68,7 @@ public class AdminMessageController {
      */
     @RequiresPermissions("admin:message:delete")
     @RequiresPermissionsDesc(menu = {"消息通知", "消息管理"}, button = "删除")
-    @GetMapping("/delete")
+    @DeleteMapping("/delete")
     @LogAnno
     public Object delete(@NotNull Integer id) {
         return messageService.delete(id);

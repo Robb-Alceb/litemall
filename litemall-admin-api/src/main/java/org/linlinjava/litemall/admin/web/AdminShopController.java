@@ -156,14 +156,14 @@ public class AdminShopController {
 
     /**
      * 查询门店商品信息 销售情况 订单情况  商品情况
-     * @param shopId
+     * @param id
      * @return
      */
-    @RequiresPermissions("admin:shop:allForPerm")
-    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "所有有权限门店")
-    @GetMapping("/allForPerm")
+    @RequiresPermissions("admin:shop:shopOverview")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店统计信息")
+    @GetMapping("/shopOverview")
     @LogAnno
-    public Object querShopGoodsInfo(@NotNull Integer shopId){
-        return ResponseUtil.ok(shopService.querShopGoodsInfo(shopId));
+    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull Integer id){
+        return ResponseUtil.ok(shopService.querShopGoodsInfo(id));
     }
 }

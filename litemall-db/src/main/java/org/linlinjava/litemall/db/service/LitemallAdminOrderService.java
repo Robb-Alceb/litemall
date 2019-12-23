@@ -16,6 +16,8 @@ public class LitemallAdminOrderService {
     private LitemallAdminOrderMapper adminOrderMapper;
 
 
+
+
     public List<LitemallAdminOrder> querySelective(String orderSn, String userName, String address, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallAdminOrderExample example = new LitemallAdminOrderExample();
         LitemallAdminOrderExample.Criteria criteria = example.createCriteria();
@@ -64,5 +66,17 @@ public class LitemallAdminOrderService {
     public void update(LitemallAdminOrder adminOrder) {
         adminOrder.setUpdateTime(LocalDateTime.now());
         adminOrderMapper.updateByPrimaryKeySelective(adminOrder);
+    }
+
+
+    /**
+     * 统计正在处理的进货请求
+     * @param shopId
+     * @return
+     */
+    public long countProcessingByShopId(Integer shopId, List<Byte> status) {
+        LitemallAdminOrderExample example = new LitemallAdminOrderExample();
+        example.or().andShopIdEqualTo(shopId).andOrderStatusIn(status).andDeletedEqualTo(false);
+        return adminOrderMapper.countByExample(example);
     }
 }

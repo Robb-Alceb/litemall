@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
+import org.linlinjava.litemall.admin.beans.enums.AdminOrderStatusEnum;
+import org.linlinjava.litemall.admin.beans.enums.OrderStatusEnum;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
@@ -40,6 +42,8 @@ public class ShopService {
     private LitemallOrderService litemallOrderService;
     @Autowired
     private LitemallGoodsService litemallGoodsService;
+    @Autowired
+    private LitemallAdminOrderService litemallAdminOrderService;
 
     public Object list(Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
@@ -188,12 +192,14 @@ public class ShopService {
         map.put("sevenCount", !CollectionUtils.isEmpty(sevenOrder)?sevenOrder.size():0);
         //历史总订单
         List<LitemallOrder> allOrder = litemallOrderService.querShopGoodsSalesInfo(shopId, null, null);
-        map.put("allAmount", !CollectionUtils.isEmpty(allOrder)?allOrder.size():0);
+        map.put("allCount", !CollectionUtils.isEmpty(allOrder)?allOrder.size():0);
         //总上架商品
         List<LitemallGoods> litemallGoods = litemallGoodsService.queryPutOnSale(shopId);
         map.put("putOnSaleGoods", !CollectionUtils.isEmpty(litemallGoods)?litemallGoods.size():0);
         //待处理进货请求
-
+        List<Byte> statusList = new ArrayList<>(Arrays.asList(new Byte[]{AdminOrderStatusEnum.P_1.getCode().byteValue(), AdminOrderStatusEnum.P_2.getCode().byteValue(), AdminOrderStatusEnum.P_3.getCode().byteValue(), AdminOrderStatusEnum.P_4.getCode().byteValue()}));
+        Long processingCount = litemallAdminOrderService.countProcessingByShopId(shopId, statusList);
+        map.put("processingCount", processingCount);
         return map;
     }
 

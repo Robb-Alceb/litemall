@@ -19,12 +19,16 @@ public class AdminResponseCode {
     public static final Integer GOODS_NAME_EXIST = 611;
     //商品不存在
     public static final Integer GOODS_NOT_EXIST = 612;
+    //商品不允许删除
+    public static final Integer GOODS_NOT_ALLOW_DELETE = 617;
     //无权处理该商品
     public static final Integer GOODS_NOT_PERMISSION = 613;
     //有子分类不能删除
     public static final Integer GOODS_CATEGORY_HAS_CHILDREN = 614;
     //分类下有商品不能删除
     public static final Integer GOODS_CATEGORY_HAS_GOODS = 615;
+    //商品暂未审核
+    public static final Integer GOODS_NOT_REVIEW = 612;
     //订单不能确认
     public static final Integer ORDER_CONFIRM_NOT_ALLOWED = 620;
     //订单退款错误

@@ -279,6 +279,10 @@ public class AdminGoodsService {
         if (id == null) {
             return ResponseUtil.badArgument();
         }
+        LitemallGoods litemallGoods = goodsService.findById(id);
+        if(litemallGoods.getReviewType() == Constants.GOODS_REVIEW_APPROVE.byteValue()){
+            return ResponseUtil.fail(GOODS_NOT_ALLOW_DELETE, "商品已经上架，不允许删除");
+        }
 
         Integer gid = goods.getId();
         saveGoodsLog(goods, Constants.DELETE_GOODS);
@@ -511,6 +515,10 @@ public class AdminGoodsService {
         }
         if(null != goodsStatusDto.getIsOnSale()){
             if(goodsStatusDto.getIsOnSale()){
+                LitemallGoods litemallGoods = goodsService.findById(goodsStatusDto.getId());
+                if(litemallGoods.getReviewType() != Constants.GOODS_REVIEW_APPROVE.byteValue()){
+                    return ResponseUtil.fail(GOODS_NOT_REVIEW, "商品尚未审核，不能上架");
+                }
                 saveGoodsLog(goods, Constants.GOODS_PUSH);
             }else{
                 saveGoodsLog(goods, Constants.GOODS_PUSH_NOT);

@@ -74,7 +74,7 @@ public class LitemallAdminOrderMerchandise {
      *
      * @mbg.generated
      */
-    private Short number;
+    private Integer number;
 
     /**
      *
@@ -258,7 +258,7 @@ public class LitemallAdminOrderMerchandise {
      *
      * @mbg.generated
      */
-    public Short getNumber() {
+    public Integer getNumber() {
         return number;
     }
 
@@ -270,7 +270,7 @@ public class LitemallAdminOrderMerchandise {
      *
      * @mbg.generated
      */
-    public void setNumber(Short number) {
+    public void setNumber(Integer number) {
         this.number = number;
     }
 
@@ -595,7 +595,7 @@ public class LitemallAdminOrderMerchandise {
         merchandiseId("merchandise_id", "merchandiseId", "INTEGER", false),
         merchandiseName("merchandise_name", "merchandiseName", "VARCHAR", false),
         merchandiseSn("merchandise_sn", "merchandiseSn", "VARCHAR", false),
-        number("number", "number", "SMALLINT", true),
+        number("number", "number", "INTEGER", true),
         price("price", "price", "DECIMAL", false),
         picUrl("pic_url", "picUrl", "VARCHAR", false),
         comment("comment", "comment", "INTEGER", true),

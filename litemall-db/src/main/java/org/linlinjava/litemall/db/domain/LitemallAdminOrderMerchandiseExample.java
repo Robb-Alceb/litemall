@@ -924,7 +924,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberEqualTo(Short value) {
+        public Criteria andNumberEqualTo(Integer value) {
             addCriterion("`number` =", value, "number");
             return (Criteria) this;
         }
@@ -940,7 +940,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberNotEqualTo(Short value) {
+        public Criteria andNumberNotEqualTo(Integer value) {
             addCriterion("`number` <>", value, "number");
             return (Criteria) this;
         }
@@ -956,7 +956,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberGreaterThan(Short value) {
+        public Criteria andNumberGreaterThan(Integer value) {
             addCriterion("`number` >", value, "number");
             return (Criteria) this;
         }
@@ -972,7 +972,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberGreaterThanOrEqualTo(Short value) {
+        public Criteria andNumberGreaterThanOrEqualTo(Integer value) {
             addCriterion("`number` >=", value, "number");
             return (Criteria) this;
         }
@@ -988,7 +988,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberLessThan(Short value) {
+        public Criteria andNumberLessThan(Integer value) {
             addCriterion("`number` <", value, "number");
             return (Criteria) this;
         }
@@ -1004,7 +1004,7 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberLessThanOrEqualTo(Short value) {
+        public Criteria andNumberLessThanOrEqualTo(Integer value) {
             addCriterion("`number` <=", value, "number");
             return (Criteria) this;
         }
@@ -1020,22 +1020,22 @@ public class LitemallAdminOrderMerchandiseExample {
             return (Criteria) this;
         }
 
-        public Criteria andNumberIn(List<Short> values) {
+        public Criteria andNumberIn(List<Integer> values) {
             addCriterion("`number` in", values, "number");
             return (Criteria) this;
         }
 
-        public Criteria andNumberNotIn(List<Short> values) {
+        public Criteria andNumberNotIn(List<Integer> values) {
             addCriterion("`number` not in", values, "number");
             return (Criteria) this;
         }
 
-        public Criteria andNumberBetween(Short value1, Short value2) {
+        public Criteria andNumberBetween(Integer value1, Integer value2) {
             addCriterion("`number` between", value1, value2, "number");
             return (Criteria) this;
         }
 
-        public Criteria andNumberNotBetween(Short value1, Short value2) {
+        public Criteria andNumberNotBetween(Integer value1, Integer value2) {
             addCriterion("`number` not between", value1, value2, "number");
             return (Criteria) this;
         }

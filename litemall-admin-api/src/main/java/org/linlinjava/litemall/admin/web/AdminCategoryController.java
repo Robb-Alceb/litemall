@@ -10,6 +10,7 @@ import org.linlinjava.litemall.admin.service.CategoryService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,6 +30,8 @@ public class AdminCategoryController {
     private LitemallCategoryService litemallCategoryService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private LitemallGoodsService litemallGoodsService;
 
     @RequiresPermissions("admin:category:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "查询")
@@ -131,6 +134,10 @@ public class AdminCategoryController {
         Object error = validate(category);
         if (error != null) {
             return error;
+        }
+
+        if(litemallGoodsService.queryByCategory(category.getId(), 0, 2)!=null){
+            return ResponseUtil.updatedFailed();
         }
 
         if (litemallCategoryService.updateById(category) == 0) {

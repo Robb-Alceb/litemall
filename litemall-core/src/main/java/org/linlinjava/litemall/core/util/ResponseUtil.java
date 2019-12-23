@@ -141,5 +141,9 @@ public class ResponseUtil {
         return fail(506, "无操作权限");
     }
 
+    public static Object updatedFailed() {
+        return fail(601, "该分类下有商品，不能修改");
+    }
+
 }
 

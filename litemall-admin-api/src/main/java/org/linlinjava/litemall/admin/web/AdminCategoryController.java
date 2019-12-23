@@ -75,6 +75,7 @@ public class AdminCategoryController {
         categoryVoThree.setKeywords(litemallCategory.getKeywords());
         categoryVoThree.setName(litemallCategory.getName());
         categoryVoThree.setLevel(litemallCategory.getLevel());
+        categoryVoThree.setPid(litemallCategory.getPid());
         return categoryVoThree;
     }
 

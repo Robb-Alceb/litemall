@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.*;
+import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
 import org.linlinjava.litemall.admin.beans.vo.CatVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsPriceVo;
 import org.linlinjava.litemall.admin.beans.vo.GoodsVo;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -277,6 +279,10 @@ public class AdminGoodsService {
         if (id == null) {
             return ResponseUtil.badArgument();
         }
+        LitemallGoods litemallGoods = goodsService.findById(id);
+        if(litemallGoods.getReviewType() == Constants.GOODS_REVIEW_APPROVE.byteValue()){
+            return ResponseUtil.fail(GOODS_NOT_ALLOW_DELETE, "商品已经上架，不允许删除");
+        }
 
         Integer gid = goods.getId();
         saveGoodsLog(goods, Constants.DELETE_GOODS);
@@ -509,6 +515,10 @@ public class AdminGoodsService {
         }
         if(null != goodsStatusDto.getIsOnSale()){
             if(goodsStatusDto.getIsOnSale()){
+                LitemallGoods litemallGoods = goodsService.findById(goodsStatusDto.getId());
+                if(litemallGoods.getReviewType() != Constants.GOODS_REVIEW_APPROVE.byteValue()){
+                    return ResponseUtil.fail(GOODS_NOT_REVIEW, "商品尚未审核，不能上架");
+                }
                 saveGoodsLog(goods, Constants.GOODS_PUSH);
             }else{
                 saveGoodsLog(goods, Constants.GOODS_PUSH_NOT);
@@ -623,6 +633,27 @@ public class AdminGoodsService {
             vo.setGoodsSellPrice(litemallGoodsProducts.get(0).getSellPrice());
         }
         return ResponseUtil.ok(vo);
+    }
+
+    /**
+     * 根据商品ID 查询商品会员价格
+      * @param goodsId
+     * @return
+     */
+    public Object queryVipGoodsPrice(Integer goodsId){
+        return vipGoodsService.queryByGoodsId(goodsId);
+    }
+
+    /**
+     * 根据商品ID 修改商品会员价格
+     * @param vipGoodsPrice
+     * @return
+     */
+    public Object updateVipGoodsPrice(LitemallVipGoodsPrice vipGoodsPrice){
+        if(ObjectUtils.isEmpty(vipGoodsPrice.getGoodsId())){
+            return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
+        }
+        return vipGoodsService.updateByGoodsId(vipGoodsPrice);
     }
 
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {

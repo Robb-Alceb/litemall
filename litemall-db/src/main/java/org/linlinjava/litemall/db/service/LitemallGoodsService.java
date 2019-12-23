@@ -286,4 +286,16 @@ public class LitemallGoodsService {
         example.or().andGoodsSnEqualTo(goodsSn).andDeletedEqualTo(false);
         return goodsMapper.selectOneByExampleWithBLOBs(example);
     }
+
+    public List<LitemallGoods> queryPutOnSale(Integer shopId) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria1 = example.or();
+        if (!StringUtils.isEmpty(shopId)) {
+            criteria1.andShopIdEqualTo(shopId);
+        }
+        criteria1.andIsOnSaleEqualTo(true);
+        criteria1.andDeletedEqualTo(false);
+
+        return goodsMapper.selectByExampleSelective(example);
+    }
 }

@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class AdminMerchandiseService {
@@ -36,9 +39,16 @@ public class AdminMerchandiseService {
     public Object list(String name, String merchandiseSn, Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
         if(shopId!=null){
-            //查询门店库存
-            return ResponseUtil.okList(shopMerchandiseService.querySelective(name, merchandiseSn, shopId,
-                    page, limit, sort, order));
+            //查询门店库存,货品信息来自总部，价格和数量来自自己
+            List<LitemallShopMerchandise> litemallShopMerchandises = shopMerchandiseService.querySelective(name, merchandiseSn, shopId,
+                    page, limit, sort, order);
+            List<LitemallMerchandise> collect = litemallShopMerchandises.stream().map(merchandise -> {
+                LitemallMerchandise litemallMerchandise = merchandiseService.queryById(merchandise.getMerchandiseId());
+                litemallMerchandise.setNumber(merchandise.getNumber());
+                litemallMerchandise.setSellingPrice(merchandise.getRetailPrice());
+                return litemallMerchandise;
+            }).collect(Collectors.toList());
+            return ResponseUtil.okList(collect);
         }else{
             //查询所有货品
             return ResponseUtil.okList(merchandiseService.querySelective(name, merchandiseSn, page, limit, sort, order));

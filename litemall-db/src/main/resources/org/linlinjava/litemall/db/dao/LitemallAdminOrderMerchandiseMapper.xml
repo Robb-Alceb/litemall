@@ -11,7 +11,7 @@
     <result column="merchandise_id" jdbcType="INTEGER" property="merchandiseId" />
     <result column="merchandise_name" jdbcType="VARCHAR" property="merchandiseName" />
     <result column="merchandise_sn" jdbcType="VARCHAR" property="merchandiseSn" />
-    <result column="number" jdbcType="SMALLINT" property="number" />
+    <result column="number" jdbcType="INTEGER" property="number" />
     <result column="price" jdbcType="DECIMAL" property="price" />
     <result column="pic_url" jdbcType="VARCHAR" property="picUrl" />
     <result column="comment" jdbcType="INTEGER" property="comment" />
@@ -121,7 +121,7 @@
       distinct
     </if>
     <choose>
-      <when test="selective != null and selective.length > 0">
+      <when test="selective != null and selective.length &gt; 0">
         <foreach collection="selective" item="column" separator=",">
           ${column.aliasedEscapedColumnName}
         </foreach>
@@ -174,7 +174,7 @@
     -->
     select
     <choose>
-      <when test="selective != null and selective.length > 0">
+      <when test="selective != null and selective.length &gt; 0">
         <foreach collection="selective" item="column" separator=",">
           ${column.aliasedEscapedColumnName}
         </foreach>
@@ -217,7 +217,7 @@
       pic_url, `comment`, add_time, 
       update_time, deleted)
     values (#{adminOrderId,jdbcType=INTEGER}, #{merchandiseId,jdbcType=INTEGER}, #{merchandiseName,jdbcType=VARCHAR}, 
-      #{merchandiseSn,jdbcType=VARCHAR}, #{number,jdbcType=SMALLINT}, #{price,jdbcType=DECIMAL}, 
+      #{merchandiseSn,jdbcType=VARCHAR}, #{number,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, 
       #{picUrl,jdbcType=VARCHAR}, #{comment,jdbcType=INTEGER}, #{addTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT})
   </insert>
@@ -279,7 +279,7 @@
         #{merchandiseSn,jdbcType=VARCHAR},
       </if>
       <if test="number != null">
-        #{number,jdbcType=SMALLINT},
+        #{number,jdbcType=INTEGER},
       </if>
       <if test="price != null">
         #{price,jdbcType=DECIMAL},
@@ -334,7 +334,7 @@
         merchandise_sn = #{record.merchandiseSn,jdbcType=VARCHAR},
       </if>
       <if test="record.number != null">
-        `number` = #{record.number,jdbcType=SMALLINT},
+        `number` = #{record.number,jdbcType=INTEGER},
       </if>
       <if test="record.price != null">
         price = #{record.price,jdbcType=DECIMAL},
@@ -370,7 +370,7 @@
       merchandise_id = #{record.merchandiseId,jdbcType=INTEGER},
       merchandise_name = #{record.merchandiseName,jdbcType=VARCHAR},
       merchandise_sn = #{record.merchandiseSn,jdbcType=VARCHAR},
-      `number` = #{record.number,jdbcType=SMALLINT},
+      `number` = #{record.number,jdbcType=INTEGER},
       price = #{record.price,jdbcType=DECIMAL},
       pic_url = #{record.picUrl,jdbcType=VARCHAR},
       `comment` = #{record.comment,jdbcType=INTEGER},
@@ -401,7 +401,7 @@
         merchandise_sn = #{merchandiseSn,jdbcType=VARCHAR},
       </if>
       <if test="number != null">
-        `number` = #{number,jdbcType=SMALLINT},
+        `number` = #{number,jdbcType=INTEGER},
       </if>
       <if test="price != null">
         price = #{price,jdbcType=DECIMAL},
@@ -434,7 +434,7 @@
       merchandise_id = #{merchandiseId,jdbcType=INTEGER},
       merchandise_name = #{merchandiseName,jdbcType=VARCHAR},
       merchandise_sn = #{merchandiseSn,jdbcType=VARCHAR},
-      `number` = #{number,jdbcType=SMALLINT},
+      `number` = #{number,jdbcType=INTEGER},
       price = #{price,jdbcType=DECIMAL},
       pic_url = #{picUrl,jdbcType=VARCHAR},
       `comment` = #{comment,jdbcType=INTEGER},
@@ -466,7 +466,7 @@
     -->
     select
     <choose>
-      <when test="selective != null and selective.length > 0">
+      <when test="selective != null and selective.length &gt; 0">
         <foreach collection="selective" item="column" separator=",">
           ${column.aliasedEscapedColumnName}
         </foreach>

@@ -14,6 +14,8 @@ public class WxResponseCode {
     public static final Integer AUTH_EMAIL_REGISTERED = 710;
     public static final Integer AUTH_EMAIL_UNREGISTERED = 711;
     public static final Integer AUTH_INVALID_EMAIL = 712;
+    public static final Integer AUTH_EMAIL_NOT_EXIST = 713;
+    public static final Integer AUTH_MOBILE_NOT_EXIST = 714;
 
     public static final Integer GOODS_UNSHELVE = 710;
     public static final Integer GOODS_NO_STOCK = 711;

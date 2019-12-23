@@ -14,6 +14,8 @@ import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallVipGoodsPrice;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,8 @@ public class AdminGoodsController {
 
     @Autowired
     private AdminGoodsService adminGoodsService;
+    @Autowired
+    private LitemallGoodsService litemallGoodsService;
 
     /**
      * 查询商品
@@ -140,6 +144,7 @@ public class AdminGoodsController {
     @PutMapping("/push")
     @LogAnno
     public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @LoginAdminShopId Integer shopId) {
+
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
     }
@@ -231,5 +236,33 @@ public class AdminGoodsController {
     public Object updateStore(@RequestBody GoodsStoreDto storeDto, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateStore(storeDto, shopId);
 
+    }
+
+    /**
+     * 根据商品ID 查询商品会员价格
+     *
+     * @param goodsId
+     * @return
+     */
+    @RequiresPermissions("admin:goods:queryVipGoodsPrice")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询商品会员价格")
+    @PutMapping("/queryVipGoodsPrice")
+    @LogAnno
+    public Object queryVipGoodsPrice(@NotNull Integer goodsId){
+        return adminGoodsService.queryVipGoodsPrice(goodsId);
+    }
+
+    /**
+     * 根据商品ID 修改商品会员价格
+     *
+     * @param litemallVipGoodsPrice
+     * @return
+     */
+    @RequiresPermissions("admin:goods:updateVipGoodsPrice")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改会员价格")
+    @PutMapping("/updateVipGoodsPrice")
+    @LogAnno
+    public Object updateVipGoodsPrice(LitemallVipGoodsPrice litemallVipGoodsPrice){
+        return adminGoodsService.updateVipGoodsPrice(litemallVipGoodsPrice);
     }
 }

@@ -15,6 +15,7 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
@@ -173,14 +174,46 @@ public class AdminAdminOrderService {
      * 确认收货
      * @return
      */
+    @Transactional
     public Object takeDelivery(AdminOrderVo adminOrderVo) {
 
         if(ObjectUtils.isEmpty(adminOrderVo.getAdminOrderId())){
             return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
         }
+        LitemallAdminOrder order = adminOrderService.queryById(adminOrderVo.getAdminOrderId());
+        List<LitemallAdminOrderMerchandise> litemallAdminOrderMerchandises = adminOrderMerchandiseService.querybyAdminOrderId(adminOrderVo.getAdminOrderId());
+        for (LitemallAdminOrderMerchandise item : litemallAdminOrderMerchandises) {
+            Integer merchandiseId = item.getMerchandiseId();
+            LitemallMerchandise litemallMerchandise = merchandiseService.queryById(merchandiseId);
+            if(litemallMerchandise == null){
+                return ResponseUtil.updatedDataFailed();
+            }
+            /**
+             * 给门店添加库存,存在则改变数量，不存在则新增
+             */
+            LitemallShopMerchandise shopMerchandise1 = shopMerchandiseService.queryBySn(litemallMerchandise.getMerchandiseSn(), order.getShopId());
+            if(shopMerchandise1 != null){
+                shopMerchandise1.setNumber(shopMerchandise1.getNumber() + adminOrderVo.getNumber());
+                shopMerchandiseService.updateById(shopMerchandise1);
+            }else{
+                LitemallShopMerchandise shopMerchandise = new LitemallShopMerchandise();
+                LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
+                shopMerchandise.setAddUserId(admin.getId());
+                shopMerchandise.setAdminId(admin.getId());
+                shopMerchandise.setMerchandiseId(merchandiseId);
+                shopMerchandise.setMerchandiseName(litemallMerchandise.getName());
+                shopMerchandise.setMerchandiseSn(litemallMerchandise.getMerchandiseSn());
+                shopMerchandise.setNumber(item.getNumber());
+                shopMerchandise.setRetailPrice(litemallMerchandise.getSellingPrice());
+                shopMerchandise.setShopId(order.getShopId());
+                shopMerchandise.setUpdateUserId(admin.getId());
+                shopMerchandiseService.create(shopMerchandise);
+            }
+        }
+
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_5.getCode().toString());
-        saveMerchandiseLog(adminOrderVo, Constants.TAKE_DELIVERY);
+        saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.TAKE_DELIVERY);
         return ResponseUtil.ok();
     }
 
@@ -254,7 +287,7 @@ public class AdminAdminOrderService {
         adminOrderMerchandise.setMerchandiseId(adminOrderVo.getMerchandiseId());
         adminOrderMerchandise.setMerchandiseName(merchandise.getName());
         adminOrderMerchandise.setMerchandiseSn(merchandise.getMerchandiseSn());
-        adminOrderMerchandise.setNumber((short)adminOrderVo.getNumber());
+        adminOrderMerchandise.setNumber(adminOrderVo.getNumber());
         adminOrderMerchandise.setPrice(adminOrderVo.getOrderPrice());
         adminOrderMerchandise.setPicUrl(merchandise.getPicUrl());
         adminOrderMerchandiseService.insert(adminOrderMerchandise);

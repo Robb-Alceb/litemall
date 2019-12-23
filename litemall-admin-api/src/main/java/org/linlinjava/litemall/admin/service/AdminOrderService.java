@@ -541,7 +541,7 @@ public class AdminOrderService {
         List<OrderGoodsVo> orderGoodsVos = new ArrayList<>();
         orderGoods.stream().forEach(og->{
             OrderGoodsVo orderGoodsVo = new OrderGoodsVo();
-            LitemallCategory category = categoryService.findById(goodsService.findByGoodsSn(og.getGoodsSn()).getCategoryId());
+            LitemallCategory category = categoryService.findById(goodsService.findById(og.getGoodsId()).getCategoryId());
             BeanUtils.copyProperties(og, orderGoodsVo);
             orderGoodsVo.setCategoryId(category.getId());
             orderGoodsVo.setCategoryName(category.getName());
@@ -572,7 +572,7 @@ public class AdminOrderService {
      */
     private List<LitemallOrderGoods> getOrderGoods(List<LitemallOrderGoods> orderGoodsList) {
         List<LitemallOrderGoods> orderGoodss = new ArrayList<>();
-        Map<String, List<LitemallOrderGoods>> collect = orderGoodsList.stream().collect(Collectors.groupingBy(LitemallOrderGoods::getGoodsSn));
+        Map<Integer, List<LitemallOrderGoods>> collect = orderGoodsList.stream().collect(Collectors.groupingBy(LitemallOrderGoods::getGoodsId));
         collect.keySet().forEach(key->{
             List<LitemallOrderGoods> lrgs = collect.get(key);
             if(lrgs.size()>1){

@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_CATEGORY_HAS_GOODS;
+
 @RestController
 @RequestMapping("/admin/category")
 @Validated
@@ -136,8 +138,11 @@ public class AdminCategoryController {
             return error;
         }
 
-        if(litemallGoodsService.queryByCategory(category.getId(), 0, 2)!=null){
-            return ResponseUtil.updatedFailed();
+        List<Integer> categoryIds = new ArrayList<>();
+        categoryIds.add(category.getId());
+        categoryService.getSubIds(category.getId(), categoryIds);
+        if(litemallGoodsService.countByCategoryIds(categoryIds) > 0){
+            return ResponseUtil.fail(GOODS_CATEGORY_HAS_GOODS, "该分类下面有商品，不能修改");
         }
 
         if (litemallCategoryService.updateById(category) == 0) {

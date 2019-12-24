@@ -298,4 +298,12 @@ public class LitemallGoodsService {
 
         return goodsMapper.selectByExampleSelective(example);
     }
+
+
+    public int countByCategoryIds(List<Integer> categoryIds) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andCategoryIdIn(categoryIds).andDeletedEqualTo(false);
+
+        return (int)goodsMapper.countByExample(example);
+    }
 }

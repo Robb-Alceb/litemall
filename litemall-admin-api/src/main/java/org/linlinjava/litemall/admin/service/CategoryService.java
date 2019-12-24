@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_CATEGORY_HAS_CHILDREN;
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_CATEGORY_HAS_GOODS;
@@ -79,5 +80,22 @@ public class CategoryService {
         }
         litemallCategoryService.deleteById(id);
         return ResponseUtil.ok();
+    }
+
+    /**
+     *  获取所有子级分类id
+     * @param cid
+     * @param result (返回结果添加到result)
+     */
+    public void getSubIds(Integer cid, List<Integer> result){
+        List<LitemallCategory> litemallCategories = litemallCategoryService.queryByPid(cid);
+        if(litemallCategories.size() > 0){
+            result.addAll(litemallCategories.stream().map(litemallCategory -> {
+                return litemallCategory.getId();
+            }).collect(Collectors.toList()));
+            litemallCategories.stream().forEach(litemallCategory -> {
+                getSubIds(litemallCategory.getId(), result);
+            });
+        }
     }
 }

@@ -250,7 +250,7 @@ public class WxOrderService {
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
         //如果是团购项目,验证活动是否有效
-        if (grouponRulesId != null && grouponRulesId > 0) {
+/*        if (grouponRulesId != null && grouponRulesId > 0) {
             LitemallGrouponRules rules = grouponRulesService.queryById(grouponRulesId);
             //找不到记录
             if (rules == null) {
@@ -260,7 +260,7 @@ public class WxOrderService {
             if (grouponRulesService.isExpired(rules)) {
                 return ResponseUtil.fail(GROUPON_EXPIRED, "团购活动已过期!");
             }
-        }
+        }*/
 
         if (cartId == null || addressId == null || couponId == null) {
             return ResponseUtil.badArgument();

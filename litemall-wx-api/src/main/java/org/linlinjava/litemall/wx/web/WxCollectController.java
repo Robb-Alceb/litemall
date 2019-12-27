@@ -9,7 +9,9 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallCollect;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.service.LitemallCollectService;
+import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,8 @@ public class WxCollectController {
     private LitemallCollectService collectService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallGoodsProductService goodsProductService;
 
     /**
      * 用户收藏列表
@@ -69,7 +73,12 @@ public class WxCollectController {
             c.put("name", goods.getName());
             c.put("brief", goods.getBrief());
             c.put("picUrl", goods.getPicUrl());
-            c.put("retailPrice", goods.getRetailPrice());
+
+            List<LitemallGoodsProduct> litemallGoodsProducts = goodsProductService.queryByGid(goods.getId());
+            if(litemallGoodsProducts.size() > 0){
+                c.put("price", litemallGoodsProducts.get(0).getSellPrice());
+                c.put("tax", litemallGoodsProducts.get(0).getTax());
+            }
 
             collects.add(c);
         }

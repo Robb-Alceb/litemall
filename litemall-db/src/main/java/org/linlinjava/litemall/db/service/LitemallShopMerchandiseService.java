@@ -69,4 +69,10 @@ public class LitemallShopMerchandiseService {
         merchandise.setUpdateTime(LocalDateTime.now());
         return litemallShopMerchandiseMapper.insertSelective(merchandise);
     }
+
+    public Integer count(Integer shopId) {
+        LitemallShopMerchandiseExample merchandise = new LitemallShopMerchandiseExample();
+        merchandise.or().andDeletedEqualTo(false).andShopIdEqualTo(shopId);
+        return (int)litemallShopMerchandiseMapper.countByExample(merchandise);
+    }
 }

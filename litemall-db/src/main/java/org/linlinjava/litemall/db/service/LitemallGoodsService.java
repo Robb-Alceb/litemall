@@ -229,6 +229,12 @@ public class LitemallGoodsService {
         return (int) goodsMapper.countByExample(example);
     }
 
+    public int count(Integer shopId) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andDeletedEqualTo(false).andShopIdEqualTo(shopId);
+        return (int) goodsMapper.countByExample(example);
+    }
+
     public List<Integer> getCatIds(Integer brandId, String keywords, Boolean isHot, Boolean isNew) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria1 = example.or();

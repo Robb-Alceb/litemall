@@ -132,6 +132,12 @@ public class LitemallOrderService {
         return (int) litemallOrderMapper.countByExample(example);
     }
 
+    public int countShop(Integer shopId) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andDeletedEqualTo(false).andShopIdEqualTo(shopId);
+        return (int) litemallOrderMapper.countByExample(example);
+    }
+
     public List<LitemallOrder> queryUnpaid(int minutes) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expired = now.minusMinutes(minutes);

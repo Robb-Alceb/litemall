@@ -65,4 +65,9 @@ public class LitemallMerchandiseService {
         return litemallMerchandiseMapper.selectByExampleSelective(merchandiseExample);
     }
 
+    public Integer count() {
+        LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
+        merchandiseExample.or().andDeletedEqualTo(false);
+        return (int)litemallMerchandiseMapper.countByExample(merchandiseExample);
+    }
 }

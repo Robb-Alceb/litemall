@@ -467,17 +467,21 @@ public class AdminOrderService {
 
 
     /**
-     * 根据订单ID 查询商品是否完成 或者已评价 1：已完成 2：已评价 3：未完成
-     * @param orderId
+     * 根据订单ID 查询订单是否完成 或者已评价 1：已完成 2：已评价 3：未完成
+     * @param orderGoodsId
      * @return
      */
-    public Object queryOrderIsCompletionById(Integer orderId){
+    public Object queryOrderIsCompletionById(Integer orderGoodsId){
 
-        LitemallOrder order = orderService.findById(orderId);
+        LitemallOrderGoods orderGoods = orderGoodsService.findById(orderGoodsId);
+        if(commentService.findById(orderGoods.getComment()) != null){
+            return ResponseUtil.ok(2);
+        }
+        LitemallOrder order = orderService.findById(orderGoods.getOrderId());
         if(order.getOrderStatus().toString().equals(OrderStatusEnum.P_401) || order.getOrderStatus().toString().equals(OrderStatusEnum.P_402)){
             return ResponseUtil.ok(1);
         }
-        return null;
+        return ResponseUtil.ok(3);
     }
     private int getActualPrice(List<LitemallOrder> litemallOrder, int start, int end) {
         return litemallOrder.stream().filter(order -> (order.getActualPrice().compareTo(new BigDecimal(end)) <= 0 && order.getActualPrice().compareTo(new BigDecimal(start)) > 0)).collect(Collectors.toList()).size();

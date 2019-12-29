@@ -10,6 +10,7 @@ import org.linlinjava.litemall.admin.service.CategoryService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.GOODS_CATEGORY_HAS_GOODS;
 
 @RestController
 @RequestMapping("/admin/category")
@@ -29,6 +32,8 @@ public class AdminCategoryController {
     private LitemallCategoryService litemallCategoryService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private LitemallGoodsService litemallGoodsService;
 
     @RequiresPermissions("admin:category:list")
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "查询")
@@ -131,6 +136,13 @@ public class AdminCategoryController {
         Object error = validate(category);
         if (error != null) {
             return error;
+        }
+
+        List<Integer> categoryIds = new ArrayList<>();
+        categoryIds.add(category.getId());
+        categoryService.getSubIds(category.getId(), categoryIds);
+        if(litemallGoodsService.countByCategoryIds(categoryIds) > 0){
+            return ResponseUtil.fail(GOODS_CATEGORY_HAS_GOODS, "该分类下面有商品，不能修改");
         }
 
         if (litemallCategoryService.updateById(category) == 0) {

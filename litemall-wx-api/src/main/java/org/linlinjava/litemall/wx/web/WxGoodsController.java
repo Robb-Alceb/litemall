@@ -181,15 +181,15 @@ public class WxGoodsController {
 		try {
 			data.put("info", info);
 			data.put("userHasCollect", userHasCollect);
-			data.put("issue", issueCallableTask.get());
-			data.put("comment", commentsCallableTsk.get());
+//			data.put("issue", issueCallableTask.get());
+//			data.put("comment", commentsCallableTsk.get());
 			data.put("specificationList", objectCallableTask.get());
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
-			data.put("brand", brandCallableTask.get());
-			data.put("groupon", grouponRulesCallableTask.get());
+//			data.put("brand", brandCallableTask.get());
+//			data.put("groupon", grouponRulesCallableTask.get());
 			//SystemConfig.isAutoCreateShareImage()
-			data.put("share", SystemConfig.isAutoCreateShareImage());
+//			data.put("share", SystemConfig.isAutoCreateShareImage());
 
 		}
 		catch (Exception e) {

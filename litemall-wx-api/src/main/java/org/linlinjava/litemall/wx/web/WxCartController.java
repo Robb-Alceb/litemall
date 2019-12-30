@@ -445,7 +445,7 @@ public class WxCartController {
 
         // 商品价格
         List<LitemallCart> checkedGoodsList = null;
-/*        if (cartId == null || cartId.equals(0)) {
+        if (cartId == null || cartId.equals(0)) {
             checkedGoodsList = cartService.queryByUidAndChecked(userId);
         } else {
             LitemallCart cart = cartService.findById(cartId);
@@ -454,7 +454,7 @@ public class WxCartController {
             }
             checkedGoodsList = new ArrayList<>(1);
             checkedGoodsList.add(cart);
-        }*/
+        }
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
 /*        for (LitemallCart cart : checkedGoodsList) {
             //  只有当团购规格商品ID符合才进行团购优惠

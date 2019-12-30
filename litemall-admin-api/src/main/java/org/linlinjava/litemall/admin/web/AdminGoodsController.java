@@ -253,16 +253,16 @@ public class AdminGoodsController {
     }
 
     /**
-     * 根据商品ID 修改商品会员价格
+     * 根据商品ID 修改商品优惠价格（包括会员价格、满减价格、阶梯价格）
      *
-     * @param litemallVipGoodsPrice
+     * @param goodsAllinone
      * @return
      */
-    @RequiresPermissions("admin:goods:updateVipGoodsPrice")
-    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改会员价格")
-    @PutMapping("/updateVipGoodsPrice")
+    @RequiresPermissions("admin:goods:updateDiscountPrice")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品优惠价格（包括会员价格、满减价格、阶梯价格）")
+    @PutMapping("/updateDiscountPrice")
     @LogAnno
-    public Object updateVipGoodsPrice(LitemallVipGoodsPrice litemallVipGoodsPrice){
-        return adminGoodsService.updateVipGoodsPrice(litemallVipGoodsPrice);
+    public Object updateVipGoodsPrice(@RequestBody GoodsAllinone goodsAllinone){
+        return adminGoodsService.updateDiscountPrice(goodsAllinone);
     }
 }

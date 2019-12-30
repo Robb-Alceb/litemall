@@ -1,7 +1,10 @@
 package org.linlinjava.litemall.admin.beans.vo;
 
 import lombok.Data;
+import org.linlinjava.litemall.db.domain.LitemallGoodsLadderPrice;
+import org.linlinjava.litemall.db.domain.LitemallGoodsMaxMinusPrice;
 import org.linlinjava.litemall.db.domain.LitemallGoodsSpecification;
+import org.linlinjava.litemall.db.domain.LitemallVipGoodsPrice;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,5 +20,9 @@ public class GoodsPriceVo {
     private String goodsSn;
     private String goodsName;
     private BigDecimal goodsSellPrice;
+    private Byte priceType;
     private List<LitemallGoodsSpecification> specifications;
+    private LitemallVipGoodsPrice vipGoodsPrice;
+    private List<LitemallGoodsMaxMinusPrice> maxMinusPrices;
+    private List<LitemallGoodsLadderPrice> ladderPrices;
 }

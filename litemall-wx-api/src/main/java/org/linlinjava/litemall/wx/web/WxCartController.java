@@ -141,14 +141,14 @@ public class WxCartController {
                 cart.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-                    sellPrice = sellPrice.add(item.getPrice());
+//                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }
             cart.setPrice(sellPrice);
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setUserId(userId);
-            cart.setTaxPrice(product.getTax());
+            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00).multiply(sellPrice)));
             cart.setChecked(true);
             cartService.add(cart);
         } else {
@@ -222,11 +222,12 @@ public class WxCartController {
                 cart.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-                    sellPrice = sellPrice.add(item.getPrice());
+//                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }
             cart.setPrice(sellPrice);
+            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00).multiply(sellPrice)));
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setUserId(userId);
             cart.setChecked(true);

@@ -624,13 +624,26 @@ public class AdminGoodsService {
         }
         List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGid(goods.getId());
         List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByGid(goodsId);
+        List<LitemallGoodsLadderPrice> litemallGoodsLadderPrices = goodsLadderPriceService.queryByGoodsId(goods.getId());
+        List<LitemallGoodsMaxMinusPrice> litemallGoodsMaxMinusPrices = goodsMaxMinusPriceService.queryByGoodsId(goods.getId());
+        LitemallVipGoodsPrice litemallVipGoodsPrice = vipGoodsService.queryByGoodsId(goods.getId());
         GoodsPriceVo vo = new GoodsPriceVo();
         vo.setSpecifications(litemallGoodsSpecifications);
         vo.setId(goods.getId());
         vo.setGoodsName(goods.getName());
         vo.setGoodsSn(goods.getGoodsSn());
+        vo.setPriceType(goods.getPriceType());
         if(litemallGoodsProducts.size() > 0){
             vo.setGoodsSellPrice(litemallGoodsProducts.get(0).getSellPrice());
+        }
+        if(litemallVipGoodsPrice != null){
+            vo.setVipGoodsPrice(litemallVipGoodsPrice);
+        }
+        if(litemallGoodsLadderPrices.size() > 0){
+            vo.setLadderPrices(litemallGoodsLadderPrices);
+        }
+        if(litemallGoodsMaxMinusPrices.size() > 0){
+            vo.setMaxMinusPrices(litemallGoodsMaxMinusPrices);
         }
         return ResponseUtil.ok(vo);
     }
@@ -654,6 +667,51 @@ public class AdminGoodsService {
             return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
         }
         return vipGoodsService.updateByGoodsId(vipGoodsPrice);
+    }
+
+    /**
+     * 根据商品ID 修改商品优惠价格
+     * @param goodsAllinone
+     * @return
+     */
+    @Transactional
+    public Object updateDiscountPrice(GoodsAllinone goodsAllinone){
+        if(goodsAllinone.getGoods() == null || ObjectUtils.isEmpty(goodsAllinone.getGoods().getId())){
+            return ResponseUtil.badArgument();
+        }
+        LitemallGoods goods = new LitemallGoods();
+        goods.setId(goodsAllinone.getGoods().getId());
+        goods.setPriceType(goodsAllinone.getGoods().getPriceType());
+
+        if(goodsAllinone.getGoods().getPriceType() == 1){
+            goodsMaxMinusPriceService.deleteByGoodsId(goodsAllinone.getGoods().getId());
+            goodsLadderPriceService.deleteByGoodsId(goodsAllinone.getGoods().getId());
+            if(goodsAllinone.getVipPrice() != null){
+                goodsAllinone.getVipPrice().setGoodsId(goodsAllinone.getGoods().getId());
+                vipGoodsService.updateByGoodsId(goodsAllinone.getVipPrice());
+            }
+        //满减价格和阶梯价格是先删除再添加
+        }else if(goodsAllinone.getGoods().getPriceType() == 2 || goodsAllinone.getGoods().getPriceType() == 3){
+            goodsMaxMinusPriceService.deleteByGoodsId(goodsAllinone.getGoods().getId());
+            vipGoodsService.deleteByGoodsId(goodsAllinone.getGoods().getId());
+            goodsLadderPriceService.deleteByGoodsId(goodsAllinone.getGoods().getId());
+            if(goodsAllinone.getLadderPrices() != null && goodsAllinone.getLadderPrices().length > 0){
+                for (LitemallGoodsLadderPrice price:goodsAllinone.getLadderPrices()) {
+                    price.setGoodsId(goodsAllinone.getGoods().getId());
+                    goodsLadderPriceService.add(price);
+                }
+            }
+            if(goodsAllinone.getMaxMinusPrices() != null && goodsAllinone.getMaxMinusPrices().length > 0){
+                for (LitemallGoodsMaxMinusPrice price:goodsAllinone.getMaxMinusPrices()) {
+                    price.setGoodsId(goodsAllinone.getGoods().getId());
+                    goodsMaxMinusPriceService.add(price);
+                }
+            }
+        }else{
+            return ResponseUtil.badArgument();
+        }
+        goodsService.updateById(goods);
+        return ResponseUtil.ok();
     }
 
     private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {

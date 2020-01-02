@@ -51,4 +51,6 @@ public class AdminResponseCode {
     //当前角色存在管理员
     public static final Integer ROLE_USER_EXIST = 642;
 
+    //门店不允许删除
+    public static final Integer SHOP_NOT_ALLOW_DELETE = 650;
 }

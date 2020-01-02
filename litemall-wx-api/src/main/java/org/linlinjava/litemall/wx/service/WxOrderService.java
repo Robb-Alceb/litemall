@@ -20,12 +20,14 @@ import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.DateTimeUtil;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.util.IpUtil;
+import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,10 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.*;
 
@@ -108,6 +107,14 @@ public class WxOrderService {
     private LitemallGoodsService goodsService;
     @Autowired
     private LitemallGoodsSpecificationService goodsSpecificationService;
+    @Autowired
+    private LitemallVipGoodsService litemallVipGoodsService;
+    @Autowired
+    private LitemallGoodsLadderPriceService litemallGoodsLadderPriceService;
+    @Autowired
+    private LitemallGoodsMaxMinusPriceService litemallGoodsMaxMinusPriceService;
+    @Autowired
+    private UserInfoService userInfoService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -251,18 +258,6 @@ public class WxOrderService {
         Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
-        //如果是团购项目,验证活动是否有效
-/*        if (grouponRulesId != null && grouponRulesId > 0) {
-            LitemallGrouponRules rules = grouponRulesService.queryById(grouponRulesId);
-            //找不到记录
-            if (rules == null) {
-                return ResponseUtil.badArgument();
-            }
-            //团购活动已经过期
-            if (grouponRulesService.isExpired(rules)) {
-                return ResponseUtil.fail(GROUPON_EXPIRED, "团购活动已过期!");
-            }
-        }*/
 
         if (cartId == null || addressId == null || couponId == null) {
             return ResponseUtil.badArgument();
@@ -274,12 +269,6 @@ public class WxOrderService {
             return ResponseUtil.badArgument();
         }
 
-        // 团购优惠
-        BigDecimal grouponPrice = new BigDecimal(0.00);
-        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
-        if (grouponRules != null) {
-            grouponPrice = grouponRules.getDiscount();
-        }
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
@@ -301,26 +290,70 @@ public class WxOrderService {
          * 税费
          */
         BigDecimal taxGoodsPrice = new BigDecimal(0.00);
+
+        // 商品优惠价格，如会员减免、满减、阶梯价等
+        BigDecimal discountPrice = new BigDecimal(0.00);
         for (LitemallCart checkGoods : checkedGoodsList) {
             Integer goodsId = checkGoods.getGoodsId();
             LitemallGoods litemallGoods = goodsService.findById(goodsId);
             Integer productId = checkGoods.getProductId();
             LitemallGoodsProduct goodsProduct = productService.findById(productId);
-            if(goodsProduct.getSellPrice().compareTo(checkGoods.getPrice()) != 0){
-                return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
-            }
-            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
             //  规格价格
+            BigDecimal specGoodsPrice = new BigDecimal(0.00);
             if(checkGoods.getSpecificationIds() != null){
                 for(Integer sid : checkGoods.getSpecificationIds()){
                     LitemallGoodsSpecification specificationServiceById = goodsSpecificationService.findById(sid);
                     if(specificationServiceById != null){
-                        taxGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+                        specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
                     }
                 }
             }
+            if(goodsProduct.getSellPrice().add(specGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
+                return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
+            }
+            checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+
+
+            if(litemallGoods.getPriceType() != null){
+                //会员价格需要乘以商品数
+                if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_VIP){
+                    LitemallVipGoodsPrice litemallVipGoodsPrice = litemallVipGoodsService.queryByGoodsId(goodsId);
+                    LitemallUser info = userService.findById(userId);
+                    if(info.getUserLevel() == Constants.USER_LEVEL_SILVER){
+                        discountPrice = discountPrice.add(litemallVipGoodsPrice.getSilverVipPrice());
+                    }else if(info.getUserLevel() == Constants.USER_LEVEL_GOLD){
+                        discountPrice = discountPrice.add(litemallVipGoodsPrice.getGoldVipPrice());
+                    }else if(info.getUserLevel() == Constants.USER_LEVEL_PLATINUNM){
+                        discountPrice = discountPrice.add(litemallVipGoodsPrice.getPlatinumVipPrice());
+                    }else if(info.getUserLevel() == Constants.USER_LEVEL_DIAMOND){
+                        discountPrice = discountPrice.add(litemallVipGoodsPrice.getDiamondVipPrice());
+                    }
+                    taxGoodsPrice.subtract(discountPrice.multiply(new BigDecimal(checkGoods.getNumber())));
+                    //阶梯价格，找到数量最符合的那一条
+                }else if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_LADDER){
+                    List<LitemallGoodsLadderPrice> litemallGoodsLadderPrices = litemallGoodsLadderPriceService.queryByGoodsId(goodsId);
+                    litemallGoodsLadderPrices.stream().sorted(Comparator.comparing(LitemallGoodsLadderPrice::getNumber).reversed());
+                    for(LitemallGoodsLadderPrice price : litemallGoodsLadderPrices){
+                        if(price.getNumber() <= checkGoods.getNumber()){
+                            discountPrice = discountPrice.add(price.getPrice());
+                            break;
+                        }
+                    }
+                }else if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_MAXMINU){
+                    List<LitemallGoodsMaxMinusPrice> litemallGoodsMaxMinusPrices = litemallGoodsMaxMinusPriceService.queryByGoodsId(goodsId);
+                    litemallGoodsMaxMinusPrices.stream().sorted(Comparator.comparing(LitemallGoodsMaxMinusPrice::getMinusPrice).reversed());
+                    for(LitemallGoodsMaxMinusPrice price : litemallGoodsMaxMinusPrices){
+                        if(checkGoods.getPrice().compareTo(price.getMaxPrice()) == 1 ){
+                            discountPrice = discountPrice.add(price.getMinusPrice());
+                            break;
+                        }
+                    }
+                }
+            }
+
             taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
         }
+        checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
         // 获取可用的优惠券信息
         // 使用优惠券减免的金额
@@ -343,6 +376,8 @@ public class WxOrderService {
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0.00);
+
+
 
         // 订单费用
         BigDecimal orderTotalPrice = checkedGoodsPrice.subtract(couponPrice).max(new BigDecimal(0.00));
@@ -431,28 +466,6 @@ public class WxOrderService {
             couponUserService.update(couponUser);
         }
 
-        //如果是团购项目，添加团购信息
-/*        if (grouponRulesId != null && grouponRulesId > 0) {
-            LitemallGroupon groupon = new LitemallGroupon();
-            groupon.setOrderId(orderId);
-            groupon.setPayed(false);
-            groupon.setUserId(userId);
-            groupon.setRulesId(grouponRulesId);
-
-            //参与者
-            if (grouponLinkId != null && grouponLinkId > 0) {
-                //参与的团购记录
-                LitemallGroupon baseGroupon = grouponService.queryById(grouponLinkId);
-                groupon.setCreatorUserId(baseGroupon.getCreatorUserId());
-                groupon.setGrouponId(grouponLinkId);
-                groupon.setShareUrl(baseGroupon.getShareUrl());
-            } else {
-                groupon.setCreatorUserId(userId);
-                groupon.setGrouponId(0);
-            }
-
-            grouponService.createGroupon(groupon);
-        }*/
 
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", orderId);

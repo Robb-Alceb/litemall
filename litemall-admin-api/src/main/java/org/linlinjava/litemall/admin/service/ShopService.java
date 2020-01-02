@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.SHOP_NOT_ALLOW_DELETE;
+
 /**
  * 门店服务
  */
@@ -70,6 +72,9 @@ public class ShopService {
     }
 
     public Object delete(Integer shopId){
+        if(litemallGoodsService.count(shopId) > 0){
+            return ResponseUtil.fail(SHOP_NOT_ALLOW_DELETE, "门店有商品不允许删除");
+        }
         litemallShopService.deleteById(shopId);
         //保存日志
         LitemallShop shop = litemallShopService.findById(shopId);

@@ -68,4 +68,20 @@ public class Constants {
     public static final String CATEGORY_LEVEL_L1 = "L1";     //  分类级别
     public static final String CATEGORY_LEVEL_L2 = "L2";     //
     public static final String CATEGORY_LEVEL_L3 = "L3";     //
+
+    /**
+     * 商品优惠价格类型
+     */
+    public static final Byte GOODS_PRICE_TYPE_VIP = 1;
+    public static final Byte GOODS_PRICE_TYPE_LADDER = 2;
+    public static final Byte GOODS_PRICE_TYPE_MAXMINU = 3;
+
+    /**
+     * 会员等级（0：默认；1：白银；2：黄金；3：铂金；4：钻石）
+     */
+    public static final Byte USER_LEVEL_DEFAULT = 0;
+    public static final Byte USER_LEVEL_SILVER = 1;
+    public static final Byte USER_LEVEL_GOLD = 2;
+    public static final Byte USER_LEVEL_PLATINUNM = 3;
+    public static final Byte USER_LEVEL_DIAMOND = 4;
 }

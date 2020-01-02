@@ -141,7 +141,7 @@ public class WxCartController {
                 cart.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-//                    sellPrice = sellPrice.add(item.getPrice());
+                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }
@@ -222,7 +222,7 @@ public class WxCartController {
                 cart.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-//                    sellPrice = sellPrice.add(item.getPrice());
+                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }

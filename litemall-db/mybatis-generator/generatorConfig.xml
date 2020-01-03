@@ -233,7 +233,10 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
 
-        <table tableName="litemall_order">
+        <table tableName="litemall_user">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
+        <table tableName="litemall_recharge_consumption">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

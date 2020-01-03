@@ -179,4 +179,13 @@ public class LitemallCouponService {
         example.or().andStatusEqualTo(CouponConstant.STATUS_NORMAL).andTimeTypeEqualTo(CouponConstant.TIME_TYPE_TIME).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
+
+    public List<LitemallCouponUser> queryUserCouponCount(Integer userId) {
+        LitemallCouponUserExample example = new LitemallCouponUserExample();
+        LitemallCouponUserExample.Criteria criteria = example.or();
+
+        criteria.andUserIdEqualTo(userId);
+        criteria.andStatusEqualTo(Short.valueOf("0"));
+        return couponUserMapper.selectByExample(example);
+    }
 }

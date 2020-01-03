@@ -21,6 +21,7 @@ import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallShopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -169,6 +170,16 @@ public class AdminAdminController {
         if (currentAdmin.getId().equals(anotherAdminId)) {
             return ResponseUtil.fail(ADMIN_DELETE_NOT_ALLOWED, "管理员不能删除自己账号");
         }
+
+        Integer[] roleIds = currentAdmin.getRoleIds();
+        if(!ObjectUtils.isEmpty(roleIds)){
+            for (Integer roleId:roleIds) {
+                if(roleId==4){
+                    return ResponseUtil.fail(ADMIN_DELETE_NOT_ALLOWED, "已被选做店长的管理员不能被删除");
+                }
+            }
+        }
+
 
         litemallAdminService.deleteById(anotherAdminId);
         logHelper.logAuthSucceed("删除管理员", admin.getUsername());

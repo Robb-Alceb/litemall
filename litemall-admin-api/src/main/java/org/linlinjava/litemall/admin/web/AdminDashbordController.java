@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class AdminDashbordController {
 
     @GetMapping("")
     @LogAnno
-    public Object info(@LoginAdminShopId Integer shopId) {
+    public Object info(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         int userTotal = userService.count();
 //        int goodsTotal = goodsService.count();
 //        int productTotal = productService.count();

@@ -43,7 +43,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(String name, String merchandiseSn, @LoginAdminShopId Integer shopId,
+    public Object list(String name, String merchandiseSn, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -73,7 +73,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "修改")
     @PutMapping("/update")
     @LogAnno
-    public Object update(@RequestBody MerchandiseAllinone merchandiseAllinone, @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody MerchandiseAllinone merchandiseAllinone, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminMerchandiseService.update(merchandiseAllinone, shopId);
     }
 
@@ -87,7 +87,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(Integer id, @LoginAdminShopId Integer shopId) {
+    public Object read(Integer id, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminMerchandiseService.read(id, shopId);
     }
 
@@ -107,7 +107,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "出库入库查询")
     @GetMapping("/merchandiseRecordList")
     @LogAnno
-    public Object merchandiseRecordList(Integer merchandiseId, String merchandiseName, String orderSn, @LoginAdminShopId Integer shopId,
+    public Object merchandiseRecordList(Integer merchandiseId, String merchandiseName, String orderSn, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,

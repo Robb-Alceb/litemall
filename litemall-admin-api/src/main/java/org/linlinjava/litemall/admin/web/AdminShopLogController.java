@@ -44,7 +44,7 @@ public class AdminShopLogController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String content,
-                       @LoginAdminShopId Integer shopId,
+                       @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,

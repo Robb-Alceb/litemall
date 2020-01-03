@@ -52,7 +52,7 @@ public class AdminRoleController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String name,
-                       @LoginAdminShopId Integer shopId,
+                       @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -63,7 +63,7 @@ public class AdminRoleController {
 
     @GetMapping("/options")
     @LogAnno
-    public Object options(@LoginAdminShopId Integer shopId) {
+    public Object options(@RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
         List<LitemallRole> roleList = new ArrayList<>();
         if(null != shopId){
             roleList = roleService.queryByType(true);

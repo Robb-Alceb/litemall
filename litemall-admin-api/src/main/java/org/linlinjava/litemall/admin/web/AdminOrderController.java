@@ -40,7 +40,7 @@ public class AdminOrderController {
     @GetMapping("/list")
     @LogAnno
     public Object list(Integer userId, String orderSn,
-                       @LoginAdminShopId Integer shopId,
+                       @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,
                        @RequestParam(required = false) List<Short> orderStatusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -116,7 +116,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单商品备注")
     @PostMapping("/remark")
     @LogAnno
-    public Object mark(@RequestBody String body, @LoginAdminShopId Integer shopId) {
+    public Object mark(@RequestBody String body, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminOrderService.remark(body, shopId);
     }
 

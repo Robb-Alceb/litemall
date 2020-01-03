@@ -55,7 +55,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(@LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
+    public Object list(@RequestParam(value = "shopId") @LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -74,7 +74,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "编辑")
     @PutMapping("/update")
     @LogAnno
-    public Object update(@RequestBody ShopDto shop, @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody ShopDto shop, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
         if(null != shopId){
             shop.getLitemallShop().setId(shopId);
         }
@@ -134,7 +134,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "所有有权限门店")
     @GetMapping("/allForPerm")
     @LogAnno
-    public Object all(@LoginAdminShopId Integer id) {
+    public Object all(@LoginAdminShopId @RequestParam(value = "id") Integer id) {
         List<LitemallShop> shops = shopService.all(id);
         return ResponseUtil.okList(shops);
     }
@@ -149,7 +149,7 @@ public class AdminShopController {
 //    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店库存数量")
     @GetMapping("/merchandiseNumber")
     @LogAnno
-    public Object all(@LoginAdminShopId Integer id, String merchandiseSn) {
+    public Object all(@LoginAdminShopId @RequestParam(value = "id") Integer id, String merchandiseSn) {
         return ResponseUtil.ok(shopMerchandiseService.queryBySn(merchandiseSn, id));
     }
 

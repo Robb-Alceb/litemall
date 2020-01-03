@@ -14,12 +14,12 @@ litemall:
   notify:
     mail:
       # 邮件通知配置,邮箱一般用于接收业务通知例如收到新的订单，sendto 定义邮件接收者，通常为商城运营人员
-      enable: false
-      host: smtp.exmail.qq.com
-      username: ex@ex.com.cn
-      password: XXXXXXXXXXXXX
-      sendfrom: ex@ex.com.cn
-      sendto: ex@qq.com
+      enable: true
+      host: smtp.qq.com
+      username: 2861322722@qq.com
+      password: kiowmgjygqrfdchb
+      sendfrom: 2861322722@qq.com
+      sendto: 2861322722@qq.com
 
     # 短消息模版通知配置
     # 短信息用于通知客户，例如发货短信通知，注意配置格式；template-name，template-templateId 请参考 NotifyType 枚举值
@@ -36,7 +36,11 @@ litemall:
         templateId: 158002
       - name: refund
         templateId: 159447
-
+#    sns:
+#      enable: false
+#      region: us-west-2
+#      accessKey: 469609452868
+#      secretKey: lumiere
     # 微信模版通知配置
     # 微信模版用于通知客户或者运营者，注意配置格式；template-name，template-templateId 请参考 NotifyType 枚举值
     wx:
@@ -92,7 +96,7 @@ litemall:
     local:
       storagePath: storage
       # 这个地方应该是wx模块的WxStorageController的fetch方法对应的地址
-      address: http://localhost:8080/wx/storage/fetch/
+      address: http://3.17.10.54/app/wx/storage/fetch/
     # 阿里云对象存储配置信息
     aliyun:
       endpoint: oss-cn-shenzhen.aliyuncs.com

@@ -91,7 +91,7 @@ public class AdminCouponController {
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallCoupon coupon = couponService.findById(id);
         return ResponseUtil.ok(coupon);
     }

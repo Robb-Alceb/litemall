@@ -71,7 +71,7 @@ public class AdminUserController {
     @RequiresPermissionsDesc(menu = {"用户管理", "会员增长统计"}, button = "会员增长统计")
     @GetMapping("/queryAddUserStatistics")
     @LogAnno
-    public Object queryAddUserStatistics(@NotNull String type, @NotNull String startTime, @NotNull String endTime) {
+    public Object queryAddUserStatistics(@NotNull @RequestParam(value = "type") String type, @NotNull @RequestParam(value = "startTime") String startTime, @NotNull @RequestParam(value = "endTime") String endTime) {
         return ResponseUtil.ok(userService.queryAddUserStatistics(type, startTime, endTime));
     }
 

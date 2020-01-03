@@ -70,7 +70,7 @@ public class AdminMessageController {
     @RequiresPermissionsDesc(menu = {"消息通知", "消息管理"}, button = "删除")
     @DeleteMapping("/delete")
     @LogAnno
-    public Object delete(@NotNull Integer id) {
+    public Object delete(@NotNull @RequestParam(value = "id") Integer id) {
         return messageService.delete(id);
     }
 

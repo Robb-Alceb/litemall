@@ -154,7 +154,7 @@ public class AdminAdminOrderController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id, @LoginAdminShopId Integer shopId){
+    public Object read(@NotNull  @RequestParam(value = "id") Integer id, @LoginAdminShopId Integer shopId){
         return adminAdminOrderService.read(id, shopId);
     }
 

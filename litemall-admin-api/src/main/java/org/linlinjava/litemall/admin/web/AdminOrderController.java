@@ -59,7 +59,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "详情")
     @GetMapping("/detail")
     @LogAnno
-    public Object detail(@NotNull Integer id) {
+    public Object detail(@NotNull @RequestParam(value = "id") Integer id) {
         return adminOrderService.detail(id);
     }
 
@@ -73,7 +73,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单退款")
     @PostMapping("/refund")
     @LogAnno
-    public Object refund(@NotNull Integer orderId, @LoginAdminShopId Integer shopId) {
+    public Object refund(@NotNull @RequestParam(value = "orderId") Integer orderId, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminOrderService.refund(orderId, shopId);
     }
 
@@ -129,7 +129,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
     @GetMapping("/goodsStatistics")
     @LogAnno
-    public Object goodsStatistics(@LoginAdminShopId Integer shopId,@NotNull String startTime,@NotNull  String endTime){
+    public Object goodsStatistics(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,@NotNull @RequestParam(value = "startTime") String startTime,@NotNull @RequestParam(value = "endTime")  String endTime){
         return adminOrderService.goodsStatistics(startTime, endTime, shopId);
     }
 
@@ -148,7 +148,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品销售统计")
     @GetMapping("/goodsSalesStatistics")
     @LogAnno
-    public Object goodsSalesStatistics(@LoginAdminShopId Integer shopId, @NotNull String type,@NotNull String startTime,@NotNull  String endTime,
+    public Object goodsSalesStatistics(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId, @NotNull @RequestParam(value = "type") String type,@NotNull @RequestParam(value = "startTime") String startTime,@NotNull  @RequestParam(value = "endTime") String endTime,
                                        @RequestParam(defaultValue = "1") Integer page,
                                        @RequestParam(defaultValue = "10") Integer limit,
                                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -166,7 +166,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "销售统计")
     @GetMapping("/salesStatistics")
     @LogAnno
-    public Object salesStatistics(@NotNull String startTime,@NotNull String endTime){
+    public Object salesStatistics(@NotNull @RequestParam(value = "startTime") String startTime,@NotNull @RequestParam(value = "endTime") String endTime){
         return adminOrderService.salesStatistics(startTime, endTime);
     }
 
@@ -180,7 +180,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "交易数据")
     @GetMapping("/transactionData")
     @LogAnno
-    public Object transactionData(@NotNull String startTime,@NotNull  String endTime){
+    public Object transactionData(@NotNull @RequestParam(value = "startTime") String startTime,@NotNull @RequestParam(value = "endTime")  String endTime){
         return adminOrderService.transactionData(startTime, endTime);
     }
 
@@ -195,7 +195,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询订单是否完成")
     @GetMapping("/queryOrderIsCompletionById")
     @LogAnno
-    public Object queryOrderIsCompletionById(@NotNull Integer orderId){
+    public Object queryOrderIsCompletionById(@NotNull @RequestParam(value = "orderId") Integer orderId){
         return adminOrderService.queryOrderIsCompletionById(orderId);
     }
 }

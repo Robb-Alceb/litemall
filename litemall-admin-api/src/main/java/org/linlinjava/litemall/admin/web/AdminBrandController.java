@@ -76,7 +76,7 @@ public class AdminBrandController {
     @RequiresPermissionsDesc(menu = {"商场管理", "品牌管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallBrand brand = brandService.findById(id);
         return ResponseUtil.ok(brand);
     }

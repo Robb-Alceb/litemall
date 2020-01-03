@@ -65,7 +65,7 @@ public class AdminKeywordController {
     @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallKeyword keyword = keywordService.findById(id);
         return ResponseUtil.ok(keyword);
     }

@@ -78,7 +78,7 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallAd ad = litemallAdService.findById(id);
         return ResponseUtil.ok(ad);
     }

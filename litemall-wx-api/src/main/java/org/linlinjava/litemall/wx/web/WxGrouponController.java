@@ -82,7 +82,7 @@ public class WxGrouponController {
      * @return 团购活动详情
      */
     @GetMapping("detail")
-    public Object detail(@LoginUser Integer userId, @NotNull Integer grouponId) {
+    public Object detail(@LoginUser Integer userId, @NotNull @RequestParam(value = "grouponId") Integer grouponId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -180,7 +180,7 @@ public class WxGrouponController {
      * @return 操作结果
      */
     @GetMapping("join")
-    public Object join(@NotNull Integer grouponId) {
+    public Object join(@NotNull @RequestParam(value = "grouponId") Integer grouponId) {
         LitemallGroupon groupon = grouponService.queryById(grouponId);
         if (groupon == null) {
             return ResponseUtil.badArgumentValue();

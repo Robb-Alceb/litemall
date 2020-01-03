@@ -60,7 +60,7 @@ public class AdminStorageController {
     @RequiresPermissionsDesc(menu = {"系统管理", "对象存储"}, button = "详情")
     @PostMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallStorage storageInfo = litemallStorageService.findById(id);
         if (storageInfo == null) {
             return ResponseUtil.badArgumentValue();

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
@@ -28,7 +29,7 @@ public class AdminRegionController {
 
     @GetMapping("/clist")
     @LogAnno
-    public Object clist(@NotNull Integer id) {
+    public Object clist(@NotNull @RequestParam(value = "id") Integer id) {
         List<LitemallRegion> regionList = regionService.queryByPid(id);
         return ResponseUtil.okList(regionList);
     }

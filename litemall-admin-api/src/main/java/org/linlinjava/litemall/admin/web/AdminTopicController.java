@@ -81,7 +81,7 @@ public class AdminTopicController {
     @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallTopic topic = topicService.findById(id);
         Integer[] goodsIds = topic.getGoods();
         List<LitemallGoods> goodsList = null;

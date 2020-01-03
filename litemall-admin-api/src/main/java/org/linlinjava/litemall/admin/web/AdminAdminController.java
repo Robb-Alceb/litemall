@@ -114,7 +114,7 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallAdmin admin = litemallAdminService.findById(id);
         return ResponseUtil.ok(admin);
     }
@@ -177,12 +177,12 @@ public class AdminAdminController {
 
     @GetMapping("/shop/shopkeeper")
     @LogAnno
-    public Object getShopkeeper(@NotNull @LoginAdminShopId Integer shopId) {
+    public Object getShopkeeper(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }
     @GetMapping("/shop/manager")
     @LogAnno
-    public Object getShopManager(@NotNull @LoginAdminShopId Integer shopId) {
+    public Object getShopManager(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOP_MANAGER_ROLE_ID);
     }
 
@@ -190,7 +190,7 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
     @GetMapping("/shop/members")
     @LogAnno
-    public Object getShopMembers(@NotNull @LoginAdminShopId Integer shopId) {
+    public Object getShopMembers(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         return adminService.findShopMembers(shopId);
     }
 

@@ -123,7 +123,7 @@ public class AdminCategoryController {
     @RequiresPermissionsDesc(menu = {"商品管理", "类目管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallCategory category = litemallCategoryService.findById(id);
         return ResponseUtil.ok(category);
     }

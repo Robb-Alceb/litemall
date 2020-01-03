@@ -67,7 +67,7 @@ public class AdminIssueController {
 
     @RequiresPermissions("admin:issue:read")
     @GetMapping("/read")
-    public Object read(@NotNull Integer id) {
+    public Object read(@NotNull @RequestParam(value = "id") Integer id) {
         LitemallIssue issue = issueService.findById(id);
         return ResponseUtil.ok(issue);
     }

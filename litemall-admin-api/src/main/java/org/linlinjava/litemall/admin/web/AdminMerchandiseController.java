@@ -123,7 +123,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "所有库存")
     @GetMapping("/all")
     @LogAnno
-    public Object all(@LoginAdminShopId Integer shopId) {
+    public Object all(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
         if(null == shopId){
             return ResponseUtil.ok();
         }
@@ -152,7 +152,7 @@ public class AdminMerchandiseController {
      */
     @GetMapping("/count")
     @LogAnno
-    public Object count(@LoginAdminShopId Integer shopId, @NotNull String merchandiseSn) {
+    public Object count(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId, @NotNull  @RequestParam(value = "merchandiseSn") String merchandiseSn) {
         return adminMerchandiseService.count(shopId, merchandiseSn);
     }
 }

@@ -91,7 +91,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "删除")
     @DeleteMapping("/delete")
     @LogAnno
-    public Object delete(@NotNull @LoginAdminShopId Integer id) {
+    public Object delete(@NotNull @LoginAdminShopId @RequestParam(value = "id") Integer id) {
         return shopService.delete(id);
     }
 
@@ -119,7 +119,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "详情")
     @GetMapping("/detail")
     @LogAnno
-    public Object detail(@NotNull @LoginAdminShopId Integer id) {
+    public Object detail(@NotNull @LoginAdminShopId @RequestParam(value = "id") Integer id) {
         return shopService.detail(id);
 
     }
@@ -163,7 +163,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店统计信息")
     @GetMapping("/shopOverview")
     @LogAnno
-    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull Integer id){
+    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull @RequestParam(value = "id") Integer id){
         return ResponseUtil.ok(shopService.querShopGoodsInfo(id));
     }
 }

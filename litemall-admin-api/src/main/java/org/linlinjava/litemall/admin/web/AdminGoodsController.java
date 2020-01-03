@@ -114,7 +114,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "详情")
     @GetMapping("/detail")
     @LogAnno
-    public Object detail(@NotNull Integer id, @LoginAdminShopId Integer shopId) {
+    public Object detail(@NotNull @RequestParam(value = "id") Integer id, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.detail(id, shopId);
 
     }
@@ -219,7 +219,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询价格详情")
     @GetMapping("/allPrice")
     @LogAnno
-    public Object allPrice(@NotNull Integer goodsId, @LoginAdminShopId Integer shopId) {
+    public Object allPrice(@NotNull @RequestParam(value = "goodsId") Integer goodsId, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.allPrice(goodsId, shopId);
 
     }
@@ -248,7 +248,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询商品会员价格")
     @PutMapping("/queryVipGoodsPrice")
     @LogAnno
-    public Object queryVipGoodsPrice(@NotNull Integer goodsId){
+    public Object queryVipGoodsPrice(@NotNull @RequestParam(value = "goodsId") Integer goodsId){
         return adminGoodsService.queryVipGoodsPrice(goodsId);
     }
 

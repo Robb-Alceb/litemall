@@ -79,7 +79,7 @@ public class WxCouponController {
      */
     @GetMapping("mylist")
     public Object mylist(@LoginUser Integer userId,
-                       @NotNull Short status,
+                       @NotNull @RequestParam(value = "status") Short status,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,

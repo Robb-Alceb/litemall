@@ -1,11 +1,10 @@
 package org.linlinjava.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.dao.LitemallRechargeConsumptionMapper;
 import org.linlinjava.litemall.db.dao.LitemallUserMapper;
 import org.linlinjava.litemall.db.dao.UserMapper;
-import org.linlinjava.litemall.db.domain.LitemallUser;
-import org.linlinjava.litemall.db.domain.LitemallUserExample;
-import org.linlinjava.litemall.db.domain.UserVo;
+import org.linlinjava.litemall.db.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +19,8 @@ public class LitemallUserService {
     private LitemallUserMapper litemallUserMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private LitemallRechargeConsumptionMapper litemallRechargeConsumptionMapper;
 
     public LitemallUser findById(Integer userId) {
         return litemallUserMapper.selectByPrimaryKey(userId);
@@ -134,5 +135,25 @@ public class LitemallUserService {
         LitemallUserExample example = new LitemallUserExample();
         example.or().andDeletedEqualTo(false);
         return litemallUserMapper.selectByExample(example);
+    }
+
+    public List<LitemallRechargeConsumption> querySelectiveList(String username, String mobile, Integer page, Integer size, String sort, String order) {
+        LitemallRechargeConsumptionExample example = new LitemallRechargeConsumptionExample();
+        LitemallRechargeConsumptionExample.Criteria criteria = example.createCriteria();
+
+        if (!StringUtils.isEmpty(username)) {
+            criteria.andUsernameLike("%" + username + "%");
+        }
+        if (!StringUtils.isEmpty(mobile)) {
+            criteria.andMobileEqualTo(mobile);
+        }
+        criteria.andDeletedEqualTo(false);
+
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+
+        PageHelper.startPage(page, size);
+        return litemallRechargeConsumptionMapper.selectByExample(example);
     }
 }

@@ -80,4 +80,16 @@ public class AdminUserController {
     public Object queryAll() {
         return ResponseUtil.ok(userService.queryAll());
     }
+
+    @RequiresPermissions("admin:user:rechargeConsumptionList")
+    @RequiresPermissionsDesc(menu = {"用户管理", "账户明细"}, button = "查询")
+    @GetMapping("/rechargeConsumptionList")
+    @LogAnno
+    public Object rechargeConsumptionList(String mobile, String username,
+                       @RequestParam(defaultValue = "1") Integer page,
+                       @RequestParam(defaultValue = "10") Integer limit,
+                       @Sort @RequestParam(defaultValue = "add_time") String sort,
+                       @Order @RequestParam(defaultValue = "desc") String order) {
+        return ResponseUtil.okList(litemallUserService.querySelectiveList(username, mobile, page, limit, sort, order));
+    }
 }

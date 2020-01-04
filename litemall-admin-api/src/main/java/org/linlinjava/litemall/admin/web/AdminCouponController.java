@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -10,8 +11,10 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
+import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.service.LitemallCouponService;
 import org.linlinjava.litemall.db.service.LitemallCouponUserService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.util.CouponConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -19,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,6 +35,8 @@ public class AdminCouponController {
     private LitemallCouponService couponService;
     @Autowired
     private LitemallCouponUserService couponUserService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
     @RequiresPermissions("admin:coupon:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询")
@@ -118,6 +124,26 @@ public class AdminCouponController {
     public Object delete(@RequestBody LitemallCoupon coupon) {
         couponService.deleteById(coupon.getId());
         return ResponseUtil.ok();
+    }
+
+    /**
+     * 根据优惠券ID 查询指定商品列表
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:coupon:goodsList")
+    @RequiresPermissionsDesc(menu = {"推广管理", "商品列表"}, button = "查询")
+    @PostMapping("/goodsList")
+    @LogAnno
+    public Object goodsList(@NotNull @RequestParam(value = "id") Integer id) {
+        LitemallCoupon coupon = couponService.findById(id);
+        //2:指定商品
+        List<LitemallGoods> litemallGoods = new ArrayList<>();
+        if(coupon!=null && coupon.getGoodsType()== Constants.GOODS_TYPE_TWO
+            &&coupon.getGoodsValue()!=null && coupon.getGoodsValue().length>0){
+            litemallGoods = goodsService.queryByIds(coupon.getGoodsValue());
+        }
+        return ResponseUtil.ok(litemallGoods);
     }
 
 }

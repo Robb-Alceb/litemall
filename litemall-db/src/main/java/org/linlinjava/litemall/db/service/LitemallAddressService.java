@@ -77,4 +77,10 @@ public class LitemallAddressService {
         PageHelper.startPage(page, limit);
         return addressMapper.selectByExample(example);
     }
+
+    public List<LitemallAddress> findByUserId(Integer userId) {
+        LitemallAddressExample example = new LitemallAddressExample();
+        example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        return addressMapper.selectByExample(example);
+    }
 }

@@ -90,10 +90,13 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByExample(example);
     }
 
-    public List<LitemallOrder> querySelective(Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallOrder> querySelective(Integer id, Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         LitemallOrderExample.Criteria criteria = example.createCriteria();
 
+        if (id != null) {
+            criteria.andIdEqualTo(id);
+        }
         if (userId != null) {
             criteria.andUserIdEqualTo(userId);
         }
@@ -285,4 +288,9 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByExample(example);
     }
 
+    public List<LitemallOrder> findByUserId(Integer userId) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
+    }
 }

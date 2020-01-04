@@ -39,14 +39,14 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(Integer userId, String orderSn,
+    public Object list(Integer userId, String orderSn,Integer id,
                        @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,
                        @RequestParam(required = false) List<Short> orderStatusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminOrderService.list(userId, orderSn, orderStatusArray, shopId, page, limit, sort, order);
+        return adminOrderService.list(id, userId, orderSn, orderStatusArray, shopId, page, limit, sort, order);
     }
 
     /**

@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.service.AdminUserInfoService;
 import org.linlinjava.litemall.admin.service.UserService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -35,6 +36,8 @@ public class AdminUserController {
     private UserService userService;
     @Autowired
     private LitemallCouponService litemallCouponService;
+    @Autowired
+    private AdminUserInfoService adminUserInfoService;
 
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
@@ -107,5 +110,18 @@ public class AdminUserController {
     @LogAnno
     public Object queryUserCouponCount(@NotNull Integer userId) {
         return ResponseUtil.okList(litemallCouponService.queryUserCouponCount(userId));
+    }
+
+    /**
+     * 用户信息
+     * @param userId
+     * @return
+     */
+    @RequiresPermissions("admin:user:info")
+    @RequiresPermissionsDesc(menu = {"用户管理", "用户信息"}, button = "查询")
+    @GetMapping("/info")
+    @LogAnno
+    public Object userInfo(@NotNull Integer userId) {
+        return adminUserInfoService.userInfo(userId);
     }
 }

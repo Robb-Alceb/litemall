@@ -23,14 +23,10 @@ public class LitemallAdService {
         return adMapper.selectByExample(example);
     }
 
-    public List<LitemallAd> querySelective(Integer shopId, String name, String content, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallAd> querySelective(String name, String content, Integer page, Integer limit, String sort, String order) {
         LitemallAdExample example = new LitemallAdExample();
         LitemallAdExample.Criteria criteria = example.createCriteria();
 
-        if(shopId != null){
-            criteria.andShopIdEqualTo(shopId);
-            example.or().andTypeEqualTo(Constants.AD_TYPE_COMMON).andDeletedEqualTo(false);
-        }
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
         }

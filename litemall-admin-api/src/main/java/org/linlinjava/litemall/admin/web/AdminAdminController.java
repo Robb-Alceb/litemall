@@ -53,7 +53,7 @@ public class AdminAdminController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String nickname,
-                       @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,
+                       @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,

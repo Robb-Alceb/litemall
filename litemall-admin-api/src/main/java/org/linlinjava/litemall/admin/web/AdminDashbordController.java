@@ -38,7 +38,7 @@ public class AdminDashbordController {
 
     @GetMapping("")
     @LogAnno
-    public Object info(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
+    public Object info(@LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId) {
         int userTotal = userService.count();
 //        int goodsTotal = goodsService.count();
 //        int productTotal = productService.count();

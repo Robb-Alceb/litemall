@@ -54,7 +54,7 @@ public class WxBrandController {
      * @return 品牌详情
      */
     @GetMapping("detail")
-    public Object detail(@NotNull @RequestParam(value = "id") Integer id) {
+    public Object detail(@NotNull @RequestParam(value = "id", required = false) Integer id) {
         LitemallBrand entity = brandService.findById(id);
         if (entity == null) {
             return ResponseUtil.badArgumentValue();

@@ -48,7 +48,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(String goodsSn, String name, @RequestParam(value = "shopId")@LoginAdminShopId Integer shopId,
+    public Object list(String goodsSn, String name, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -72,7 +72,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
-    public Object update(@RequestBody GoodsAllinone goodsAllinone, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody GoodsAllinone goodsAllinone, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.update(goodsAllinone, shopId);
     }
 
@@ -86,7 +86,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
-    public Object delete(@RequestBody LitemallGoods goods, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object delete(@RequestBody LitemallGoods goods, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.delete(goods, shopId);
     }
 
@@ -114,7 +114,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "详情")
     @GetMapping("/detail")
     @LogAnno
-    public Object detail(@NotNull @RequestParam(value = "id") Integer id, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object detail(@NotNull @RequestParam(value = "id") Integer id, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.detail(id, shopId);
 
     }
@@ -143,7 +143,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架/下架")
     @PutMapping("/push")
     @LogAnno
-    public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object push(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
 
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
@@ -159,7 +159,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新品/非新品")
     @PutMapping("/newProduce")
     @LogAnno
-    public Object newProduce(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object newProduce(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
     }
@@ -174,7 +174,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "推荐/非推荐")
     @PutMapping("/recommend")
     @LogAnno
-    public Object recommend(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object recommend(@RequestBody GoodsStatusDto goodsStatusDto, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsStatus(goodsStatusDto, shopId);
 
     }
@@ -189,7 +189,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品价格")
     @PutMapping("/updatePrice")
     @LogAnno
-    public Object updatePrice(@RequestBody PriceDto price, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object updatePrice(@RequestBody PriceDto price, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateGoodsPrice(price, shopId);
 
     }
@@ -204,7 +204,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改规格价格")
     @PutMapping("/updateSpecPrice")
     @LogAnno
-    public Object updateSpecPrice(@RequestBody PriceDto price, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object updateSpecPrice(@RequestBody PriceDto price, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateSpecPrice(price, shopId);
 
     }
@@ -219,7 +219,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "查询价格详情")
     @GetMapping("/allPrice")
     @LogAnno
-    public Object allPrice(@NotNull @RequestParam(value = "goodsId") Integer goodsId, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object allPrice(@NotNull @RequestParam(value = "goodsId") Integer goodsId, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.allPrice(goodsId, shopId);
 
     }
@@ -233,7 +233,7 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品库存")
     @PutMapping("/updateStore")
     @LogAnno
-    public Object updateStore(@RequestBody GoodsStoreDto storeDto, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object updateStore(@RequestBody GoodsStoreDto storeDto, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         return adminGoodsService.updateStore(storeDto, shopId);
 
     }

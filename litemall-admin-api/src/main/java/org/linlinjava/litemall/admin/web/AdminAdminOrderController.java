@@ -43,7 +43,7 @@ public class AdminAdminOrderController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String orderSn, String userName, String address,
-                       @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,
+                       @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -60,7 +60,7 @@ public class AdminAdminOrderController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "订单申请")
     @PostMapping("/orderApplying")
     @LogAnno
-    public Object orderApplying(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId){
+    public Object orderApplying(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderApplying(adminOrderVo);
     }
@@ -99,7 +99,7 @@ public class AdminAdminOrderController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "支付货款")
     @PostMapping("/orderPay")
     @LogAnno
-    public Object orderPay(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId){
+    public Object orderPay(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.orderPay(adminOrderVo);
     }
@@ -140,7 +140,7 @@ public class AdminAdminOrderController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "确认收货")
     @PostMapping("/takeDelivery")
     @LogAnno
-    public Object takeDelivery(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId){
+    public Object takeDelivery(@RequestBody AdminOrderVo adminOrderVo, @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId){
         adminOrderVo.setShopId(shopId);
         return adminAdminOrderService.takeDelivery(adminOrderVo);
     }
@@ -154,7 +154,7 @@ public class AdminAdminOrderController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
-    public Object read(@NotNull  @RequestParam(value = "id") Integer id, @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId){
+    public Object read(@NotNull  @RequestParam(value = "id") Integer id, @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId){
         return adminAdminOrderService.read(id, shopId);
     }
 

@@ -37,12 +37,11 @@ public class AdminAdController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String name, String content,
-                       @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAd> adList = litemallAdService.querySelective(shopId, name, content, page, limit, sort, order);
+        List<LitemallAd> adList = litemallAdService.querySelective(name, content, page, limit, sort, order);
         return ResponseUtil.okList(adList);
     }
 
@@ -62,7 +61,7 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
-    public Object create(@RequestBody LitemallAd ad, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object create(@RequestBody LitemallAd ad, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;
@@ -87,7 +86,7 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
-    public Object update(@RequestBody LitemallAd ad, @RequestParam(value = "shopId") @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody LitemallAd ad, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;

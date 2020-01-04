@@ -6,6 +6,8 @@ import org.linlinjava.litemall.db.service.LitemallAdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 /**
  * @author ：stephen
  * @date ：Created in 2019/12/17 12:11
@@ -23,7 +25,7 @@ public class AdService {
         }
         if(null != shopId){
             LitemallAd litemallAd = litemallAdService.findById(ad.getId());
-            if(null == litemallAd || litemallAd.getShopId() != shopId){
+            if(null == litemallAd || !Arrays.asList(litemallAd.getShopIds()).contains(shopId)){
                 return ResponseUtil.unauthz();
             }
         }

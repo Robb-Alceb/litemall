@@ -109,7 +109,7 @@ public class AdminUserController {
     @GetMapping("/queryUserCoupon")
     @LogAnno
     public Object queryUserCouponCount(@NotNull Integer userId) {
-        return ResponseUtil.okList(litemallCouponService.queryUserCouponCount(userId));
+        return ResponseUtil.ok(litemallCouponService.queryUserCouponCount(userId));
     }
 
     /**

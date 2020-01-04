@@ -154,6 +154,23 @@ public class LitemallGoodsService {
         return goodsMapper.selectByExampleWithBLOBs(example);
     }
 
+    public List<LitemallGoods> querySelective(Integer[] ids, Integer page, Integer size, String sort, String order) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria = example.createCriteria();
+
+        if (ids != null && ids.length > 0) {
+            criteria.andIdIn(Arrays.asList(ids));
+        }
+        criteria.andDeletedEqualTo(false);
+
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+
+        PageHelper.startPage(page, size);
+        return goodsMapper.selectByExampleWithBLOBs(example);
+    }
+
     /**
      * 获取某个商品信息,包含完整信息
      *

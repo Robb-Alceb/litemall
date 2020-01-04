@@ -133,17 +133,21 @@ public class AdminCouponController {
      */
     @RequiresPermissions("admin:coupon:goodsList")
     @RequiresPermissionsDesc(menu = {"推广管理", "商品列表"}, button = "查询")
-    @PostMapping("/goodsList")
+    @GetMapping("/goodsList")
     @LogAnno
-    public Object goodsList(@NotNull @RequestParam(value = "id") Integer id) {
+    public Object goodsList(@NotNull @RequestParam(value = "id") Integer id,
+                            @RequestParam(defaultValue = "1") Integer page,
+                            @RequestParam(defaultValue = "10") Integer limit,
+                            @Sort @RequestParam(defaultValue = "add_time") String sort,
+                            @Order @RequestParam(defaultValue = "desc") String order) {
         LitemallCoupon coupon = couponService.findById(id);
         //2:指定商品
         List<LitemallGoods> litemallGoods = new ArrayList<>();
         if(coupon!=null && coupon.getGoodsType()== Constants.GOODS_TYPE_TWO
             &&coupon.getGoodsValue()!=null && coupon.getGoodsValue().length>0){
-            litemallGoods = goodsService.queryByIds(coupon.getGoodsValue());
+            litemallGoods = goodsService.querySelective(coupon.getGoodsValue(), page, limit, sort, order);
         }
-        return ResponseUtil.ok(litemallGoods);
+        return ResponseUtil.okList(litemallGoods);
     }
 
 }

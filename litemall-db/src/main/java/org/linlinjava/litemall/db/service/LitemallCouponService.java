@@ -180,12 +180,12 @@ public class LitemallCouponService {
         return couponMapper.selectByExample(example);
     }
 
-    public List<LitemallCouponUser> queryUserCouponCount(Integer userId) {
+    public int queryUserCouponCount(Integer userId) {
         LitemallCouponUserExample example = new LitemallCouponUserExample();
         LitemallCouponUserExample.Criteria criteria = example.or();
 
         criteria.andUserIdEqualTo(userId);
         criteria.andStatusEqualTo(Short.valueOf("0"));
-        return couponUserMapper.selectByExample(example);
+        return (int)couponUserMapper.countByExample(example);
     }
 }

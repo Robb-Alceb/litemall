@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
@@ -31,8 +32,7 @@ import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.linlinjava.litemall.admin.util.AdminResponseCode.ROLE_NAME_EXIST;
-import static org.linlinjava.litemall.admin.util.AdminResponseCode.ROLE_USER_EXIST;
+import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
 @RestController
 @RequestMapping("/admin/role")
@@ -151,6 +151,10 @@ public class AdminRoleController {
             for (Integer roleId : roleIds) {
                 if (id.equals(roleId)) {
                     return ResponseUtil.fail(ROLE_USER_EXIST, "当前角色存在管理员，不能删除");
+                }
+                List<Integer> shopRoles = new ArrayList<>(Arrays.asList(new Integer[]{Constants.SHOPKEEPER_ROLE_ID,Constants.SHOPKEEPER_ASSISTANT_ROLE_ID,Constants.SHOP_MANAGER_ROLE_ID,Constants.SHOP_MANAGER_ASSISTANT_ROLE_ID,Constants.SHOP_ASSISTANT_ROLE_ID}));
+                if(shopRoles.contains(roleId)){
+                    return ResponseUtil.fail(ROLE_NOT_ALLOW_DELETE, "当前角色不允许删除");
                 }
             }
         }

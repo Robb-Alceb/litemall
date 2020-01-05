@@ -129,7 +129,7 @@ public class AdminOrderController {
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "商品统计")
     @GetMapping("/goodsStatistics")
     @LogAnno
-    public Object goodsStatistics(@LoginAdminShopId @RequestParam(value = "shopId") Integer shopId,@NotNull @RequestParam(value = "startTime") String startTime,@NotNull @RequestParam(value = "endTime")  String endTime){
+    public Object goodsStatistics(@LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,@NotNull @RequestParam(value = "startTime") String startTime,@NotNull @RequestParam(value = "endTime")  String endTime){
         return adminOrderService.goodsStatistics(startTime, endTime, shopId);
     }
 

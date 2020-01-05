@@ -11,6 +11,7 @@ import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminService;
 import org.linlinjava.litemall.admin.service.LogHelper;
+import org.linlinjava.litemall.admin.util.AdminResponseCode;
 import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
@@ -27,9 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
 
@@ -145,6 +144,26 @@ public class AdminAdminController {
             admin.setPassword(encodedPassword);
         }
 
+        if(admin.getShopId() != null){
+            List<LitemallAdmin> byShopId = litemallAdminService.findByShopId(admin.getShopId());
+            if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)){
+                boolean hasShopkepper = byShopId.stream().anyMatch(ad -> {
+                    return ad.getId() !=  admin.getId() && Arrays.asList(ad.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID);
+                });
+                if(hasShopkepper){
+                    return ResponseUtil.fail(SHOP_HAS_SHOPKEEPER, "该门店已存在店长");
+                }
+            }
+            if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID)){
+                boolean hasManager = byShopId.stream().anyMatch(ad -> {
+                    return ad.getId() !=  admin.getId() && Arrays.asList(ad.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID);
+                });
+                if(hasManager){
+                    return ResponseUtil.fail(SHOP_HAS_MANAGER, "该门店已存在经理");
+                }
+            }
+        }
+
 
         if (litemallAdminService.updateById(admin) == 0) {
             return ResponseUtil.updatedDataFailed();
@@ -174,7 +193,7 @@ public class AdminAdminController {
         Integer[] roleIds = currentAdmin.getRoleIds();
         if(!ObjectUtils.isEmpty(roleIds)){
             for (Integer roleId:roleIds) {
-                if(roleId==4){
+                if(roleId.equals(Constants.SHOPKEEPER_ROLE_ID)){
                     return ResponseUtil.fail(ADMIN_DELETE_NOT_ALLOWED, "已被选做店长的管理员不能被删除");
                 }
             }
@@ -205,8 +224,8 @@ public class AdminAdminController {
         return adminService.findShopMembers(shopId);
     }
 
-    @RequiresPermissions("admin:admin:all")
-    @RequiresPermissionsDesc(menu = {"系统管理员", "系统管理员"}, button = "所有")
+//    @RequiresPermissions("admin:admin:all")
+//    @RequiresPermissionsDesc(menu = {"系统管理员", "系统管理员"}, button = "所有")
     @GetMapping("/all")
     @LogAnno
     public Object all() {

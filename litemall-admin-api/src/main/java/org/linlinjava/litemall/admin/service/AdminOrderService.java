@@ -81,7 +81,7 @@ public class AdminOrderService {
         List<OrderVo> collect = litemallOrders.stream().map(o -> {
             return BeanConvert.toOrderVo(o, userService.findById(o.getUserId()));
         }).collect(Collectors.toList());
-        return ResponseUtil.okList(collect);
+        return ResponseUtil.okList(collect, litemallOrders);
     }
 
 
@@ -507,7 +507,16 @@ public class AdminOrderService {
                     List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryGoodsSalesStatistics(null, cId, startTimes, endTimes, page, limit, sort, order);
                     map.put("payUserNum", !CollectionUtils.isEmpty(litemallOrderGoods) ? litemallOrderGoods.size() : 0);
                     //单品转化率
-                    map.put("goodsConversionRate", browseNum/Integer.valueOf((String)map.get("salesNum")));
+                    map.put("goodsConversionRate", browseNum/Integer.valueOf(map.get("salesNum").toString()));
+                }else{
+                    //浏览人数
+                    map.put("browseUserNum", 0);
+                    //商品浏览量
+                    map.put("browseNum", 0);
+                    //付款人数
+                    map.put("payUserNum", 0);
+                    //单品转化率
+                    map.put("goodsConversionRate", 0);
                 }
             });
         }
@@ -533,7 +542,16 @@ public class AdminOrderService {
                     List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryGoodsStatistics(startTimes, endTimes, null, gId);
                     map.put("payUserNum", !CollectionUtils.isEmpty(litemallOrderGoods) ? litemallOrderGoods.size() : 0);
                     //单品转化率
-                    map.put("goodsConversionRate", browseNum/Integer.valueOf((String)map.get("salesNum")));
+                    map.put("goodsConversionRate", browseNum/Integer.valueOf(map.get("salesNum").toString()));
+                }else{
+                    //浏览人数
+                    map.put("browseUserNum", 0);
+                    //商品浏览量
+                    map.put("browseNum", 0);
+                    //付款人数
+                    map.put("payUserNum", 0);
+                    //单品转化率
+                    map.put("goodsConversionRate", 0);
                 }
             });
         }

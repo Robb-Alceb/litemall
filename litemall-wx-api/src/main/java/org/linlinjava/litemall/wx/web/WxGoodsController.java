@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,8 @@ public class WxGoodsController {
 
 	@Autowired
 	private LitemallGrouponRulesService rulesService;
+	@Autowired
+	private LitemallBrowseRecordService browseRecordService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -160,6 +163,17 @@ public class WxGoodsController {
 				footprintService.add(footprint);
 			});
 		}
+
+		// 记录用户浏览记录
+		executorService.execute(()->{
+			LitemallBrowseRecord record = new LitemallBrowseRecord();
+			record.setBrowseUserId(userId);
+			record.setGoodsId(id);
+			record.setAddTime(LocalDateTime.now());
+			record.setBrowseNumber(1);
+			browseRecordService.add(record);
+		});
+
 		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
 		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
 		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
@@ -265,7 +279,7 @@ public class WxGoodsController {
 			LitemallSearchHistory searchHistoryVo = new LitemallSearchHistory();
 			searchHistoryVo.setKeyword(keyword);
 			searchHistoryVo.setUserId(userId);
-			searchHistoryVo.setFrom("wx");
+			searchHistoryVo.setFrom("app");
 			searchHistoryService.save(searchHistoryVo);
 		}
 
@@ -287,6 +301,17 @@ public class WxGoodsController {
 			return vo;
 		}).collect(Collectors.toList());
 
+		// 记录用户浏览记录
+		if(categoryId != null){
+			executorService.execute(()->{
+				LitemallBrowseRecord record = new LitemallBrowseRecord();
+				record.setBrowseUserId(userId);
+				record.setCategoryId(categoryId);
+				record.setAddTime(LocalDateTime.now());
+				record.setBrowseNumber(1);
+				browseRecordService.add(record);
+			});
+		}
 
 		// 查询商品所属类目列表。
 		List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);

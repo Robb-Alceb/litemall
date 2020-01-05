@@ -24,8 +24,8 @@ public class AdminConfigController {
     @Autowired
     private LitemallSystemConfigService systemConfigService;
 
-    @RequiresPermissions("admin:config:mall:list")
-    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
+//    @RequiresPermissions("admin:config:mall:list")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
     @GetMapping("/mall")
     @LogAnno
     public Object listMall() {
@@ -33,8 +33,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-    @RequiresPermissions("admin:config:mall:updateConfigs")
-    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
+//    @RequiresPermissions("admin:config:mall:updateConfigs")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
     @PostMapping("/mall")
     @LogAnno
     public Object updateMall(@RequestBody String body) {
@@ -44,8 +44,8 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-    @RequiresPermissions("admin:config:express:list")
-    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "详情")
+//    @RequiresPermissions("admin:config:express:list")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "详情")
     @GetMapping("/express")
     @LogAnno
     public Object listExpress() {
@@ -53,8 +53,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-    @RequiresPermissions("admin:config:express:updateConfigs")
-    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "编辑")
+//    @RequiresPermissions("admin:config:express:updateConfigs")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "编辑")
     @PostMapping("/express")
     @LogAnno
     public Object updateExpress(@RequestBody String body) {
@@ -64,8 +64,8 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-    @RequiresPermissions("admin:config:order:list")
-    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "详情")
+//    @RequiresPermissions("admin:config:order:list")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "详情")
     @GetMapping("/order")
     @LogAnno
     public Object lisOrder() {
@@ -73,8 +73,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-    @RequiresPermissions("admin:config:order:updateConfigs")
-    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "编辑")
+//    @RequiresPermissions("admin:config:order:updateConfigs")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "编辑")
     @PostMapping("/order")
     @LogAnno
     public Object updateOrder(@RequestBody String body) {
@@ -83,8 +83,8 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-    @RequiresPermissions("admin:config:wx:list")
-    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "详情")
+//    @RequiresPermissions("admin:config:wx:list")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "详情")
     @GetMapping("/wx")
     @LogAnno
     public Object listWx() {
@@ -92,8 +92,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-    @RequiresPermissions("admin:config:wx:updateConfigs")
-    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "编辑")
+//    @RequiresPermissions("admin:config:wx:updateConfigs")
+//    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "编辑")
     @PostMapping("/wx")
     @LogAnno
     public Object updateWx(@RequestBody String body) {

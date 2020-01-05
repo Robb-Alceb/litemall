@@ -43,7 +43,7 @@ public class AdminMerchandiseController {
     @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(String name, String merchandiseSn, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId,
+    public Object list(String name, String merchandiseSn, @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,

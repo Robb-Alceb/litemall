@@ -16,9 +16,9 @@ public class LitemallCartService {
     @Resource
     private LitemallCartMapper cartMapper;
 
-    public LitemallCart queryExist(Integer goodsId, Integer productId, Integer userId) {
+    public LitemallCart queryExist(Integer goodsId, Integer productId, Integer userId, Integer[] specIds) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andGoodsIdEqualTo(goodsId).andProductIdEqualTo(productId).andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        example.or().andGoodsIdEqualTo(goodsId).andProductIdEqualTo(productId).andUserIdEqualTo(userId).andSpecificationIdsEqualTo(specIds).andDeletedEqualTo(false);
         return cartMapper.selectOneByExample(example);
     }
 

@@ -44,5 +44,17 @@ public class LitemallBrowseRecordService {
         criteria1.andDeletedEqualTo(false);
         return browseRecordMapper.selectByExample(example);
     }
-
+    public LitemallBrowseRecord queryByGoodsId(Integer goodsId) {
+        LitemallBrowseRecordExample example = new LitemallBrowseRecordExample();
+        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        return browseRecordMapper.selectOneByExample(example);
+    }
+    public int add(LitemallBrowseRecord record) {
+        record.setAddTime(LocalDateTime.now());
+        return browseRecordMapper.insertSelective(record);
+    }
+    public int updateById(LitemallBrowseRecord record) {
+        record.setAddTime(LocalDateTime.now());
+        return browseRecordMapper.updateByPrimaryKeySelective(record);
+    }
 }

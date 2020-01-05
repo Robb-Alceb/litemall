@@ -280,7 +280,7 @@ public class AdminGoodsService {
             return ResponseUtil.badArgument();
         }
         LitemallGoods litemallGoods = goodsService.findById(id);
-        if(litemallGoods.getReviewType() == Constants.GOODS_REVIEW_APPROVE.byteValue()){
+        if(litemallGoods.getIsOnSale()){
             return ResponseUtil.fail(GOODS_NOT_ALLOW_DELETE, "商品已经上架，不允许删除");
         }
 

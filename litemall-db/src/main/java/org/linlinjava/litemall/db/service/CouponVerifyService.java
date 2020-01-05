@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Service
 public class CouponVerifyService {
@@ -71,4 +72,52 @@ public class CouponVerifyService {
         return coupon;
     }
 
+    public LitemallCoupon checkCouponGoods(Integer userId, Integer couponId, BigDecimal checkedGoodsPrice, Integer goodsId) {
+        LitemallCoupon coupon = couponService.findById(couponId);
+        LitemallCouponUser couponUser = couponUserService.queryOne(userId, couponId);
+        if (coupon == null || couponUser == null) {
+            return null;
+        }
+
+        // 检查是否超期
+        Short timeType = coupon.getTimeType();
+        Short days = coupon.getDays();
+        LocalDateTime now = LocalDateTime.now();
+        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+            if (now.isBefore(coupon.getStartTime()) || now.isAfter(coupon.getEndTime())) {
+                return null;
+            }
+        }
+        else if(timeType.equals(CouponConstant.TIME_TYPE_DAYS)) {
+            LocalDateTime expired = couponUser.getAddTime().plusDays(days);
+            if (now.isAfter(expired)) {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+
+        // 检测商品是否符合
+        Short goodType = coupon.getGoodsType();
+        if (goodType.equals(CouponConstant.GOODS_TYPE_ARRAY)) {
+            if(coupon.getGoodsValue() != null && Arrays.asList(coupon.getGoodsValue()).contains(goodsId)){
+                if(checkedGoodsPrice.compareTo(coupon.getMin()) == -1){
+                    return coupon;
+                }
+            }
+        }
+
+        // 检测订单状态
+        Short status = coupon.getStatus();
+        if (!status.equals(CouponConstant.STATUS_NORMAL)) {
+            return null;
+        }
+        // 检测是否满足最低消费
+        if (checkedGoodsPrice.compareTo(coupon.getMin()) == -1) {
+            return null;
+        }
+
+        return coupon;
+    }
 }

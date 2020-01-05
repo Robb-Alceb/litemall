@@ -8,6 +8,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.math.BigDecimal;
+
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -17,6 +19,7 @@ public class AdminConfigTest {
 
     @Test
     public void test() {
+        BigDecimal bigDecimal = new BigDecimal(1);
         // 测试获取application-core.yml配置信息
         System.out.println(environment.getProperty("litemall.express.appId"));
         // 测试获取application-db.yml配置信息

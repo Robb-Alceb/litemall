@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.wx.web;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
@@ -104,12 +105,12 @@ public class WxCartController {
         if (cart == null) {
             return ResponseUtil.badArgument();
         }
-
+        Integer shopId = cart.getShopId();
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
         Integer[] specIds = cart.getSpecificationIds();
-        if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
+        if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
             return ResponseUtil.badArgument();
         }
         if(number <= 0){
@@ -124,14 +125,15 @@ public class WxCartController {
 
         LitemallGoodsProduct product = productService.findById(productId);
         //判断购物车中是否存在此规格商品
-        LitemallCart existCart = cartService.queryExist(goodsId, productId, userId);
-        if (existCart == null || (existCart.getSpecificationIds() == specIds) ||  Arrays.equals(existCart.getSpecificationIds(), specIds)) {
+        LitemallCart existCart = cartService.queryExist(goodsId, productId, userId, specIds);
+        if (existCart == null) {
             //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
 
             cart.setId(null);
+            cart.setShopId(shopId);
             cart.setGoodsSn(goods.getGoodsSn());
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
@@ -147,8 +149,9 @@ public class WxCartController {
             }
             cart.setPrice(sellPrice);
             cart.setSpecifications(specifications.toArray(new String[]{}));
+            cart.setSpecificationIds(specIds);
             cart.setUserId(userId);
-            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00).multiply(sellPrice)));
+            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
             cart.setChecked(true);
             cartService.add(cart);
         } else {
@@ -186,11 +189,12 @@ public class WxCartController {
             return ResponseUtil.badArgument();
         }
 
+        Integer shopId = cart.getShopId();
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
         Integer[] specIds = cart.getSpecificationIds();
-        if (!ObjectUtils.allNotNull(productId, number, goodsId)) {
+        if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
             return ResponseUtil.badArgument();
         }
         if(number <= 0){
@@ -205,7 +209,7 @@ public class WxCartController {
 
         LitemallGoodsProduct product = productService.findById(productId);
         //判断购物车中是否存在此规格商品
-        LitemallCart existCart = cartService.queryExist(goodsId, productId, userId);
+        LitemallCart existCart = cartService.queryExist(goodsId, productId, userId, specIds);
         if (existCart == null) {
             //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
@@ -213,6 +217,7 @@ public class WxCartController {
             }
 
             cart.setId(null);
+            cart.setShopId(shopId);
             cart.setGoodsSn(goods.getGoodsSn());
             cart.setGoodsName((goods.getName()));
             cart.setPicUrl(goods.getPicUrl());
@@ -227,8 +232,9 @@ public class WxCartController {
                 }
             }
             cart.setPrice(sellPrice);
-            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00).multiply(sellPrice)));
+            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
             cart.setSpecifications(specifications.toArray(new String[]{}));
+            cart.setSpecificationIds(specIds);
             cart.setUserId(userId);
             cart.setChecked(true);
             cartService.add(cart);

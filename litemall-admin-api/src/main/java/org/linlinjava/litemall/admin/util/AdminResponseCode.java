@@ -50,7 +50,13 @@ public class AdminResponseCode {
     public static final Integer ROLE_SUPER_SUPERMISSION = 641;
     //当前角色存在管理员
     public static final Integer ROLE_USER_EXIST = 642;
+    //当前角色不允许删除
+    public static final Integer ROLE_NOT_ALLOW_DELETE = 643;
 
     //门店不允许删除
     public static final Integer SHOP_NOT_ALLOW_DELETE = 650;
+    //门店已存在店长
+    public static final Integer SHOP_HAS_SHOPKEEPER = 651;
+    //门店已存在经理
+    public static final Integer SHOP_HAS_MANAGER = 652;
 }

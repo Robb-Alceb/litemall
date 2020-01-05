@@ -147,6 +147,8 @@ public class WxOrderService {
             orderVo.put("orderSn", o.getOrderSn());
             orderVo.put("actualPrice", o.getActualPrice());
             orderVo.put("orderStatusText", OrderUtil.orderStatusText(o));
+            orderVo.put("taxPrice", o.getTaxPrice());
+            orderVo.put("orderStatus", o.getOrderStatus());
             orderVo.put("handleOption", OrderUtil.build(o));
 
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
@@ -206,7 +208,9 @@ public class WxOrderService {
         orderVo.put("couponPrice", order.getCouponPrice());
         orderVo.put("freightPrice", order.getFreightPrice());
         orderVo.put("actualPrice", order.getActualPrice());
+        orderVo.put("taxPrice", order.getTaxPrice());
         orderVo.put("orderStatusText", OrderUtil.orderStatusText(order));
+        orderVo.put("orderStatus", order.getOrderStatus());
         orderVo.put("handleOption", OrderUtil.build(order));
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expNo", order.getShipSn());
@@ -254,6 +258,7 @@ public class WxOrderService {
         Integer cartId = JacksonUtil.parseInteger(body, "cartId");
         Integer addressId = JacksonUtil.parseInteger(body, "addressId");
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
+        Integer shopId = JacksonUtil.parseInteger(body, "shopId");
         String message = JacksonUtil.parseString(body, "message");
         Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
@@ -282,6 +287,11 @@ public class WxOrderService {
         if (checkedGoodsList.size() == 0) {
             return ResponseUtil.badArgumentValue();
         }
+
+        //优惠券抵扣价格
+        LitemallCoupon couponServiceById = couponService.findById(couponId);
+        BigDecimal couponPrice = new BigDecimal(0.00);
+
         /**
          * 商品价格
          */
@@ -296,6 +306,11 @@ public class WxOrderService {
         for (LitemallCart checkGoods : checkedGoodsList) {
             Integer goodsId = checkGoods.getGoodsId();
             LitemallGoods litemallGoods = goodsService.findById(goodsId);
+            if(litemallGoods == null){
+                return ResponseUtil.fail(GOODS_UNKNOWN,"商品不存在");
+            }else if(!litemallGoods.getIsOnSale()){
+                return ResponseUtil.fail(GOODS_NOT_SALE,"商品已下架");
+            }
             Integer productId = checkGoods.getProductId();
             LitemallGoodsProduct goodsProduct = productService.findById(productId);
             //  规格价格
@@ -304,17 +319,27 @@ public class WxOrderService {
                 for(Integer sid : checkGoods.getSpecificationIds()){
                     LitemallGoodsSpecification specificationServiceById = goodsSpecificationService.findById(sid);
                     if(specificationServiceById != null){
-                        specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
                     }
                 }
             }
+            logger.debug("WxOrderService [submit] specGoodsPrice is: "+specGoodsPrice.toString());
+            logger.debug("WxOrderService [submit] goodsProduct is: "+goodsProduct.getSellPrice().toString());
             if(goodsProduct.getSellPrice().add(specGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
                 return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
             }
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
+            //判断指定商品类型优惠券
+            if (couponId != 0 && couponId != -1) {
+                LitemallCoupon coupon = couponVerifyService.checkCouponGoods(userId, couponId, checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())), goodsId);
+                if (coupon == null) {
+                    return ResponseUtil.badArgumentValue();
+                }
+                couponPrice = coupon.getDiscount();
+            }
 
-            if(litemallGoods.getPriceType() != null){
+            if(litemallGoods != null && litemallGoods.getPriceType() != null){
                 //会员价格需要乘以商品数
                 if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_VIP){
                     LitemallVipGoodsPrice litemallVipGoodsPrice = litemallVipGoodsService.queryByGoodsId(goodsId);
@@ -353,18 +378,18 @@ public class WxOrderService {
 
             taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
         }
-        checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
+        checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
+        // 全商品类型优惠券
         // 获取可用的优惠券信息
         // 使用优惠券减免的金额
-        BigDecimal couponPrice = new BigDecimal(0.00);
+
         // 如果couponId=0则没有优惠券，couponId=-1则不使用优惠券
         if (couponId != 0 && couponId != -1) {
             LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponId, checkedGoodsPrice);
-            if (coupon == null) {
-                return ResponseUtil.badArgumentValue();
+            if (coupon != null) {
+                couponPrice = coupon.getDiscount();
             }
-            couponPrice = coupon.getDiscount();
         }
 
 
@@ -397,12 +422,13 @@ public class WxOrderService {
         String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty() + " " + checkedAddress.getAddressDetail();
         order.setAddress(detailedAddress);
         order.setGoodsPrice(checkedGoodsPrice);
-//        order.setFreightPrice(0.00);
+        order.setFreightPrice(new BigDecimal(0.00));
         order.setCouponPrice(couponPrice);
         order.setIntegralPrice(integralPrice);
         order.setOrderPrice(orderTotalPrice);
         order.setActualPrice(actualPrice);
         order.setTaxPrice(taxGoodsPrice);
+        order.setShopId(shopId);
 
         // 有团购活动
 /*

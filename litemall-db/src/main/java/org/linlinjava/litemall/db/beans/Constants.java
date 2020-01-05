@@ -84,4 +84,10 @@ public class Constants {
     public static final Byte USER_LEVEL_GOLD = 2;
     public static final Byte USER_LEVEL_PLATINUNM = 3;
     public static final Byte USER_LEVEL_DIAMOND = 4;
+
+    /**
+     * 优惠券类型（0：全商品；2：指定商品）
+     */
+    public static final Short COUPON_TYPE_COMMON = 0;
+    public static final Short COUPON_TYPE_GOODS = 2;
 }

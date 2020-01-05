@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 
 /**
  * @author ：stephen
@@ -22,10 +23,12 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 @Controller
-@RequestMapping("/wx")
 public class PaypalController {
     public static final String PAYPAL_SUCCESS_URL = "wx/paypal/success";
     public static final String PAYPAL_CANCEL_URL = "wx/paypal/cancel";
+
+    public static final String PAYPAL_RECHARGE_SUCCESS_URL = "wx/paypal/recharge/success";
+    public static final String PAYPAL_RECHARGE_CANCEL_URL = "wx/paypal/recharge/cancel";
 
     private Log log = LogFactory.getLog(PaypalController.class);
 
@@ -33,8 +36,8 @@ public class PaypalController {
     private PaypalService paypalService;
 
 
-    @GetMapping("/paypal/pay")
-    public Object pay(HttpServletRequest request, Integer userId, Integer orderId){
+    @GetMapping("/wx/paypal/pay")
+    public Object pay(HttpServletRequest request,@LoginUser Integer userId, Integer orderId){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
 //        successUrl = "http://192.168.0.101:8080/"+PAYPAL_CANCEL_URL;
@@ -54,12 +57,12 @@ public class PaypalController {
         return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
     }
 
-    @GetMapping("wx/paypal/cancel")
+    @GetMapping("/wx/paypal/cancel")
     public Object cancelPay(){
         return ResponseUtil.ok("cancel") ;
     }
 
-    @GetMapping("/paypal/success")
+    @GetMapping("/wx/paypal/success")
     public Object successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId){
         log.debug("paypal success");
         System.out.println("paypal success");
@@ -75,6 +78,31 @@ public class PaypalController {
         } catch (PayPalRESTException e) {
             log.error(e.getMessage());
         }
+        return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
+    }
+
+    /**
+     * 用户充值
+     * @param userId
+     * @param amount
+     * @return
+     */
+    @GetMapping("/wx/paypal/recharge")
+    public Object recharge(HttpServletRequest request, @LoginUser Integer userId, BigDecimal amount){
+        String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_RECHARGE_CANCEL_URL;
+        String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_RECHARGE_SUCCESS_URL;
+        Object obj =  new Object();
+        if(!(obj instanceof Payment)){
+            return obj;
+        }
+
+        Payment payment = (Payment)obj;
+        for(Links links : payment.getLinks()){
+            if(links.getRel().equals("approval_url")){
+                return "redirect:" + links.getHref();
+            }
+        }
+
         return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
     }
 }

@@ -54,5 +54,6 @@
    <logger name="org.linlinjava.litemall.db" level="DEBUG" />
     <logger name="org.linlinjava.litemall.admin" level="DEBUG" />
     <logger name="org.linlinjava.litemall.wx" level="DEBUG" />
+    <logger name="org.linlinjava.litemall.web" level="DEBUG" />
     <logger name="org.linlinjava.litemall" level="DEBUG" />
 </configuration>

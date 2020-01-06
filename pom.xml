@@ -26,6 +26,7 @@
         <module>litemall-admin-api</module>
         <module>litemall-all</module>
         <module>litemall-cache</module>
+        <module>litemall-web-api</module>
     </modules>
 
     <dependencyManagement>
@@ -53,6 +54,11 @@
             <dependency>
                 <groupId>org.linlinjava</groupId>
                 <artifactId>litemall-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.linlinjava</groupId>
+                <artifactId>litemall-web-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

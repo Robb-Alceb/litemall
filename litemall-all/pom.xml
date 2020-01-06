@@ -37,6 +37,10 @@
             <artifactId>litemall-cache</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.linlinjava</groupId>
+            <artifactId>litemall-web-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

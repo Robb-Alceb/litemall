@@ -35,8 +35,8 @@ public class AdminTopicController {
     @Autowired
     private LitemallGoodsService goodsService;
 
-    @RequiresPermissions("admin:topic:list")
-    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "查询")
+//    @RequiresPermissions("admin:topic:list")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
     public Object list(String title, String subtitle,
@@ -64,8 +64,8 @@ public class AdminTopicController {
         return null;
     }
 
-    @RequiresPermissions("admin:topic:create")
-    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "添加")
+//    @RequiresPermissions("admin:topic:create")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
     public Object create(@RequestBody LitemallTopic topic) {
@@ -77,8 +77,8 @@ public class AdminTopicController {
         return ResponseUtil.ok(topic);
     }
 
-    @RequiresPermissions("admin:topic:read")
-    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "详情")
+//    @RequiresPermissions("admin:topic:read")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
     public Object read(@NotNull @RequestParam(value = "id") Integer id) {
@@ -96,8 +96,8 @@ public class AdminTopicController {
         return ResponseUtil.ok(data);
     }
 
-    @RequiresPermissions("admin:topic:update")
-    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "编辑")
+//    @RequiresPermissions("admin:topic:update")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
     public Object update(@RequestBody LitemallTopic topic) {
@@ -111,8 +111,8 @@ public class AdminTopicController {
         return ResponseUtil.ok(topic);
     }
 
-    @RequiresPermissions("admin:topic:delete")
-    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "删除")
+//    @RequiresPermissions("admin:topic:delete")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "专题管理"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
     public Object delete(@RequestBody LitemallTopic topic) {

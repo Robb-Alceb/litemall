@@ -52,7 +52,7 @@ public class AdminAdminController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String nickname,
-                       @LoginAdminShopId @RequestParam(value = "shopId", required = false) Integer shopId,
+                       @LoginAdminShopId Integer shopId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -207,12 +207,12 @@ public class AdminAdminController {
 
     @GetMapping("/shop/shopkeeper")
     @LogAnno
-    public Object getShopkeeper(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
+    public Object getShopkeeper(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOPKEEPER_ROLE_ID);
     }
     @GetMapping("/shop/manager")
     @LogAnno
-    public Object getShopManager(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
+    public Object getShopManager(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMemberByRole(shopId, Constants.SHOP_MANAGER_ROLE_ID);
     }
 
@@ -220,7 +220,7 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
     @GetMapping("/shop/members")
     @LogAnno
-    public Object getShopMembers(@NotNull @LoginAdminShopId @RequestParam(value = "shopId") Integer shopId) {
+    public Object getShopMembers(@NotNull @LoginAdminShopId Integer shopId) {
         return adminService.findShopMembers(shopId);
     }
 

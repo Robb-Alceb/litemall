@@ -61,7 +61,7 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
-    public Object create(@RequestBody LitemallAd ad, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
+    public Object create(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;
@@ -86,7 +86,7 @@ public class AdminAdController {
     @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
-    public Object update(@RequestBody LitemallAd ad, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
         Object error = validate(ad);
         if (error != null) {
             return error;

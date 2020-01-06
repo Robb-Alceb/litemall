@@ -1,5 +1,7 @@
 package org.linlinjava.litemall.admin.beans.annotation.support;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
@@ -12,9 +14,13 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 
 public class LoginAdminHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
+    private final Log logger = LogFactory.getLog(LoginAdminHandlerMethodArgumentResolver.class);
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
+        logger.debug("LoginAdminHandlerMethodArgumentResolver clazz is: " + parameter.getContainingClass().getName());
+        logger.debug("LoginAdminHandlerMethodArgumentResolver method is: " + parameter.getMethod().getName());
+        logger.debug("LoginAdminHandlerMethodArgumentResolver supportsParameter parameter is: " + parameter.getParameterName());
         return parameter.getParameterType().isAssignableFrom(Integer.class) && parameter.hasParameterAnnotation(LoginAdminShopId.class);
     }
 
@@ -29,9 +35,12 @@ public class LoginAdminHandlerMethodArgumentResolver implements HandlerMethodArg
         LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
 
         if(null != admin.getShopId()){
+            logger.debug("LoginAdminHandlerMethodArgumentResolver get admin is "+ admin.toString());
             return admin.getShopId();
         }
-        String value  = request.getParameter(parameter.getParameter().getName());
+        String value  = request.getParameter(parameter.getParameterName());
+        logger.debug("LoginAdminHandlerMethodArgumentResolver get parameter name is "+ parameter.getParameterName());
+        logger.debug("LoginAdminHandlerMethodArgumentResolver get parameter value is "+ value);
         if(!StringUtils.isEmpty(value)){
             return Integer.parseInt(value);
         }

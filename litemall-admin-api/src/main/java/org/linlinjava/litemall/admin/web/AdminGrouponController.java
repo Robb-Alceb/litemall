@@ -38,8 +38,8 @@ public class AdminGrouponController {
     @Autowired
     private LitemallGrouponService grouponService;
 
-    @RequiresPermissions("admin:groupon:read")
-    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "详情")
+//    @RequiresPermissions("admin:groupon:read")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "详情")
     @GetMapping("/listRecord")
     @LogAnno
     public Object listRecord(String grouponId,
@@ -71,8 +71,8 @@ public class AdminGrouponController {
         return ResponseUtil.okList(groupons, grouponList);
     }
 
-    @RequiresPermissions("admin:groupon:list")
-    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "查询")
+//    @RequiresPermissions("admin:groupon:list")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
     public Object list(String goodsId,
@@ -105,8 +105,8 @@ public class AdminGrouponController {
         return null;
     }
 
-    @RequiresPermissions("admin:groupon:update")
-    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "编辑")
+//    @RequiresPermissions("admin:groupon:update")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
     public Object update(@RequestBody LitemallGrouponRules grouponRules) {
@@ -131,8 +131,8 @@ public class AdminGrouponController {
         return ResponseUtil.ok();
     }
 
-    @RequiresPermissions("admin:groupon:create")
-    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "添加")
+//    @RequiresPermissions("admin:groupon:create")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
     public Object create(@RequestBody LitemallGrouponRules grouponRules) {
@@ -155,8 +155,8 @@ public class AdminGrouponController {
         return ResponseUtil.ok(grouponRules);
     }
 
-    @RequiresPermissions("admin:groupon:delete")
-    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "删除")
+//    @RequiresPermissions("admin:groupon:delete")
+//    @RequiresPermissionsDesc(menu = {"推广管理", "团购管理"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
     public Object delete(@RequestBody LitemallGrouponRules grouponRules) {

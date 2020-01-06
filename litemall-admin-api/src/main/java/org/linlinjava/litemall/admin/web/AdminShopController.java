@@ -55,7 +55,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(@RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
+    public Object list(@LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -74,7 +74,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "编辑")
     @PutMapping("/update")
     @LogAnno
-    public Object update(@RequestBody ShopDto shop, @RequestParam(value = "shopId", required = false) @LoginAdminShopId Integer shopId) {
+    public Object update(@RequestBody ShopDto shop, @LoginAdminShopId Integer shopId) {
         if(null != shopId){
             shop.getLitemallShop().setId(shopId);
         }
@@ -91,7 +91,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "删除")
     @DeleteMapping("/delete")
     @LogAnno
-    public Object delete(@NotNull @LoginAdminShopId @RequestParam(value = "id") Integer id) {
+    public Object delete(@NotNull @LoginAdminShopId Integer id) {
         return shopService.delete(id);
     }
 
@@ -119,7 +119,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "详情")
     @GetMapping("/detail")
     @LogAnno
-    public Object detail(@NotNull @LoginAdminShopId @RequestParam(value = "id") Integer id) {
+    public Object detail(@NotNull @LoginAdminShopId Integer id) {
         return shopService.detail(id);
 
     }
@@ -149,7 +149,7 @@ public class AdminShopController {
 //    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店库存数量")
     @GetMapping("/merchandiseNumber")
     @LogAnno
-    public Object all(@LoginAdminShopId @RequestParam(value = "id", required = false) Integer id, String merchandiseSn) {
+    public Object all(@LoginAdminShopId Integer id, String merchandiseSn) {
         return ResponseUtil.ok(shopMerchandiseService.queryBySn(merchandiseSn, id));
     }
 
@@ -163,7 +163,7 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店统计信息")
     @GetMapping("/shopOverview")
     @LogAnno
-    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull @RequestParam(value = "id") Integer id){
+    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull Integer id){
         return ResponseUtil.ok(shopService.querShopGoodsInfo(id));
     }
 }

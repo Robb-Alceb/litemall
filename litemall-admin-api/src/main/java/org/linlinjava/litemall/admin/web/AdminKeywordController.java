@@ -27,8 +27,8 @@ public class AdminKeywordController {
     @Autowired
     private LitemallKeywordService keywordService;
 
-    @RequiresPermissions("admin:keyword:list")
-    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "查询")
+//    @RequiresPermissions("admin:keyword:list")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
     public Object list(String keyword, String url,
@@ -48,8 +48,8 @@ public class AdminKeywordController {
         return null;
     }
 
-    @RequiresPermissions("admin:keyword:create")
-    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "添加")
+//    @RequiresPermissions("admin:keyword:create")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
     public Object create(@RequestBody LitemallKeyword keyword) {
@@ -61,8 +61,8 @@ public class AdminKeywordController {
         return ResponseUtil.ok(keyword);
     }
 
-    @RequiresPermissions("admin:keyword:read")
-    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "详情")
+//    @RequiresPermissions("admin:keyword:read")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
     public Object read(@NotNull @RequestParam(value = "id") Integer id) {
@@ -70,8 +70,8 @@ public class AdminKeywordController {
         return ResponseUtil.ok(keyword);
     }
 
-    @RequiresPermissions("admin:keyword:update")
-    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "编辑")
+//    @RequiresPermissions("admin:keyword:update")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
     public Object update(@RequestBody LitemallKeyword keyword) {
@@ -85,8 +85,8 @@ public class AdminKeywordController {
         return ResponseUtil.ok(keyword);
     }
 
-    @RequiresPermissions("admin:keyword:delete")
-    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "删除")
+//    @RequiresPermissions("admin:keyword:delete")
+//    @RequiresPermissionsDesc(menu = {"商场管理", "关键词"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
     public Object delete(@RequestBody LitemallKeyword keyword) {

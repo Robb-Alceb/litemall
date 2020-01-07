@@ -21,5 +21,7 @@ public class GoodsVo {
     private Boolean isHot;
     private BigDecimal retailPrice;
     private BigDecimal tax;
-
+    private String picUri;
+    private Integer categoryId;
+    private String categoryName;
 }

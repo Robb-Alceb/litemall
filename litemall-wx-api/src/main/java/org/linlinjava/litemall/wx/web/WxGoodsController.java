@@ -293,6 +293,12 @@ public class WxGoodsController {
 			vo.setId(goods.getId());
 			vo.setName(goods.getName());
 			vo.setIsNew(goods.getIsNew());
+			vo.setPicUri(goods.getPicUrl());
+			vo.setCategoryId(goods.getCategoryId());
+			LitemallCategory byId = categoryService.findById(goods.getCategoryId());
+			if(byId != null){
+				vo.setCategoryName(byId.getName());
+			}
 
 			if(litemallGoodsProducts.size() > 0){
 				vo.setTax(litemallGoodsProducts.get(0).getTax());

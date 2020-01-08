@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -37,7 +38,7 @@ public class PaypalController {
 
 
     @GetMapping("/wx/paypal/pay")
-    public Object pay(HttpServletRequest request,@LoginUser Integer userId, Integer orderId){
+    public Object pay(HttpServletRequest request,@LoginUser Integer userId,@NotNull Integer orderId){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
 //        successUrl = "http://192.168.0.101:8080/"+PAYPAL_CANCEL_URL;

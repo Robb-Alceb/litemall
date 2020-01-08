@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.*;
@@ -115,6 +116,8 @@ public class WxOrderService {
     private LitemallGoodsMaxMinusPriceService litemallGoodsMaxMinusPriceService;
     @Autowired
     private UserInfoService userInfoService;
+    @Autowired
+    private LitemallShopService shopService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -263,10 +266,14 @@ public class WxOrderService {
         Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
+        //订单类型（1：自提订单;2:外送订单）
+        Integer orderType = JacksonUtil.parseInteger(body, "orderType");
 
-        if (cartId == null || addressId == null || couponId == null) {
+
+        if (cartId == null || addressId == null || couponId == null || orderType == null) {
             return ResponseUtil.badArgument();
         }
+
 
         // 收货地址
         LitemallAddress checkedAddress = addressService.query(userId, addressId);
@@ -274,6 +281,23 @@ public class WxOrderService {
             return ResponseUtil.badArgument();
         }
 
+        LitemallShop litemallShop = shopService.findById(shopId);
+        if(litemallShop == null || !litemallShop.getStatus().equals(Constants.SHOP_STATUS_OPEN)){
+            return ResponseUtil.fail(SHOP_UNABLE, "门店未开业");
+        }else{
+            String closeTime = litemallShop.getCloseTime();
+            String openTime = litemallShop.getOpenTime();
+            DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime startTimes = LocalDateTime.parse(openTime, timeDtf);
+            LocalDateTime endTime = LocalDateTime.parse(closeTime, timeDtf);
+            LocalDateTime now = LocalDateTime.now();
+            if(now.compareTo(startTimes) != -1 && now.compareTo(endTime) != 1){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+        }
+        if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
+            return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
+        }
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
@@ -429,6 +453,7 @@ public class WxOrderService {
         order.setActualPrice(actualPrice);
         order.setTaxPrice(taxGoodsPrice);
         order.setShopId(shopId);
+        order.setOrderType(orderType.byteValue());
 
         // 有团购活动
 /*

@@ -42,5 +42,10 @@ public class WxResponseCode {
     public static final int COUPON_RECEIVE_FAIL= 741;
     public static final int COUPON_CODE_INVALID= 742;
 
-
+    //门店未开业
+    public static final int SHOP_UNABLE = 750;
+    //门店
+    public static final int SHOP_CLOSED = 750;
+    //不支持服务（配送，自提）
+    public static final int SHOP_UNSUPPOT = 751;
 }

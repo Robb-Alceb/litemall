@@ -24,7 +24,7 @@ public class LitemallCouponService {
 
     private Column[] result = new Column[]{Column.id, Column.name, Column.desc, Column.tag,
                                             Column.days, Column.startTime, Column.endTime,
-                                            Column.discount, Column.min};
+                                            Column.discount, Column.min, Column.userLevel};
 
     /**
      * 查询，空参数

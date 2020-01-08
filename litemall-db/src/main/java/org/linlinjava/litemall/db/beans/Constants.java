@@ -90,4 +90,11 @@ public class Constants {
      */
     public static final Short COUPON_TYPE_COMMON = 0;
     public static final Short COUPON_TYPE_GOODS = 2;
+
+    /**
+     * 门店状态（1:营业；2：歇业；3：装修）
+     */
+    public static final Short SHOP_STATUS_OPEN = 1;
+    public static final Short SHOP_STATUS_CLOSE = 2;
+    public static final Short SHOP_STATUS_UNABLE = 2;
 }

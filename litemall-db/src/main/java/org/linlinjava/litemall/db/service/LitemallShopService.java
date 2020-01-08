@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallShopMapper;
 import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.linlinjava.litemall.db.domain.LitemallShopExample;

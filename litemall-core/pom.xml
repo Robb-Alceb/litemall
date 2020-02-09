@@ -81,12 +81,6 @@
             <artifactId>rest-api-sdk</artifactId>
             <version>1.14.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.heartlandpaymentsystems/globalpayments-sdk -->
-        <dependency>
-            <groupId>com.heartlandpaymentsystems</groupId>
-            <artifactId>globalpayments-sdk</artifactId>
-            <version>6.1.18</version>
-        </dependency>
     </dependencies>
 
 </project>

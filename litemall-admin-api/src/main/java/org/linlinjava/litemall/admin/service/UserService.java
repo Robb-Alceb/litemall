@@ -65,7 +65,7 @@ public class UserService {
         List<UserOptionVo> collect = litemallUsers.stream().map(user -> {
             UserOptionVo vo = new UserOptionVo();
             vo.setKey(user.getId());
-            vo.setLabel(StringUtils.isEmpty(user.getNickname())?user.getUsername():user.getNickname());
+            vo.setLabel(user.getUsername());
             return vo;
         }).collect(Collectors.toList());
         return collect;

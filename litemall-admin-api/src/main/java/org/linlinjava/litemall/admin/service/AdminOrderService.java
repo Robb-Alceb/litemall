@@ -322,7 +322,7 @@ public class AdminOrderService {
         record.setRemark(remark);
         record.setShipStatus(order.getShipStatus());
         record.setUserId(admin.getId());
-        record.setUserName(admin.getNickName());
+        record.setUserName(admin.getUsername());
         orderRecordService.add(record);
 
         return ResponseUtil.ok();

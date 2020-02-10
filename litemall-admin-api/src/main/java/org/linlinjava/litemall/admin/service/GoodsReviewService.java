@@ -64,7 +64,7 @@ public class GoodsReviewService {
         log.setLogType(Constants.GOODS_LOG_REVIEW.byteValue());
         LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
         log.setAddUserId(admin.getId());
-        log.setUserName(admin.getNickName());
+        log.setUserName(admin.getUsername());
         log.setContent(goodsReviewDto.getContent());
         log.setGoodsName(goodsReviewDto.getGoodsName());
         String content = StringUtils.isEmpty(goodsReviewDto.getContent())?"":goodsReviewDto.getContent();

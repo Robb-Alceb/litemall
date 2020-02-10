@@ -18,10 +18,16 @@ public class LitemallAdminOrderService {
 
 
 
-    public List<LitemallAdminOrder> querySelective(String orderSn, String userName, String address, Integer shopId, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallAdminOrder> querySelective(LocalDateTime startTimes, LocalDateTime endTimes, Integer orderStatus, String orderSn, String userName, String address, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallAdminOrderExample example = new LitemallAdminOrderExample();
         LitemallAdminOrderExample.Criteria criteria = example.createCriteria();
 
+        if(null != startTimes && null != endTimes){
+            criteria.andUpdateTimeBetween(startTimes, endTimes);
+        }
+        if(null != orderStatus){
+            criteria.andOrderStatusEqualTo(orderStatus.byteValue());
+        }
         if (!StringUtils.isEmpty(orderSn)) {
             criteria.andUsernameLike("%" + orderSn + "%");
         }

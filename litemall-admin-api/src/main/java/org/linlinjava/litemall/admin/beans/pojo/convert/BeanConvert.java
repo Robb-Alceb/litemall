@@ -2,13 +2,11 @@ package org.linlinjava.litemall.admin.beans.pojo.convert;
 
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
+import org.linlinjava.litemall.admin.beans.vo.CollectVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderVo;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
-import org.linlinjava.litemall.db.domain.LitemallAdmin;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallShop;
-import org.linlinjava.litemall.db.domain.LitemallUser;
+import org.linlinjava.litemall.db.domain.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +29,7 @@ public class BeanConvert {
         vo.setAddTime(DateUtil.dateToString(litemallShop.getAddTime()));
         admins.forEach(admin -> {
             if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)){
-                vo.setShopkeeper(admin.getNickName());
+                vo.setShopkeeper(admin.getUsername());
                 vo.setShopkeeperId(admin.getId());
             }
             if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOP_MANAGER_ROLE_ID)){
@@ -52,7 +50,19 @@ public class BeanConvert {
         vo.setPayType(order.getPayType());
         vo.setShopId(order.getShopId());
         vo.setUserId(order.getUserId());
-        vo.setUserName(user.getNickname());
+        vo.setUserName(user.getUsername());
+        return vo;
+    }
+    public static CollectVo toCollectVo(LitemallCollect litemallCollect, String goodsName, String userName){
+        CollectVo vo = new CollectVo();
+        vo.setId(litemallCollect.getId());
+        vo.setAddTime(litemallCollect.getAddTime());
+        vo.setType(litemallCollect.getType());
+        vo.setUpdateTime(litemallCollect.getUpdateTime());
+        vo.setUserId(litemallCollect.getUserId());
+        vo.setUserName(userName);
+        vo.setValueId(litemallCollect.getValueId());
+        vo.setValueName(goodsName);
         return vo;
     }
 }

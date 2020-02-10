@@ -242,7 +242,7 @@ public class ShopService {
         LitemallAdmin litemallAdmin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
         LitemallShopLog litemallShopLog = new LitemallShopLog();
         litemallShopLog.setCreateUserId(litemallAdmin.getId());
-        litemallShopLog.setCreateUserName(litemallAdmin.getNickName());
+        litemallShopLog.setCreateUserName(litemallAdmin.getUsername());
         litemallShopLog.setIpAddr(litemallAdmin.getLastLoginIp());
         litemallShopLog.setContent(context);
         litemallShopLog.setShopId(shop.getId());

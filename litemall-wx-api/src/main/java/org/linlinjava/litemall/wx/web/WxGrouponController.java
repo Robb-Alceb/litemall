@@ -238,7 +238,7 @@ public class WxGrouponController {
             grouponVo.put("id", groupon.getId());
             grouponVo.put("groupon", groupon);
             grouponVo.put("rules", rules);
-            grouponVo.put("creator", creator.getNickname());
+            grouponVo.put("creator", creator.getUsername());
 
             int linkGrouponId;
             // 这是一个团购发起记录

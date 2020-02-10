@@ -17,8 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -44,9 +48,17 @@ public class AdminAdminOrderService {
      * 调货申请列表
      * @return
      */
-    public Object list(String orderSn, String userName, String address, Integer shopId,
+    public Object list(Integer orderStatus,String startDate, String endDate, String orderSn, String userName, String address,
+                       Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        return ResponseUtil.okList(adminOrderService.querySelective(orderSn, userName, address, shopId, page, limit, sort, order));
+        if(!StringUtils.isEmpty(startDate) && !StringUtils.isEmpty(endDate)){
+            DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate startTimes = LocalDate.parse(startDate, timeDtf);
+            LocalDate endTimes = LocalDate.parse(endDate, timeDtf);
+            return ResponseUtil.okList(adminOrderService.querySelective(startTimes.atTime(LocalTime.MIN), endTimes.atTime(LocalTime.MAX), orderStatus, orderSn, userName, address, shopId, page, limit, sort, order));
+        }else{
+            return ResponseUtil.okList(adminOrderService.querySelective(null, null, orderStatus, orderSn, userName, address, shopId, page, limit, sort, order));
+        }
     }
 
     /**

@@ -43,12 +43,15 @@ public class AdminAdminOrderController {
     @GetMapping("/list")
     @LogAnno
     public Object list(String orderSn, String userName, String address,
+                       Integer orderStatus,
                        @LoginAdminShopId Integer shopId,
+                       String startDate,
+                       String endDate,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminAdminOrderService.list(orderSn, userName, address, shopId, page, limit, sort, order);
+        return adminAdminOrderService.list(orderStatus, startDate, endDate, orderSn, userName, address, shopId, page, limit, sort, order);
     }
 
     /**

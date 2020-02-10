@@ -34,6 +34,7 @@
     <result column="unit" jdbcType="VARCHAR" property="unit" />
     <result column="counter_price" jdbcType="DECIMAL" property="counterPrice" />
     <result column="retail_price" jdbcType="DECIMAL" property="retailPrice" />
+    <result column="operation_desc" jdbcType="VARCHAR" property="operationDesc" />
     <result column="give_away_points" jdbcType="DECIMAL" property="giveAwayPoints" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -158,8 +159,8 @@
     id, shop_id, shop_name, goods_sn, `name`, subhead, category_id, brand_id, gallery, 
     keywords, brief, is_on_sale, goods_type, review_type, sort_order, pic_url, share_url, 
     is_new, is_hot, is_return, is_distribution, distribution_fee, price_type, is_vip_price, 
-    is_activity_price, unit, counter_price, retail_price, give_away_points, add_time, 
-    update_time, deleted
+    is_activity_price, unit, counter_price, retail_price, operation_desc, give_away_points, 
+    add_time, update_time, deleted
   </sql>
   <sql id="Blob_Column_List">
     <!--
@@ -324,9 +325,9 @@
       is_hot, is_return, is_distribution, 
       distribution_fee, price_type, is_vip_price, 
       is_activity_price, unit, counter_price, 
-      retail_price, give_away_points, add_time, 
-      update_time, deleted, detail
-      )
+      retail_price, operation_desc, give_away_points, 
+      add_time, update_time, deleted, 
+      detail)
     values (#{shopId,jdbcType=INTEGER}, #{shopName,jdbcType=VARCHAR}, #{goodsSn,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{subhead,jdbcType=VARCHAR}, #{categoryId,jdbcType=INTEGER}, 
       #{brandId,jdbcType=INTEGER}, #{gallery,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler}, 
@@ -336,9 +337,9 @@
       #{isHot,jdbcType=BIT}, #{isReturn,jdbcType=BIT}, #{isDistribution,jdbcType=BIT}, 
       #{distributionFee,jdbcType=DECIMAL}, #{priceType,jdbcType=TINYINT}, #{isVipPrice,jdbcType=BIT}, 
       #{isActivityPrice,jdbcType=BIT}, #{unit,jdbcType=VARCHAR}, #{counterPrice,jdbcType=DECIMAL}, 
-      #{retailPrice,jdbcType=DECIMAL}, #{giveAwayPoints,jdbcType=DECIMAL}, #{addTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{detail,jdbcType=LONGVARCHAR}
-      )
+      #{retailPrice,jdbcType=DECIMAL}, #{operationDesc,jdbcType=VARCHAR}, #{giveAwayPoints,jdbcType=DECIMAL}, 
+      #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, 
+      #{detail,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallGoods">
     <!--
@@ -430,6 +431,9 @@
       </if>
       <if test="retailPrice != null">
         retail_price,
+      </if>
+      <if test="operationDesc != null">
+        operation_desc,
       </if>
       <if test="giveAwayPoints != null">
         give_away_points,
@@ -528,6 +532,9 @@
       </if>
       <if test="retailPrice != null">
         #{retailPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="operationDesc != null">
+        #{operationDesc,jdbcType=VARCHAR},
       </if>
       <if test="giveAwayPoints != null">
         #{giveAwayPoints,jdbcType=DECIMAL},
@@ -647,6 +654,9 @@
       <if test="record.retailPrice != null">
         retail_price = #{record.retailPrice,jdbcType=DECIMAL},
       </if>
+      <if test="record.operationDesc != null">
+        operation_desc = #{record.operationDesc,jdbcType=VARCHAR},
+      </if>
       <if test="record.giveAwayPoints != null">
         give_away_points = #{record.giveAwayPoints,jdbcType=DECIMAL},
       </if>
@@ -701,6 +711,7 @@
       unit = #{record.unit,jdbcType=VARCHAR},
       counter_price = #{record.counterPrice,jdbcType=DECIMAL},
       retail_price = #{record.retailPrice,jdbcType=DECIMAL},
+      operation_desc = #{record.operationDesc,jdbcType=VARCHAR},
       give_away_points = #{record.giveAwayPoints,jdbcType=DECIMAL},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -744,6 +755,7 @@
       unit = #{record.unit,jdbcType=VARCHAR},
       counter_price = #{record.counterPrice,jdbcType=DECIMAL},
       retail_price = #{record.retailPrice,jdbcType=DECIMAL},
+      operation_desc = #{record.operationDesc,jdbcType=VARCHAR},
       give_away_points = #{record.giveAwayPoints,jdbcType=DECIMAL},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -840,6 +852,9 @@
       <if test="retailPrice != null">
         retail_price = #{retailPrice,jdbcType=DECIMAL},
       </if>
+      <if test="operationDesc != null">
+        operation_desc = #{operationDesc,jdbcType=VARCHAR},
+      </if>
       <if test="giveAwayPoints != null">
         give_away_points = #{giveAwayPoints,jdbcType=DECIMAL},
       </if>
@@ -891,6 +906,7 @@
       unit = #{unit,jdbcType=VARCHAR},
       counter_price = #{counterPrice,jdbcType=DECIMAL},
       retail_price = #{retailPrice,jdbcType=DECIMAL},
+      operation_desc = #{operationDesc,jdbcType=VARCHAR},
       give_away_points = #{giveAwayPoints,jdbcType=DECIMAL},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -931,6 +947,7 @@
       unit = #{unit,jdbcType=VARCHAR},
       counter_price = #{counterPrice,jdbcType=DECIMAL},
       retail_price = #{retailPrice,jdbcType=DECIMAL},
+      operation_desc = #{operationDesc,jdbcType=VARCHAR},
       give_away_points = #{giveAwayPoints,jdbcType=DECIMAL},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

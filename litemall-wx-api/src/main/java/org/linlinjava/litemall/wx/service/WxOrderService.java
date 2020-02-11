@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -282,6 +283,7 @@ public class WxOrderService {
         }
 
         LitemallShop litemallShop = shopService.findById(shopId);
+        //判断门店状态
         if(litemallShop == null || !litemallShop.getStatus().equals(Constants.SHOP_STATUS_OPEN)){
             return ResponseUtil.fail(SHOP_UNABLE, "门店未开业");
         }else{
@@ -291,6 +293,12 @@ public class WxOrderService {
             LocalDateTime startTimes = LocalDateTime.parse(openTime, timeDtf);
             LocalDateTime endTime = LocalDateTime.parse(closeTime, timeDtf);
             LocalDateTime now = LocalDateTime.now();
+            Integer dayOfWeek = now.getDayOfWeek().getValue();
+            //判断星期
+            if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+            //判断每天开业时间
             if(now.compareTo(startTimes) != -1 && now.compareTo(endTime) != 1){
                 return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
             }

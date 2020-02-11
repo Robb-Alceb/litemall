@@ -27,6 +27,7 @@ public class BeanConvert {
         vo.setTypes(litemallShop.getTypes());
         vo.setMobile(litemallShop.getMobile());
         vo.setAddTime(DateUtil.dateToString(litemallShop.getAddTime()));
+        vo.setWeeks(litemallShop.getWeeks());
         admins.forEach(admin -> {
             if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)){
                 vo.setShopkeeper(admin.getUsername());

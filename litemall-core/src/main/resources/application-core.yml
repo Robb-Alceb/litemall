@@ -14,7 +14,7 @@ litemall:
   notify:
     mail:
       # 邮件通知配置,邮箱一般用于接收业务通知例如收到新的订单，sendto 定义邮件接收者，通常为商城运营人员
-      enable: true
+      enable: false
       host: smtp.qq.com
       username: 2861322722@qq.com
       password: kiowmgjygqrfdchb

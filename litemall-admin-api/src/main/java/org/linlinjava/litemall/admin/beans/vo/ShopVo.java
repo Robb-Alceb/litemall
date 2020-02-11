@@ -12,6 +12,7 @@ public class ShopVo {
     private String addTime;
     private Integer status;
     private Integer[] types;
+    private Integer[] weeks;
     private String openTime;
     private String closeTime;
     private String description;

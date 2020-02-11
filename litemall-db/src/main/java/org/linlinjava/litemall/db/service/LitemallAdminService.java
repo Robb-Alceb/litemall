@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.nickName, Column.mobile, Column.avatar, Column.roleIds, Column.shopId, Column.addTime, Column.location};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.nickName, Column.mobile, Column.avatar, Column.roleIds, Column.shopId, Column.addTime, Column.location, Column.email};
     @Resource
     private LitemallAdminMapper adminMapper;
 

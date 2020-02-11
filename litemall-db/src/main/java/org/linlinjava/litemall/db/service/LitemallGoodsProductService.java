@@ -3,6 +3,7 @@ package org.linlinjava.litemall.db.service;
 import org.apache.ibatis.annotations.Param;
 import org.linlinjava.litemall.db.dao.GoodsProductMapper;
 import org.linlinjava.litemall.db.dao.LitemallGoodsProductMapper;
+import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.domain.LitemallGoodsProductExample;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LitemallGoodsProductService {
@@ -63,5 +65,17 @@ public class LitemallGoodsProductService {
 
     public int reduceStock(Integer id, Short num){
         return goodsProductMapper.reduceStock(id, num);
+    }
+
+    public List<Integer> queryWarning() {
+        LitemallGoodsProductExample example = new LitemallGoodsProductExample();
+        example.or().andDeletedEqualTo(false);
+        List<LitemallGoodsProduct> litemallGoodsProducts = litemallGoodsProductMapper.selectByExample(example);
+        List<Integer> collect = litemallGoodsProducts.stream().filter(litemallGoodsProduct -> {
+            return litemallGoodsProduct.getEarlyWarningValue() >= litemallGoodsProduct.getNumber();
+        }).map(litemallGoodsProduct -> {
+            return litemallGoodsProduct.getGoodsId();
+        }).collect(Collectors.toList());
+        return collect;
     }
 }

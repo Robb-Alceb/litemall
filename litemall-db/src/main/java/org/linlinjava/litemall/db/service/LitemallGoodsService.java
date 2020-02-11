@@ -329,4 +329,10 @@ public class LitemallGoodsService {
 
         return (int)goodsMapper.countByExample(example);
     }
+
+    public List<LitemallGoods> findByIds(List<Integer> goodsIds) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIdIn(goodsIds).andDeletedEqualTo(false);
+        return goodsMapper.selectByExample(example);
+    }
 }

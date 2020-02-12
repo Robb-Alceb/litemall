@@ -15,6 +15,7 @@ import org.linlinjava.litemall.admin.beans.vo.OrderVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
+import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
@@ -69,6 +70,8 @@ public class AdminOrderService {
     private LitemallBrowseRecordService browseRecordService;
     @Autowired
     private LitemallOrderRecordService orderRecordService;
+    @Autowired
+    private LitemallSystemConfigService systemConfigService;
 
     /**
      * 订单列表
@@ -443,9 +446,33 @@ public class AdminOrderService {
         if(CollectionUtils.isEmpty(litemallOrder)){
             return ResponseUtil.fail(PromptEnum.P_102.getCode(), PromptEnum.P_102.getDesc());
         }
-
+        //获取配置的金额范围
+        Map<String, String> data = systemConfigService.listAmount();
+        List<String> amounts = new ArrayList<>();
+        if(null != data){
+            String str = data.get(SystemConfig.LITEMALL_STATISTICS_AMOUNT);
+            if(!StringUtils.isEmpty(str)){
+                amounts = new ArrayList<>(Arrays.asList(str.split(";")));
+            }else{
+                //默认配置
+                amounts = new ArrayList<>(Arrays.asList("0-50;50-100;100-200;200-500;500-1000;1000-5000;5000-10000".split(";")));
+            }
+        }
         LinkedHashMap<String, Object> map = Maps.newLinkedHashMap();
+        for(String amountRange : amounts){
+            String[] amountArr = amountRange.split("-");
+            if(amountArr.length != 2){
+                continue;
+            }
+            try{
+                map.put(amountRange, getActualPrice(litemallOrder,Integer.valueOf(amountArr[0]), Integer.valueOf(amountArr[1])));
+            }catch (Exception e){
+                return ResponseUtil.fail();
+            }
+        }
+
         //0~50
+/*
         map.put("fifty", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(50)) <= 0).collect(Collectors.toList()).size());
         //51~100
         map.put("hundred", getActualPrice(litemallOrder,50, 100));
@@ -461,6 +488,7 @@ public class AdminOrderService {
         map.put("tenThousand", getActualPrice(litemallOrder,5000, 10000));
         //10001
         map.put("greaterThanTenThousand", litemallOrder.stream().filter(order -> order.getActualPrice().compareTo(new BigDecimal(10000)) > 0).collect(Collectors.toList()).size());
+*/
 
         return ResponseUtil.ok(map);
     }

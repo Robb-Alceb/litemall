@@ -28,6 +28,8 @@ public class SystemConfig {
     public final static String LITEMALL_MALL_ADDRESS = "litemall_mall_address";
     public final static String LITEMALL_MALL_PHONE = "litemall_mall_phone";
     public final static String LITEMALL_MALL_QQ = "litemall_mall_qq";
+    //  交易数据统计x坐标金额配置
+    public final static String LITEMALL_STATISTICS_AMOUNT = "litemall_statistics_amount";
 
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();

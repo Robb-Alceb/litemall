@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -205,6 +206,14 @@ public class ShopService {
         List<Byte> statusList = new ArrayList<>(Arrays.asList(new Byte[]{AdminOrderStatusEnum.P_1.getCode().byteValue(), AdminOrderStatusEnum.P_2.getCode().byteValue(), AdminOrderStatusEnum.P_3.getCode().byteValue(), AdminOrderStatusEnum.P_4.getCode().byteValue()}));
         Long processingCount = litemallAdminOrderService.countProcessingByShopId(shopId, statusList);
         map.put("processingCount", processingCount);
+        //该门店的总进货金额
+        List<LitemallAdminOrder> litemallAdminOrders = litemallAdminOrderService.merchandiseTotalAmount(shopId, AdminOrderStatusEnum.P_5.getCode().byteValue());
+        BigDecimal totalAmount = new BigDecimal(0.0);
+        for(LitemallAdminOrder order : litemallAdminOrders){
+            totalAmount = totalAmount.add(order.getActualPrice());
+        }
+        map.put("merchandiseTotalAmount", totalAmount);
+
         return map;
     }
 

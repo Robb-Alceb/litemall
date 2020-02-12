@@ -53,6 +53,8 @@ class SystemInistService {
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_ADDRESS, "上海");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_PHONE, "021-xxxx-xxxx");
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_MALL_QQ, "738696120");
+        //  交易数据统计x坐标金额配置
+        DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_STATISTICS_AMOUNT, "0-50;50-100;100-200;200-500;500-1000;1000-5000;5000-10000");
     }
 
     @Autowired

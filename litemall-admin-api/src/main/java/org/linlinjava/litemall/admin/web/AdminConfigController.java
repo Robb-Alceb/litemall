@@ -26,8 +26,8 @@ public class AdminConfigController {
 
 //    @RequiresPermissions("admin:config:mall:list")
 //    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
-    @GetMapping("/mall")
-    @LogAnno
+//    @GetMapping("/mall")
+//    @LogAnno
     public Object listMall() {
         Map<String, String> data = systemConfigService.listMail();
         return ResponseUtil.ok(data);
@@ -35,8 +35,8 @@ public class AdminConfigController {
 
 //    @RequiresPermissions("admin:config:mall:updateConfigs")
 //    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
-    @PostMapping("/mall")
-    @LogAnno
+//    @PostMapping("/mall")
+//    @LogAnno
     public Object updateMall(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
@@ -44,8 +44,8 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-//    @RequiresPermissions("admin:config:express:list")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "详情")
+    @RequiresPermissions("admin:config:express:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "详情")
     @GetMapping("/express")
     @LogAnno
     public Object listExpress() {
@@ -53,8 +53,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-//    @RequiresPermissions("admin:config:express:updateConfigs")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "编辑")
+    @RequiresPermissions("admin:config:express:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "运费配置"}, button = "编辑")
     @PostMapping("/express")
     @LogAnno
     public Object updateExpress(@RequestBody String body) {
@@ -64,8 +64,8 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-//    @RequiresPermissions("admin:config:order:list")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "详情")
+    @RequiresPermissions("admin:config:order:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "详情")
     @GetMapping("/order")
     @LogAnno
     public Object lisOrder() {
@@ -73,8 +73,8 @@ public class AdminConfigController {
         return ResponseUtil.ok(data);
     }
 
-//    @RequiresPermissions("admin:config:order:updateConfigs")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "编辑")
+    @RequiresPermissions("admin:config:order:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "订单配置"}, button = "编辑")
     @PostMapping("/order")
     @LogAnno
     public Object updateOrder(@RequestBody String body) {
@@ -83,9 +83,28 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
+    @RequiresPermissions("admin:config:amount:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "统计金额配置"}, button = "详情")
+    @GetMapping("/amount")
+    @LogAnno
+    public Object lisAmount() {
+        Map<String, String> data = systemConfigService.listAmount();
+        return ResponseUtil.ok(data);
+    }
+
+    @RequiresPermissions("admin:config:amount:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "统计金额配置"}, button = "编辑")
+    @PostMapping("/amount")
+    @LogAnno
+    public Object updateAmount(@RequestBody String body) {
+        Map<String, String> data = JacksonUtil.toMap(body);
+        systemConfigService.updateConfig(data);
+        return ResponseUtil.ok();
+    }
+
 //    @RequiresPermissions("admin:config:wx:list")
 //    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "详情")
-    @GetMapping("/wx")
+//    @GetMapping("/wx")
     @LogAnno
     public Object listWx() {
         Map<String, String> data = systemConfigService.listWx();
@@ -94,7 +113,7 @@ public class AdminConfigController {
 
 //    @RequiresPermissions("admin:config:wx:updateConfigs")
 //    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "编辑")
-    @PostMapping("/wx")
+//    @PostMapping("/wx")
     @LogAnno
     public Object updateWx(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);

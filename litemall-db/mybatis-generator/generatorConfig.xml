@@ -43,7 +43,7 @@
 
         <!--数据库连接信息-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://47.107.226.163:3306/litemall?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;verifyServerCertificate=false&amp;useSSL=false"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/litemall?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;verifyServerCertificate=false&amp;useSSL=false"
                         userId="litemall"
                         password="Litemall_123"/>
 
@@ -226,6 +226,11 @@
         <table tableName="litemall_role">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
+        <table tableName="litemall_message">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <columnOverride column="receiver_levels" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+        </table>
         <table tableName="litemall_vip_goods_price">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
@@ -233,10 +238,7 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
 
-        <table tableName="litemall_user">
-            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-        </table>
-        <table tableName="litemall_recharge_consumption">
+        <table tableName="litemall_system">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

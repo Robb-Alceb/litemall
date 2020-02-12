@@ -85,4 +85,9 @@ public class LitemallAdminOrderService {
         example.or().andShopIdEqualTo(shopId).andOrderStatusIn(status).andDeletedEqualTo(false);
         return adminOrderMapper.countByExample(example);
     }
+    public List<LitemallAdminOrder> merchandiseTotalAmount(Integer shopId, Byte status){
+        LitemallAdminOrderExample example = new LitemallAdminOrderExample();
+        example.or().andShopIdEqualTo(shopId).andOrderStatusEqualTo(status).andDeletedEqualTo(false);
+        return adminOrderMapper.selectByExample(example);
+    }
 }

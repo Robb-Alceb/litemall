@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminUserInfoService;
@@ -10,8 +11,10 @@ import org.linlinjava.litemall.admin.service.UserService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallRechargeConsumption;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallCouponService;
+import org.linlinjava.litemall.db.service.LitemallRechargeService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/user")
@@ -38,6 +44,8 @@ public class AdminUserController {
     private LitemallCouponService litemallCouponService;
     @Autowired
     private AdminUserInfoService adminUserInfoService;
+    @Autowired
+    private LitemallRechargeService litemallRechargeService;
 
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
@@ -96,7 +104,7 @@ public class AdminUserController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return ResponseUtil.okList(litemallUserService.querySelectiveList(username, mobile, page, limit, sort, order));
+        return ResponseUtil.okList(litemallRechargeService.querySelectiveList(username, mobile, page, limit, sort, order));
     }
 
     /**
@@ -123,5 +131,35 @@ public class AdminUserController {
     @LogAnno
     public Object userInfo(@NotNull Integer userId) {
         return adminUserInfoService.userInfo(userId);
+    }
+
+    /**
+     * 账号明细统计
+     * @param userId
+     * @return
+     */
+    @RequiresPermissions("admin:user:statistics")
+    @RequiresPermissionsDesc(menu = {"用户管理", "账号明细统计"}, button = "查询")
+    @GetMapping("/statistics")
+    @LogAnno
+    public Object billStatistics(@NotNull Integer userId){
+        Map<String, Object> map = new HashMap<>();
+        List<LitemallRechargeConsumption> litemallRechargeConsumptions = litemallRechargeService.queryByUserId(userId);
+        BigDecimal totalSaving = new BigDecimal(0.0);
+        BigDecimal totalConsume = new BigDecimal(0.0);
+        BigDecimal totalBalance = new BigDecimal(0.0);
+        for(LitemallRechargeConsumption item : litemallRechargeConsumptions){
+            if(item.getType().equals(Constants.USER_SAVING)){
+                totalSaving = totalSaving.add(item.getAmount());
+            }else if(item.getType().equals(Constants.USER_CONSUME)){
+                totalConsume = totalConsume.add(item.getAmount());
+            }
+        }
+        LitemallUser user = litemallUserService.findById(userId);
+        totalBalance = totalBalance.add(user.getAvailableAmount());
+        map.put("totalSaving",totalSaving);
+        map.put("totalConsume",totalConsume);
+        map.put("totalBalance",totalBalance);
+        return ResponseUtil.ok(map);
     }
 }

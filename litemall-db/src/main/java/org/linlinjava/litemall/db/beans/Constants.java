@@ -97,4 +97,10 @@ public class Constants {
     public static final Short SHOP_STATUS_OPEN = 1;
     public static final Short SHOP_STATUS_CLOSE = 2;
     public static final Short SHOP_STATUS_UNABLE = 2;
+
+    /**
+     * 用户充值/用户消费
+     */
+    public static final Byte USER_SAVING = 1;
+    public static final Byte USER_CONSUME = 2;
 }

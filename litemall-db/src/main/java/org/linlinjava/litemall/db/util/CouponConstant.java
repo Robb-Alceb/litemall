@@ -10,8 +10,9 @@ public class CouponConstant {
     public static final Short GOODS_TYPE_ARRAY = 2;
 
     public static final Short STATUS_NORMAL = 0;
-    public static final Short STATUS_EXPIRED = 1;
-    public static final Short STATUS_OUT = 2;
+    public static final Short STATUS_USED = 1;
+    public static final Short STATUS_EXPIRED = 2;
+    public static final Short STATUS_OUT = 3;
 
     public static final Short TIME_TYPE_DAYS = 0;
     public static final Short TIME_TYPE_TIME = 1;

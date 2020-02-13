@@ -23,6 +23,12 @@ public class LitemallCouponUserService {
         return (int)couponUserMapper.countByExample(example);
     }
 
+    public Integer countCoupon(Integer couponId, Short status) {
+        LitemallCouponUserExample example = new LitemallCouponUserExample();
+        example.or().andCouponIdEqualTo(couponId).andStatusEqualTo(status).andDeletedEqualTo(false);
+        return (int)couponUserMapper.countByExample(example);
+    }
+
     public Integer countUserAndCoupon(Integer userId, Integer couponId) {
         LitemallCouponUserExample example = new LitemallCouponUserExample();
         example.or().andUserIdEqualTo(userId).andCouponIdEqualTo(couponId).andDeletedEqualTo(false);
@@ -89,6 +95,12 @@ public class LitemallCouponUserService {
     public List<LitemallCouponUser> queryExpired() {
         LitemallCouponUserExample example = new LitemallCouponUserExample();
         example.or().andStatusEqualTo(CouponUserConstant.STATUS_USABLE).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
+        return couponUserMapper.selectByExample(example);
+    }
+
+    public List<LitemallCouponUser> queryByCoupon(Integer couponId, Short status) {
+        LitemallCouponUserExample example = new LitemallCouponUserExample();
+        example.or().andCouponIdEqualTo(couponId).andStatusEqualTo(status).andDeletedEqualTo(false);
         return couponUserMapper.selectByExample(example);
     }
 }

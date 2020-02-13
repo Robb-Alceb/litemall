@@ -12,9 +12,11 @@ import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.service.LitemallCouponService;
 import org.linlinjava.litemall.db.service.LitemallCouponUserService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.util.CouponConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -22,8 +24,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/coupon")
@@ -37,6 +42,8 @@ public class AdminCouponController {
     private LitemallCouponUserService couponUserService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallOrderService orderService;
 
     @RequiresPermissions("admin:coupon:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询")
@@ -150,4 +157,42 @@ public class AdminCouponController {
         return ResponseUtil.okList(litemallGoods);
     }
 
+    @RequiresPermissions("admin:coupon:statistics")
+    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券使用统计"}, button = "查询")
+    @GetMapping("/statistics")
+    @LogAnno
+    public Object usedStatistics(@NotNull Integer id){
+        Map<String,Object> map = new HashMap<>();
+
+        map.put("pullNumber",couponUserService.countCoupon(id));
+        map.put("expiredNumber",couponUserService.countCoupon(id, CouponConstant.STATUS_EXPIRED));
+        LitemallCoupon coupon = couponService.findById(id);
+        Integer usedNumber = couponUserService.countCoupon(id, CouponConstant.STATUS_USED);
+        map.put("usedNumber",usedNumber);
+        if(null != coupon){
+            map.put("totalDiscount",coupon.getDiscount().multiply(new BigDecimal(usedNumber)));
+        }
+        List<LitemallOrder> orders = new ArrayList<>();
+        List<LitemallCouponUser> litemallCouponUsers = couponUserService.queryByCoupon(id, CouponConstant.STATUS_USED);
+        for(LitemallCouponUser item : litemallCouponUsers){
+            if(null !=item.getOrderId()){
+                orders.add(orderService.findById(item.getOrderId()));
+            }
+        }
+        //订单总价
+        BigDecimal orderTotalPrice = new BigDecimal(0.0);
+        //订单优惠价
+        BigDecimal orderTotalDiscount = new BigDecimal(0.0);
+        //订单实际支付价格
+        BigDecimal orderTotalActual = new BigDecimal(0.0);
+        for(LitemallOrder order : orders){
+            orderTotalPrice = orderTotalPrice.add(order.getOrderPrice());
+            orderTotalDiscount = orderTotalDiscount.add(order.getCouponPrice());
+            orderTotalActual = orderTotalActual.add(order.getActualPrice());
+        }
+        map.put("orderTotalPrice",orderTotalPrice);
+        map.put("orderTotalDiscount",orderTotalDiscount);
+        map.put("orderTotalActual",orderTotalActual);
+        return ResponseUtil.ok(map);
+    }
 }

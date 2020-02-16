@@ -19,6 +19,7 @@ public class GoodsVo {
     private String brief;
     private Boolean isNew;
     private Boolean isHot;
+    private String picUri;
     private BigDecimal retailPrice;
     private BigDecimal tax;
 

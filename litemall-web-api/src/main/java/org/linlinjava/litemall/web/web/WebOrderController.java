@@ -4,6 +4,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
+import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.service.WebOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -30,7 +31,7 @@ public class WebOrderController {
      * @return 订单列表
      */
     @GetMapping("list")
-    public Object list(Integer userId,
+    public Object list(@LoginUser Integer userId,
                        @RequestParam(defaultValue = "0") Integer showType,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
@@ -47,20 +48,20 @@ public class WebOrderController {
      * @return 订单详情
      */
     @GetMapping("detail")
-    public Object detail(Integer userId, @NotNull Integer orderId) {
+    public Object detail(@LoginUser Integer userId, @NotNull Integer orderId) {
         return orderService.detail(userId, orderId);
     }
 
     /**
      * 提交订单
      *
-     * @param orderGoodss 订单商品
-     * @param order   订单数据
+     * @param userId 用户id
+     * @param body   订单数据
      * @return 提交订单
      */
     @PostMapping("submit")
-    public Object submit(@NotNull List<LitemallOrderGoods> orderGoodss, @NotNull LitemallOrder order) {
-        return orderService.submit(orderGoodss, order);
+    public Object submit(@LoginUser Integer userId, @RequestBody String body) {
+        return orderService.submit(userId, body);
     }
 
 }

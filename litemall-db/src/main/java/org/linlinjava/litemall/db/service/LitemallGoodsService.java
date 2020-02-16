@@ -304,6 +304,12 @@ public class LitemallGoodsService {
         return goodsMapper.selectByExampleSelective(example, columns);
     }
 
+    public List<LitemallGoods> findByCategoryId(Integer id, Integer shopId) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andCategoryIdEqualTo(id).andShopIdEqualTo(shopId).andDeletedEqualTo(false);
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
     public LitemallGoods findByGoodsSn(String goodsSn) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andGoodsSnEqualTo(goodsSn).andDeletedEqualTo(false);

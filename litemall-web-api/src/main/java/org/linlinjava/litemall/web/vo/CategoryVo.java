@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.web.vo;
 
 import java.util.List;
+import java.util.Objects;
 
 public class CategoryVo {
     private Integer id;
@@ -10,15 +11,8 @@ public class CategoryVo {
     private String iconUrl;
     private String picUrl;
     private String level;
+    private List<GoodsVo> goodsList;
     private List<CategoryVo> children;
-
-    public List<CategoryVo> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<CategoryVo> children) {
-        this.children = children;
-    }
 
     public Integer getId() {
         return id;
@@ -74,5 +68,57 @@ public class CategoryVo {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public List<GoodsVo> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<GoodsVo> goodsList) {
+        this.goodsList = goodsList;
+    }
+
+    public List<CategoryVo> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<CategoryVo> children) {
+        this.children = children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CategoryVo that = (CategoryVo) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(keywords, that.keywords) &&
+                Objects.equals(desc, that.desc) &&
+                Objects.equals(iconUrl, that.iconUrl) &&
+                Objects.equals(picUrl, that.picUrl) &&
+                Objects.equals(level, that.level) &&
+                Objects.equals(goodsList, that.goodsList) &&
+                Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, keywords, desc, iconUrl, picUrl, level, goodsList, children);
+    }
+
+    @Override
+    public String toString() {
+        return "CategoryVo{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", keywords='" + keywords + '\'' +
+                ", desc='" + desc + '\'' +
+                ", iconUrl='" + iconUrl + '\'' +
+                ", picUrl='" + picUrl + '\'' +
+                ", level='" + level + '\'' +
+                ", goodsList=" + goodsList +
+                ", children=" + children +
+                '}';
     }
 }

@@ -40,6 +40,7 @@
     <result column="confirm_time" jdbcType="TIMESTAMP" property="confirmTime" />
     <result column="comments" jdbcType="SMALLINT" property="comments" />
     <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="shop_order" jdbcType="BIT" property="shopOrder" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -120,7 +121,8 @@
     address, message, goods_price, freight_price, coupon_price, integral_price, groupon_price, 
     order_price, tax_price, actual_price, currency, pay_type, pay_id, out_trade_no, transation_id, 
     pay_time, order_source, ship_status, ship_sn, ship_channel, ship_time, ship_remark, 
-    confirm_time, comments, description, end_time, add_time, update_time, deleted
+    confirm_time, comments, description, shop_order, end_time, add_time, update_time, 
+    deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallOrderExample" resultMap="BaseResultMap">
     <!--
@@ -252,8 +254,8 @@
       order_source, ship_status, ship_sn, 
       ship_channel, ship_time, ship_remark, 
       confirm_time, comments, description, 
-      end_time, add_time, update_time, 
-      deleted)
+      shop_order, end_time, add_time, 
+      update_time, deleted)
     values (#{userId,jdbcType=INTEGER}, #{shopId,jdbcType=INTEGER}, #{orderSn,jdbcType=VARCHAR}, 
       #{orderStatus,jdbcType=SMALLINT}, #{orderType,jdbcType=TINYINT}, #{isRefund,jdbcType=BIT}, 
       #{consignee,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
@@ -265,8 +267,8 @@
       #{orderSource,jdbcType=TINYINT}, #{shipStatus,jdbcType=TINYINT}, #{shipSn,jdbcType=VARCHAR}, 
       #{shipChannel,jdbcType=VARCHAR}, #{shipTime,jdbcType=TIMESTAMP}, #{shipRemark,jdbcType=VARCHAR}, 
       #{confirmTime,jdbcType=TIMESTAMP}, #{comments,jdbcType=SMALLINT}, #{description,jdbcType=VARCHAR}, 
-      #{endTime,jdbcType=TIMESTAMP}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{deleted,jdbcType=BIT})
+      #{shopOrder,jdbcType=BIT}, #{endTime,jdbcType=TIMESTAMP}, #{addTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallOrder">
     <!--
@@ -376,6 +378,9 @@
       </if>
       <if test="description != null">
         description,
+      </if>
+      <if test="shopOrder != null">
+        shop_order,
       </if>
       <if test="endTime != null">
         end_time,
@@ -489,6 +494,9 @@
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="shopOrder != null">
+        #{shopOrder,jdbcType=BIT},
       </if>
       <if test="endTime != null">
         #{endTime,jdbcType=TIMESTAMP},
@@ -623,6 +631,9 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
+      <if test="record.shopOrder != null">
+        shop_order = #{record.shopOrder,jdbcType=BIT},
+      </if>
       <if test="record.endTime != null">
         end_time = #{record.endTime,jdbcType=TIMESTAMP},
       </if>
@@ -680,6 +691,7 @@
       confirm_time = #{record.confirmTime,jdbcType=TIMESTAMP},
       comments = #{record.comments,jdbcType=SMALLINT},
       description = #{record.description,jdbcType=VARCHAR},
+      shop_order = #{record.shopOrder,jdbcType=BIT},
       end_time = #{record.endTime,jdbcType=TIMESTAMP},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -794,6 +806,9 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
+      <if test="shopOrder != null">
+        shop_order = #{shopOrder,jdbcType=BIT},
+      </if>
       <if test="endTime != null">
         end_time = #{endTime,jdbcType=TIMESTAMP},
       </if>
@@ -848,6 +863,7 @@
       confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
       comments = #{comments,jdbcType=SMALLINT},
       description = #{description,jdbcType=VARCHAR},
+      shop_order = #{shopOrder,jdbcType=BIT},
       end_time = #{endTime,jdbcType=TIMESTAMP},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

@@ -2,9 +2,14 @@ package org.linlinjava.litemall.web.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
+import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
+import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.web.service.HomeCacheManager;
 import org.linlinjava.litemall.web.vo.CategoryVo;
+import org.linlinjava.litemall.web.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类目服务
@@ -29,6 +35,10 @@ public class WebCatalogController {
 
     @Autowired
     private LitemallCategoryService categoryService;
+    @Autowired
+    private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallGoodsProductService productService;
 
     /**
      * 分类详情
@@ -114,7 +124,7 @@ public class WebCatalogController {
      * @return
      */
     @GetMapping("list")
-    public Object list() {
+    public Object list(@NotNull Integer shopId) {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
         List<LitemallCategory> categoryList = categoryService.queryByPid(0);
@@ -131,6 +141,8 @@ public class WebCatalogController {
                 if(!CollectionUtils.isEmpty(litemallCategories)){
                     for(LitemallCategory litemallCategory : litemallCategories){
                         CategoryVo categoryVoThree = getCategoryVo(litemallCategory);
+                        List<LitemallGoods> goods = goodsService.findByCategoryId(litemallCategory.getId(), shopId);
+                        categoryVoThree.setGoodsList(toVo(goods));
                         childrenLThree.add(categoryVoThree);
                     }
                 }
@@ -143,7 +155,7 @@ public class WebCatalogController {
             categoryVoList.add(categoryVO);
         }
 
-        return ResponseUtil.okList(categoryVoList);
+        return ResponseUtil.ok(categoryVoList);
     }
 
     private CategoryVo getCategoryVo(LitemallCategory litemallCategory) {
@@ -177,5 +189,23 @@ public class WebCatalogController {
         data.put("currentCategory", currentCategory);
         data.put("currentSubCategory", currentSubCategory);
         return ResponseUtil.ok(data);
+    }
+
+    private List<GoodsVo> toVo(List<LitemallGoods> goodsList){
+        return goodsList.stream().map(goods -> {
+            List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGid(goods.getId());
+            GoodsVo vo = new GoodsVo();
+            vo.setBrief(goods.getBrief());
+            vo.setIsHot(goods.getIsHot());
+            vo.setId(goods.getId());
+            vo.setName(goods.getName());
+            vo.setIsNew(goods.getIsNew());
+            vo.setPicUri(goods.getPicUrl());
+            if (null != litemallGoodsProducts && litemallGoodsProducts.size() > 0) {
+                vo.setTax(litemallGoodsProducts.get(0).getTax());
+                vo.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
+            }
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

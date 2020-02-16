@@ -4,18 +4,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.express.ExpressService;
 import org.linlinjava.litemall.core.express.dao.ExpressInfo;
+import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
@@ -56,6 +60,12 @@ public class WebOrderService {
     private ExpressService expressService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private LitemallShopService shopService;
+    @Autowired
+    private LitemallCartService cartService;
+    @Autowired
+    private LitemallGoodsSpecificationService goodsSpecificationService;
 
     /**
      * 订单列表
@@ -181,40 +191,175 @@ public class WebOrderService {
      * @return 提交订单操作结果
      */
     @Transactional
-    public Object submit(List<LitemallOrderGoods> orderGoodss, LitemallOrder order) {
+    public Object submit(Integer userId, String body) {
 
-        //新增订单
-        Integer orderId;
+        Integer shopId = JacksonUtil.parseInteger(body, "shopId");
+        Integer cartId = JacksonUtil.parseInteger(body, "cartId");
+        //订单类型（1：自提订单;2:外送订单）
+        Integer orderType = JacksonUtil.parseInteger(body, "orderType");
+
+
+        if (cartId == null || orderType == null) {
+            return ResponseUtil.badArgument();
+        }
+        LitemallShop litemallShop = shopService.findById(shopId);
+        //判断门店状态
+        if(litemallShop == null || !litemallShop.getStatus().equals(Constants.SHOP_STATUS_OPEN)){
+            return ResponseUtil.fail(SHOP_UNABLE, "门店未开业");
+        }else{
+            String closeTime = litemallShop.getCloseTime();
+            String openTime = litemallShop.getOpenTime();
+            DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime startTimes = LocalDateTime.parse(openTime, timeDtf);
+            LocalDateTime endTime = LocalDateTime.parse(closeTime, timeDtf);
+            LocalDateTime now = LocalDateTime.now();
+            Integer dayOfWeek = now.getDayOfWeek().getValue();
+            //判断星期
+            if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+            //判断每天开业时间
+            if(now.compareTo(startTimes) != -1 && now.compareTo(endTime) != 1){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+        }
+        if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
+            return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
+        }
+
+        // 货品价格
+        List<LitemallCart> checkedGoodsList = null;
+        if (cartId.equals(0)) {
+            checkedGoodsList = cartService.queryByUidAndChecked(userId);
+        } else {
+            LitemallCart cart = cartService.findById(cartId);
+            checkedGoodsList = new ArrayList<>(1);
+            checkedGoodsList.add(cart);
+        }
+        if (checkedGoodsList.size() == 0) {
+            return ResponseUtil.badArgumentValue();
+        }
+
+        //优惠券抵扣价格
+        BigDecimal couponPrice = new BigDecimal(0.00);
+
+        /**
+         * 商品价格
+         */
+        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        /**
+         * 税费
+         */
+        BigDecimal taxGoodsPrice = new BigDecimal(0.00);
+
+        // 商品优惠价格，如会员减免、满减、阶梯价等
+        BigDecimal discountPrice = new BigDecimal(0.00);
+        for (LitemallCart checkGoods : checkedGoodsList) {
+            Integer goodsId = checkGoods.getGoodsId();
+            LitemallGoods litemallGoods = goodsService.findById(goodsId);
+            if(litemallGoods == null){
+                return ResponseUtil.fail(GOODS_UNKNOWN,"商品不存在");
+            }else if(!litemallGoods.getIsOnSale()){
+                return ResponseUtil.fail(GOODS_NOT_SALE,"商品已下架");
+            }
+            Integer productId = checkGoods.getProductId();
+            LitemallGoodsProduct goodsProduct = productService.findById(productId);
+            //  规格价格
+            BigDecimal specGoodsPrice = new BigDecimal(0.00);
+            if(checkGoods.getSpecificationIds() != null){
+                for(Integer sid : checkGoods.getSpecificationIds()){
+                    LitemallGoodsSpecification specificationServiceById = goodsSpecificationService.findById(sid);
+                    if(specificationServiceById != null){
+                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+                    }
+                }
+            }
+            logger.debug("WxOrderService [submit] specGoodsPrice is: "+specGoodsPrice.toString());
+            logger.debug("WxOrderService [submit] goodsProduct is: "+goodsProduct.getSellPrice().toString());
+            if(goodsProduct.getSellPrice().add(specGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
+                return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
+            }
+            checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+
+
+            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
+        }
+        checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
+
+
+        // 可以使用的其他钱，例如用户积分
+        BigDecimal integralPrice = new BigDecimal(0.00);
+
+
+
+        // 订单费用
+        BigDecimal orderTotalPrice = checkedGoodsPrice.subtract(couponPrice).max(new BigDecimal(0.00));
+        // 最终支付费用
+        BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
+
+        Integer orderId = null;
+        LitemallOrder order = null;
+        // 订单
+        order = new LitemallOrder();
+        order.setUserId(userId);
+        order.setOrderSn(orderService.generateOrderSn(userId));
+        order.setOrderStatus(OrderUtil.STATUS_CREATE);
+        order.setGoodsPrice(checkedGoodsPrice);
+        order.setFreightPrice(new BigDecimal(0.00));
+        order.setCouponPrice(couponPrice);
+        order.setIntegralPrice(integralPrice);
+        order.setOrderPrice(orderTotalPrice);
+        order.setActualPrice(actualPrice);
+        order.setTaxPrice(taxGoodsPrice);
+        order.setShopId(shopId);
+        order.setOrderType(orderType.byteValue());
+        order.setShopOrder(true);
+
+        // 添加订单表项
         orderService.add(order);
         orderId = order.getId();
 
-        //新增商品订单
-        for (LitemallOrderGoods orderGoods:orderGoodss) {
-            Integer goodsId = orderGoods.getGoodsId();
-            LitemallGoods litemallGoods = goodsService.findById(goodsId);
-            //校验商品
-            if(litemallGoods == null){
-                throw new RuntimeException("商品不存在");
-            }else if(!litemallGoods.getIsOnSale()){
-                throw new RuntimeException("商品已下架");
-            }
-            orderGoods.setOrderId(orderId);
+        // 添加订单商品表项
+        for (LitemallCart cartGoods : checkedGoodsList) {
+            // 订单商品
+            LitemallOrderGoods orderGoods = new LitemallOrderGoods();
+            orderGoods.setOrderId(order.getId());
+            orderGoods.setGoodsId(cartGoods.getGoodsId());
+            orderGoods.setGoodsSn(cartGoods.getGoodsSn());
+            orderGoods.setProductId(cartGoods.getProductId());
+            orderGoods.setGoodsName(cartGoods.getGoodsName());
+            orderGoods.setPicUrl(cartGoods.getPicUrl());
+            orderGoods.setPrice(cartGoods.getPrice());
+            orderGoods.setNumber(cartGoods.getNumber());
+            orderGoods.setSpecifications(cartGoods.getSpecifications());
+            orderGoods.setAddTime(LocalDateTime.now());
+            orderGoods.setTaxPrice(cartGoods.getTaxPrice());
+
             orderGoodsService.add(orderGoods);
         }
 
+        // 删除购物车里面的商品信息
+        if(cartId != null){
+            cartService.clearGoods(userId, cartId);
+        }else{
+            cartService.clearGoods(userId);
+        }
+
         // 商品货品数量减少
-        for (LitemallOrderGoods orderGoods:orderGoodss) {
-            Integer productId = orderGoods.getProductId();
+        for (LitemallCart checkGoods : checkedGoodsList) {
+            Integer productId = checkGoods.getProductId();
             LitemallGoodsProduct product = productService.findById(productId);
-            Integer remainNumber = product.getNumber() - orderGoods.getNumber();
+
+            Integer remainNumber = product.getNumber() - checkGoods.getNumber();
             if (remainNumber < 0) {
                 throw new RuntimeException("下单的商品货品数量大于库存量");
             }
-            if (productService.reduceStock(productId, orderGoods.getNumber()) == 0) {
+            if (productService.reduceStock(productId, checkGoods.getNumber()) == 0) {
                 throw new RuntimeException("商品货品库存减少失败");
             }
         }
-
+        Map<String, Object> data = new HashMap<>();
+        data.put("orderId", orderId);
         return ResponseUtil.ok();
     }
 

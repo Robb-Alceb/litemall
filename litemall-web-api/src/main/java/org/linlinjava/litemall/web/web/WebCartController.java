@@ -3,22 +3,21 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
+import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.service.WebCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.linlinjava.litemall.web.util.WebResponseCode.GOODS_NO_STOCK;
-import static org.linlinjava.litemall.web.util.WebResponseCode.GOODS_UNSHELVE;
+import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
 /**
  * @Author: stephen
@@ -41,17 +40,9 @@ public class WebCartController {
     @Autowired
     private LitemallGoodsProductService productService;
     @Autowired
-    private LitemallAddressService addressService;
-    @Autowired
-    private LitemallGrouponRulesService grouponRulesService;
-    @Autowired
-    private LitemallCouponService couponService;
-    @Autowired
-    private LitemallCouponUserService couponUserService;
-    @Autowired
     private LitemallGoodsSpecificationService specificationService;
     @Autowired
-    private CouponVerifyService couponVerifyService;
+    private WebCartService webCartService;
 
     /**
      * 用户购物车信息
@@ -187,51 +178,112 @@ public class WebCartController {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
+        return webCartService.checkout(userId, cartId);
+    }
 
-        // 团购优惠
-        BigDecimal grouponPrice = new BigDecimal(0.00);
-
-        // 商品价格
-        List<LitemallCart> checkedGoodsList = null;
-        if (cartId == null || cartId.equals(0)) {
-            checkedGoodsList = cartService.queryByUidAndChecked(userId);
-        } else {
-            LitemallCart cart = cartService.findById(cartId);
-            if (cart == null) {
-                return ResponseUtil.badArgumentValue();
-            }
-            checkedGoodsList = new ArrayList<>(1);
-            checkedGoodsList.add(cart);
+    /**
+     * 修改购物车商品货品数量
+     *
+     * @param userId 用户ID
+     * @param cart   购物车商品信息， { id: xxx, goodsId: xxx, productId: xxx, number: xxx }
+     * @return 修改结果
+     */
+    @PostMapping("update")
+    public Object update(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
         }
-        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        if (cart == null) {
+            return ResponseUtil.badArgument();
+        }
+        Integer productId = cart.getProductId();
+        Integer number = cart.getNumber().intValue();
+        Integer goodsId = cart.getGoodsId();
+        Integer id = cart.getId();
+        if (!ObjectUtils.allNotNull(id, productId, number, goodsId)) {
+            return ResponseUtil.badArgument();
+        }
 
-        // 计算优惠券可用情况
-        BigDecimal tmpCouponPrice = new BigDecimal(0.00);
+        //减少为0
+        if(number == 0){
+            cartService.deleteById(id);
+            return goodscount(userId);
+        }
 
-        // 获取优惠券减免金额，优惠券可用数量
-        BigDecimal couponPrice = new BigDecimal(0);
+        //判断是否存在该订单
+        // 如果不存在，直接返回错误
+        LitemallCart existCart = cartService.findById(id);
+        if (existCart == null) {
+            return ResponseUtil.badArgumentValue();
+        }
 
-        BigDecimal freightPrice = new BigDecimal(0.00);
+        // 判断goodsId和productId是否与当前cart里的值一致
+        if (!existCart.getGoodsId().equals(goodsId)) {
+            return ResponseUtil.badArgumentValue();
+        }
+        if (!existCart.getProductId().equals(productId)) {
+            return ResponseUtil.badArgumentValue();
+        }
 
-        // 可以使用的其他钱，例如用户积分
-        BigDecimal integralPrice = new BigDecimal(0.00);
+        //判断商品是否可以购买
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if (goods == null || !goods.getIsOnSale()) {
+            return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
+        }
 
-        // 订单费用
-        BigDecimal orderTotalPrice = checkedGoodsPrice.add(freightPrice).subtract(couponPrice).max(new BigDecimal(0.00));
+        //取得规格的信息,判断规格库存
+        LitemallGoodsProduct product = productService.findById(productId);
+        if (product == null || product.getNumber() < number) {
+            return ResponseUtil.fail(GOODS_UNSHELVE, "库存不足");
+        }
 
-        BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
+        existCart.setNumber(number.shortValue());
+        if (cartService.updateById(existCart) == 0) {
+            return ResponseUtil.updatedDataFailed();
+        }
+        return goodscount(userId);
+    }
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("cartId", cartId);
-        data.put("grouponPrice", grouponPrice);
-        data.put("checkedAddress", "ipad");
-        data.put("goodsTotalPrice", checkedGoodsPrice);
-        data.put("freightPrice", freightPrice);
-        data.put("couponPrice", couponPrice);
-        data.put("orderTotalPrice", orderTotalPrice);
-        data.put("actualPrice", actualPrice);
-        data.put("checkedGoodsList", checkedGoodsList);
-        return ResponseUtil.ok(data);
+    /**
+     * 购物车商品删除
+     *
+     * @param userId 用户ID
+     * @param body   购物车商品信息， { productIds: xxx }
+     * @return 购物车信息
+     * 成功则
+     * {
+     * errno: 0,
+     * errmsg: '成功',
+     * data: xxx
+     * }
+     * 失败则 { errno: XXX, errmsg: XXX }
+     */
+    @PostMapping("delete")
+    public Object delete(@LoginUser Integer userId, @RequestBody String body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        if (body == null) {
+            return ResponseUtil.badArgument();
+        }
+
+        List<Integer> productIds = JacksonUtil.parseIntegerList(body, "productIds");
+
+        if (productIds == null || productIds.size() == 0) {
+            return ResponseUtil.badArgument();
+        }
+
+        cartService.delete(productIds, userId);
+        return index(userId);
+    }
+
+    @PostMapping("clear")
+    public Object clear(@LoginUser Integer userId) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        cartService.delete(userId);
+        return index(userId);
     }
 
     /**

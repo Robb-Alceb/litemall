@@ -11,6 +11,7 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
+import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -191,7 +193,7 @@ public class WebOrderService {
      * @return 提交订单操作结果
      */
     @Transactional
-    public Object submit(Integer userId, String body) {
+    public Object submit(@LoginUser Integer userId, String body) {
 
         Integer shopId = JacksonUtil.parseInteger(body, "shopId");
         Integer cartId = JacksonUtil.parseInteger(body, "cartId");
@@ -199,7 +201,7 @@ public class WebOrderService {
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
 
 
-        if (cartId == null || orderType == null) {
+        if ((userId == null && cartId == null) || orderType == null || shopId == null) {
             return ResponseUtil.badArgument();
         }
         LitemallShop litemallShop = shopService.findById(shopId);
@@ -210,16 +212,16 @@ public class WebOrderService {
             String closeTime = litemallShop.getCloseTime();
             String openTime = litemallShop.getOpenTime();
             DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
-            LocalDateTime startTimes = LocalDateTime.parse(openTime, timeDtf);
-            LocalDateTime endTime = LocalDateTime.parse(closeTime, timeDtf);
-            LocalDateTime now = LocalDateTime.now();
-            Integer dayOfWeek = now.getDayOfWeek().getValue();
+            LocalTime startTimes = LocalTime.parse(openTime, timeDtf);
+            LocalTime endTime = LocalTime.parse(closeTime, timeDtf);
+            LocalTime now = LocalTime.now();
+            Integer dayOfWeek = LocalDateTime.now().getDayOfWeek().getValue();
             //判断星期
             if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
                 return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
             }
             //判断每天开业时间
-            if(now.compareTo(startTimes) != -1 && now.compareTo(endTime) != 1){
+            if(now.compareTo(startTimes) != 1 && now.compareTo(endTime) != -1){
                 return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
             }
         }
@@ -229,7 +231,7 @@ public class WebOrderService {
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
-        if (cartId.equals(0)) {
+        if (cartId == null || cartId.equals(0)) {
             checkedGoodsList = cartService.queryByUidAndChecked(userId);
         } else {
             LitemallCart cart = cartService.findById(cartId);
@@ -304,6 +306,10 @@ public class WebOrderService {
         order.setUserId(userId);
         order.setOrderSn(orderService.generateOrderSn(userId));
         order.setOrderStatus(OrderUtil.STATUS_CREATE);
+        order.setConsignee("");
+        order.setMobile("");
+        order.setMessage("");
+        order.setAddress("");
         order.setGoodsPrice(checkedGoodsPrice);
         order.setFreightPrice(new BigDecimal(0.00));
         order.setCouponPrice(couponPrice);
@@ -363,4 +369,7 @@ public class WebOrderService {
         return ResponseUtil.ok();
     }
 
+    public Object countorder(Integer userId){
+        return ResponseUtil.ok(orderService.count(userId));
+    }
 }

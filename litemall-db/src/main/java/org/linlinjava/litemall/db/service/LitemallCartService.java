@@ -52,6 +52,13 @@ public class LitemallCartService {
         return cartMapper.logicalDeleteByExample(example);
     }
 
+
+    public int delete(int userId) {
+        LitemallCartExample example = new LitemallCartExample();
+        example.or().andUserIdEqualTo(userId);
+        return cartMapper.logicalDeleteByExample(example);
+    }
+
     public LitemallCart findById(Integer id) {
         return cartMapper.selectByPrimaryKey(id);
     }

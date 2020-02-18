@@ -64,4 +64,13 @@ public class WebOrderController {
         return orderService.submit(userId, body);
     }
 
+    /**
+     * 订单数量
+     * @param userId
+     * @return
+     */
+    @GetMapping("countorder")
+    public Object countorder(@LoginUser Integer userId){
+        return orderService.countorder(userId);
+    }
 }

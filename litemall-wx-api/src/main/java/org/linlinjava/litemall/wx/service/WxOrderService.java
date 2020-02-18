@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -270,8 +271,7 @@ public class WxOrderService {
         //订单类型（1：自提订单;2:外送订单）
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
 
-
-        if (cartId == null || addressId == null || couponId == null || orderType == null) {
+        if ((userId == null && cartId == null) || addressId == null || couponId == null || orderType == null || shopId == null) {
             return ResponseUtil.badArgument();
         }
 
@@ -290,16 +290,16 @@ public class WxOrderService {
             String closeTime = litemallShop.getCloseTime();
             String openTime = litemallShop.getOpenTime();
             DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
-            LocalDateTime startTimes = LocalDateTime.parse(openTime, timeDtf);
-            LocalDateTime endTime = LocalDateTime.parse(closeTime, timeDtf);
-            LocalDateTime now = LocalDateTime.now();
-            Integer dayOfWeek = now.getDayOfWeek().getValue();
+            LocalTime startTimes = LocalTime.parse(openTime, timeDtf);
+            LocalTime endTime = LocalTime.parse(closeTime, timeDtf);
+            LocalTime now = LocalTime.now();
+            Integer dayOfWeek = LocalDateTime.now().getDayOfWeek().getValue();
             //判断星期
             if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
                 return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
             }
             //判断每天开业时间
-            if(now.compareTo(startTimes) != -1 && now.compareTo(endTime) != 1){
+            if(now.compareTo(startTimes) != 1 && now.compareTo(endTime) != -1){
                 return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
             }
         }
@@ -309,7 +309,7 @@ public class WxOrderService {
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
-        if (cartId.equals(0)) {
+        if (cartId == null || cartId.equals(0)) {
             checkedGoodsList = cartService.queryByUidAndChecked(userId);
         } else {
             LitemallCart cart = cartService.findById(cartId);

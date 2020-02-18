@@ -103,4 +103,10 @@ public class Constants {
      */
     public static final Byte USER_SAVING = 1;
     public static final Byte USER_CONSUME = 2;
+
+    /**
+     * 订单类型(1:自提；2：外送)
+     */
+    public static final Byte ORDER_AET = 1;
+    public static final Byte ORDER_SEND = 2;
 }

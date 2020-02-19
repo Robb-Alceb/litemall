@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -29,9 +30,9 @@ public class LitemallOrderService {
         return litemallOrderMapper.insertSelective(order);
     }
 
-    public int count(Integer userId) {
+    public int count(Integer userId, List<Short> status) {
         LitemallOrderExample example = new LitemallOrderExample();
-        example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        example.or().andUserIdEqualTo(userId).andOrderStatusIn(status).andDeletedEqualTo(false);
         return (int) litemallOrderMapper.countByExample(example);
     }
 
@@ -74,12 +75,19 @@ public class LitemallOrderService {
     }
 
     public List<LitemallOrder> queryByOrderStatus(Integer userId, List<Short> orderStatus, Integer page, Integer limit, String sort, String order) {
+        return queryTodayByOrderStatus(userId, false, orderStatus, page, limit, sort, order);
+    }
+
+    public List<LitemallOrder> queryTodayByOrderStatus(Integer userId, Boolean today, List<Short> orderStatus, Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         example.setOrderByClause(LitemallOrder.Column.addTime.desc());
         LitemallOrderExample.Criteria criteria = example.or();
         criteria.andUserIdEqualTo(userId);
         if (orderStatus != null) {
             criteria.andOrderStatusIn(orderStatus);
+        }
+        if(today != null && today){
+            criteria.andUpdateTimeBetween(LocalDateTime.of(LocalDate.now(), LocalTime.MIN), LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
         }
         criteria.andDeletedEqualTo(false);
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

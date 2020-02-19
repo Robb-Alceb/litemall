@@ -10,6 +10,7 @@ import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
+import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,13 +84,13 @@ public class WebOrderService {
      * @param limit     分页大小
      * @return 订单列表
      */
-    public Object list(Integer userId, Integer showType, Integer page, Integer limit, String sort, String order) {
+    public Object list(Integer userId,Boolean today, Integer showType, Integer page, Integer limit, String sort, String order) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
 
         List<Short> orderStatus = OrderUtil.orderStatus(showType);
-        List<LitemallOrder> orderList = orderService.queryByOrderStatus(userId, orderStatus, page, limit, sort, order);
+        List<LitemallOrder> orderList = orderService.queryTodayByOrderStatus(userId, today, orderStatus, page, limit, sort, order);
 
         List<Map<String, Object>> orderVoList = new ArrayList<>(orderList.size());
         for (LitemallOrder o : orderList) {
@@ -370,6 +371,70 @@ public class WebOrderService {
     }
 
     public Object countorder(Integer userId){
-        return ResponseUtil.ok(orderService.count(userId));
+        List<Short> status = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE, OrderUtil.STATUS_PAY, OrderUtil.STATUS_CONFIRM}));
+        return ResponseUtil.ok(orderService.count(userId, status));
     }
+
+    public Object countByStatus(Integer userId){
+        Map<Object, Object> map = new HashMap<>();
+        List<Short> createStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE}));
+        List<Short> payStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_PAY}));
+        List<Short> confirmStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CONFIRM}));
+        map.put("1", orderService.count(userId, createStatus));
+        map.put("2", orderService.count(userId, payStatus));
+        map.put("4", orderService.count(userId, confirmStatus));
+        return ResponseUtil.ok(map);
+    }
+
+    public Object pay(Integer userId, String body) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+        if(orderId == null){
+            return ResponseUtil.badArgument();
+        }
+        LitemallOrder order = orderService.findByUserAndId(userId, orderId);
+        if(order == null){
+            return ResponseUtil.fail(ORDER_UNKNOWN, "订单不存在");
+        }
+        //检测订单是否是门店订单
+        if(!order.getShopOrder()){
+            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能支付");
+        }
+        // 检测是否能够支付
+        OrderHandleOption handleOption = OrderUtil.build(order);
+        if (!handleOption.isPay()) {
+            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能支付");
+        }
+        LitemallOrder updater = new LitemallOrder();
+        updater.setId(order.getId());
+        updater.setOrderStatus(OrderUtil.STATUS_PAY);
+        updater.setUpdateTime(order.getUpdateTime());
+        orderService.updateWithOptimisticLocker(updater);
+        return ResponseUtil.ok();
+    }
+
+    public Object complete(Integer userId, String body) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+        if(orderId == null){
+            return ResponseUtil.badArgument();
+        }
+        LitemallOrder order = orderService.findByUserAndId(userId, orderId);
+        if(order == null){
+            return ResponseUtil.fail(ORDER_UNKNOWN, "订单不存在");
+        }
+        //检测订单是否是门店订单
+        if(!order.getShopOrder()){
+            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能完成");
+        }
+        // 检测是否能够支付
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY)) {
+            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能完成");
+        }
+        LitemallOrder updater = new LitemallOrder();
+        updater.setId(order.getId());
+        updater.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+        updater.setUpdateTime(order.getUpdateTime());
+        orderService.updateWithOptimisticLocker(updater);
+        return ResponseUtil.ok();
+    }
+
 }

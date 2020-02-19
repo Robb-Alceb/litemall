@@ -1,9 +1,8 @@
 package org.linlinjava.litemall.web.web;
 
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.service.WebOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @RestController
 @RequestMapping("/web/order")
@@ -32,12 +30,13 @@ public class WebOrderController {
      */
     @GetMapping("list")
     public Object list(@LoginUser Integer userId,
+                       @RequestParam(defaultValue = "1") Boolean today,
                        @RequestParam(defaultValue = "0") Integer showType,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return orderService.list(userId, showType, page, limit, sort, order);
+        return orderService.list(userId, today, showType, page, limit, sort, order);
     }
 
     /**
@@ -61,16 +60,57 @@ public class WebOrderController {
      */
     @PostMapping("submit")
     public Object submit(@LoginUser Integer userId, @RequestBody String body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
         return orderService.submit(userId, body);
     }
 
     /**
-     * 订单数量
+     * 支付订单（ipad订单，现金支付或者pos支付），打印订单信息
+     * @param userId
+     * @param body
+     * @return
+     */
+    @PostMapping("pay")
+    public Object pay(@LoginUser Integer userId, @RequestBody String body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.pay(userId, body);
+    }
+
+    @PostMapping("complete")
+    public Object complete(@LoginUser Integer userId, @RequestBody String body) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.complete(userId, body);
+    }
+
+    /**
+     * 订单总数
      * @param userId
      * @return
      */
     @GetMapping("countorder")
     public Object countorder(@LoginUser Integer userId){
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
         return orderService.countorder(userId);
+    }
+
+    /**
+     * 订单总数
+     * @param userId
+     * @return
+     */
+    @GetMapping("countbystatus")
+    public Object countByStatus(@LoginUser Integer userId){
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.countByStatus(userId);
     }
 }

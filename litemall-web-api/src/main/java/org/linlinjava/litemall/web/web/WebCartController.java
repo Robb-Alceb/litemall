@@ -2,14 +2,11 @@ package org.linlinjava.litemall.web.web;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LoginUser;
-import org.linlinjava.litemall.web.service.WebCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +38,6 @@ public class WebCartController {
     private LitemallGoodsProductService productService;
     @Autowired
     private LitemallGoodsSpecificationService specificationService;
-    @Autowired
-    private WebCartService webCartService;
 
     /**
      * 用户购物车信息
@@ -164,22 +159,6 @@ public class WebCartController {
         return goodscount(userId);
     }
 
-    /**
-     * 购物车下单
-     *
-     * @param userId    用户ID
-     * @param cartId    购物车商品ID：
-     *                  如果购物车商品ID是空，则下单当前用户所有购物车商品；
-     *                  如果购物车商品ID非空，则只下单当前购物车商品。
-     * @return 购物车操作结果
-     */
-    @GetMapping("checkout")
-    public Object checkout(@LoginUser Integer userId, Integer cartId) {
-        if (userId == null) {
-            return ResponseUtil.unlogin();
-        }
-        return webCartService.checkout(userId, cartId);
-    }
 
     /**
      * 修改购物车商品货品数量

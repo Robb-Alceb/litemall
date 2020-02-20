@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.web.service;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.express.ExpressService;
@@ -23,7 +24,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static org.linlinjava.litemall.db.beans.Constants.ORDER_AET;
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
 /**
@@ -194,9 +197,9 @@ public class WebOrderService {
      * @return 提交订单操作结果
      */
     @Transactional
-    public Object submit(@LoginUser Integer userId, String body) {
+    public Object submit(Integer shopId, Integer userId, String body) {
 
-        Integer shopId = JacksonUtil.parseInteger(body, "shopId");
+//        Integer shopId = JacksonUtil.parseInteger(body, "shopId");
         Integer cartId = JacksonUtil.parseInteger(body, "cartId");
         //订单类型（1：自提订单;2:外送订单）
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
@@ -205,29 +208,9 @@ public class WebOrderService {
         if ((userId == null && cartId == null) || orderType == null || shopId == null) {
             return ResponseUtil.badArgument();
         }
-        LitemallShop litemallShop = shopService.findById(shopId);
-        //判断门店状态
-        if(litemallShop == null || !litemallShop.getStatus().equals(Constants.SHOP_STATUS_OPEN)){
-            return ResponseUtil.fail(SHOP_UNABLE, "门店未开业");
-        }else{
-            String closeTime = litemallShop.getCloseTime();
-            String openTime = litemallShop.getOpenTime();
-            DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
-            LocalTime startTimes = LocalTime.parse(openTime, timeDtf);
-            LocalTime endTime = LocalTime.parse(closeTime, timeDtf);
-            LocalTime now = LocalTime.now();
-            Integer dayOfWeek = LocalDateTime.now().getDayOfWeek().getValue();
-            //判断星期
-            if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
-                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
-            }
-            //判断每天开业时间
-            if(now.compareTo(startTimes) != 1 && now.compareTo(endTime) != -1){
-                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
-            }
-        }
-        if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
-            return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
+        Object error = validShop(shopId);
+        if( error != null){
+            return error;
         }
 
         // 货品价格
@@ -372,7 +355,7 @@ public class WebOrderService {
 
     public Object countorder(Integer userId){
         List<Short> status = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE, OrderUtil.STATUS_PAY, OrderUtil.STATUS_CONFIRM}));
-        return ResponseUtil.ok(orderService.count(userId, status));
+        return ResponseUtil.ok(orderService.count(userId, status, true));
     }
 
     public Object countByStatus(Integer userId){
@@ -380,9 +363,9 @@ public class WebOrderService {
         List<Short> createStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE}));
         List<Short> payStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_PAY}));
         List<Short> confirmStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CONFIRM}));
-        map.put("1", orderService.count(userId, createStatus));
-        map.put("2", orderService.count(userId, payStatus));
-        map.put("4", orderService.count(userId, confirmStatus));
+        map.put("1", orderService.count(userId, createStatus, true));
+        map.put("2", orderService.count(userId, payStatus, true));
+        map.put("4", orderService.count(userId, confirmStatus, true));
         return ResponseUtil.ok(map);
     }
 
@@ -437,4 +420,136 @@ public class WebOrderService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * 跳过添加购物车、直接下单
+     * @param userId
+     * @param cart
+     * @return
+     */
+    @Transactional
+    public Object orderDirectly(Integer shopId, Integer userId, LitemallCart cart) {
+//        Integer shopId = cart.getShopId();
+        Object error = validShop(shopId);
+        if( error != null){
+            return error;
+        }
+        Integer productId = cart.getProductId();
+        Integer number = cart.getNumber().intValue();
+        Integer goodsId = cart.getGoodsId();
+        Integer[] specIds = cart.getSpecificationIds();
+        if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
+            return ResponseUtil.badArgument();
+        }
+        if(number <= 0){
+            return ResponseUtil.badArgument();
+        }
+
+        //判断商品是否可以购买
+        LitemallGoods goods = goodsService.findById(goodsId);
+        if (goods == null || !goods.getIsOnSale()) {
+            return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
+        }
+        LitemallGoodsProduct product = productService.findById(productId);
+        List<LitemallGoodsSpecification> specifications = goodsSpecificationService.findByIds(specIds);
+        /**
+         * 商品价格
+         */
+        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        checkedGoodsPrice = checkedGoodsPrice.add(product.getSellPrice());
+        for(LitemallGoodsSpecification sp : specifications){
+            checkedGoodsPrice = checkedGoodsPrice.add(sp.getPrice());
+        }
+        /**
+         * 税费
+         */
+        BigDecimal taxGoodsPrice = checkedGoodsPrice.divide(new BigDecimal(100.00)).multiply(new BigDecimal(product.getNumber()));
+        BigDecimal actualPrice = checkedGoodsPrice.add(taxGoodsPrice);
+
+        LitemallOrder order = new LitemallOrder();
+        order.setUserId(userId);
+        order.setOrderSn(orderService.generateOrderSn(userId));
+        order.setOrderStatus(OrderUtil.STATUS_CREATE);
+        order.setConsignee("");
+        order.setMobile("");
+        order.setMessage("");
+        order.setAddress("");
+        order.setGoodsPrice(checkedGoodsPrice);
+        order.setFreightPrice(new BigDecimal(0.00));
+        order.setCouponPrice(new BigDecimal(0.00));
+        order.setIntegralPrice(new BigDecimal(0.00));
+        order.setOrderPrice(new BigDecimal(0.00));
+        order.setActualPrice(actualPrice);
+        order.setTaxPrice(taxGoodsPrice);
+        order.setShopId(shopId);
+        order.setOrderType(ORDER_AET);
+        order.setShopOrder(true);
+
+        Integer orderId = null;
+        // 添加订单表项
+        orderService.add(order);
+        orderId = order.getId();
+
+        // 订单商品
+        LitemallOrderGoods orderGoods = new LitemallOrderGoods();
+        orderGoods.setOrderId(order.getId());
+        orderGoods.setGoodsId(goods.getId());
+        orderGoods.setGoodsSn(goods.getGoodsSn());
+        orderGoods.setProductId(productId);
+        orderGoods.setGoodsName(goods.getName());
+        orderGoods.setPicUrl(goods.getPicUrl());
+        orderGoods.setPrice(product.getSellPrice());
+        orderGoods.setNumber(number.shortValue());
+        List<String> specificationStrs = specifications.stream().map(s -> {
+            return s.getSpecification();
+        }).collect(Collectors.toList());
+        orderGoods.setSpecifications(specificationStrs.toArray(new String[]{}));
+        orderGoods.setAddTime(LocalDateTime.now());
+        orderGoods.setTaxPrice(product.getTax());
+
+        orderGoodsService.add(orderGoods);
+
+
+        // 商品货品数量减少
+        Integer remainNumber = product.getNumber() - number;
+        if (remainNumber < 0) {
+            throw new RuntimeException("下单的商品货品数量大于库存量");
+        }
+        if (productService.reduceStock(productId, number.shortValue()) == 0) {
+            throw new RuntimeException("商品货品库存减少失败");
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("orderId", orderId);
+
+        return ResponseUtil.ok();
+    }
+    private Object validShop(Integer shopId){
+        if(shopId == null){
+            return ResponseUtil.fail(SHOP_NOT_EXSIT, "门店不存在");
+        }
+        LitemallShop litemallShop = shopService.findById(shopId);
+        //判断门店状态
+        if(litemallShop == null || !litemallShop.getStatus().equals(Constants.SHOP_STATUS_OPEN)){
+            return ResponseUtil.fail(SHOP_UNABLE, "门店未开业");
+        }else{
+            String closeTime = litemallShop.getCloseTime();
+            String openTime = litemallShop.getOpenTime();
+            DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime startTimes = LocalTime.parse(openTime, timeDtf);
+            LocalTime endTime = LocalTime.parse(closeTime, timeDtf);
+            LocalTime now = LocalTime.now();
+            Integer dayOfWeek = LocalDateTime.now().getDayOfWeek().getValue();
+            //判断星期
+            if(litemallShop.getWeeks() != null && !Arrays.asList(litemallShop.getWeeks()).contains(dayOfWeek)){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+            //判断每天开业时间
+            if(now.compareTo(startTimes) != 1 && now.compareTo(endTime) != -1){
+                return ResponseUtil.fail(SHOP_CLOSED, "门店已歇业");
+            }
+        }
+/*        if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
+            return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
+        }*/
+        return null;
+    }
 }

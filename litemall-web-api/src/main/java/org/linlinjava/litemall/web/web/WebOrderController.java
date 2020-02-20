@@ -3,6 +3,8 @@ package org.linlinjava.litemall.web.web;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallCart;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.service.WebOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +61,11 @@ public class WebOrderController {
      * @return 提交订单
      */
     @PostMapping("submit")
-    public Object submit(@LoginUser Integer userId, @RequestBody String body) {
+    public Object submit(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        return orderService.submit(userId, body);
+        return orderService.submit(shopId, userId, body);
     }
 
     /**
@@ -112,5 +114,20 @@ public class WebOrderController {
             return ResponseUtil.unlogin();
         }
         return orderService.countByStatus(userId);
+    }
+
+    /**
+     * 跳过添加购物车、直接下单
+     *
+     * @param userId 用户id
+     * @param cart   订单数据
+     * @return 提交订单
+     */
+    @PostMapping("directly")
+    public Object orderDirectly(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.orderDirectly(shopId, userId, cart);
     }
 }

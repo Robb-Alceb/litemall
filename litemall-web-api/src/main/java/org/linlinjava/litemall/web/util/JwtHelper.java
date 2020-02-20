@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.web.util;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -21,7 +22,7 @@ public class JwtHelper {
 	static final String AUDIENCE = "MINIIPAD";
 	
 	
-	public String createToken(Integer userId){
+	public String createToken(Integer userId, String userName){
 		try {
 		    Algorithm algorithm = Algorithm.HMAC256(SECRET);
 		    Map<String, Object> map = new HashMap<String, Object>();
@@ -30,11 +31,14 @@ public class JwtHelper {
 		    Date expireDate = getAfterDate(nowDate,0,0,0,8,0,0);
 	        map.put("alg", "HS256");
 	        map.put("typ", "JWT");
-		    String token = JWT.create()
+			JWTCreator.Builder builder = JWT.create();
+
+			String token = builder
 		    	// 设置头部信息 Header
 		    	.withHeader(map)
 		    	// 设置 载荷 Payload
 		    	.withClaim("userId", userId)
+				.withClaim("userName", userName)
 		        .withIssuer(ISSUSER)
 		        .withSubject(SUBJECT)
 		        .withAudience(AUDIENCE)
@@ -50,7 +54,38 @@ public class JwtHelper {
 		}
 		return null;
 	}
-	
+
+	public String createToken(Map<String, Integer> claimMap){
+		try {
+			Algorithm algorithm = Algorithm.HMAC256(SECRET);
+			Map<String, Object> map = new HashMap<String, Object>();
+			Date nowDate = new Date();
+			// 过期时间：8小时
+			Date expireDate = getAfterDate(nowDate,0,0,0,8,0,0);
+			map.put("alg", "HS256");
+			map.put("typ", "JWT");
+			JWTCreator.Builder builder = JWT.create()
+					// 设置头部信息 Header
+					.withHeader(map)
+					.withIssuer(ISSUSER)
+					.withSubject(SUBJECT)
+					.withAudience(AUDIENCE)
+					// 生成签名的时间
+					.withIssuedAt(nowDate)
+					// 签名过期的时间
+					.withExpiresAt(expireDate);
+
+			claimMap.forEach((key,value)->{
+				builder.withClaim(key, value);
+			});
+			String token = builder.sign(algorithm);
+			return token;
+		} catch (JWTCreationException exception){
+			exception.printStackTrace();
+		}
+		return null;
+	}
+
 	public Integer verifyTokenAndGetUserId(String token) {
 		try {
 		    Algorithm algorithm = Algorithm.HMAC256(SECRET);
@@ -65,9 +100,44 @@ public class JwtHelper {
 //			exception.printStackTrace();
 		}
 		
-		return 0;
+		return null;
 	}
-	
+
+
+	public Integer verifyTokenAndGetShopId(String token) {
+		try {
+			Algorithm algorithm = Algorithm.HMAC256(SECRET);
+			JWTVerifier verifier = JWT.require(algorithm)
+					.withIssuer(ISSUSER)
+					.build();
+			DecodedJWT jwt = verifier.verify(token);
+			Map<String, Claim> claims = jwt.getClaims();
+			Claim claim = claims.get("shopId");
+			return claim.asInt();
+		} catch (JWTVerificationException exception){
+//			exception.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public String verifyTokenAndGetUserName(String token) {
+		try {
+			Algorithm algorithm = Algorithm.HMAC256(SECRET);
+			JWTVerifier verifier = JWT.require(algorithm)
+					.withIssuer(ISSUSER)
+					.build();
+			DecodedJWT jwt = verifier.verify(token);
+			Map<String, Claim> claims = jwt.getClaims();
+			Claim claim = claims.get("userName");
+			return claim.asString();
+		} catch (JWTVerificationException exception){
+//			exception.printStackTrace();
+		}
+
+		return "";
+	}
+
 	public  Date getAfterDate(Date date, int year, int month, int day, int hour, int minute, int second){
 		if(date == null){
 			date = new Date();

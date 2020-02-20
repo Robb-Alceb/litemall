@@ -31,8 +31,18 @@ public class LitemallOrderService {
     }
 
     public int count(Integer userId, List<Short> status) {
+        return count(userId, status, false);
+    }
+
+    public int count(Integer userId, List<Short> status, Boolean today) {
         LitemallOrderExample example = new LitemallOrderExample();
-        example.or().andUserIdEqualTo(userId).andOrderStatusIn(status).andDeletedEqualTo(false);
+        if(today != null && today){
+            LocalDateTime startTime = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+            example.or().andUserIdEqualTo(userId).andOrderStatusIn(status).andUpdateTimeBetween(startTime, endTime).andDeletedEqualTo(false);
+        }else{
+            example.or().andUserIdEqualTo(userId).andOrderStatusIn(status).andDeletedEqualTo(false);
+        }
         return (int) litemallOrderMapper.countByExample(example);
     }
 

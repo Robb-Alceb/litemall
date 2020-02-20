@@ -16,6 +16,7 @@ public class WebResponseCode {
     public static final Integer AUTH_INVALID_EMAIL = 712;
     public static final Integer AUTH_EMAIL_NOT_EXIST = 713;
     public static final Integer AUTH_MOBILE_NOT_EXIST = 714;
+    public static final Integer AUTH_NOT_PERMISSION = 715;
 
     public static final Integer GOODS_UNSHELVE = 710;
     public static final Integer GOODS_NO_STOCK = 711;
@@ -45,9 +46,9 @@ public class WebResponseCode {
     //门店未开业
     public static final int SHOP_UNABLE = 750;
     //门店
-    public static final int SHOP_CLOSED = 750;
+    public static final int SHOP_CLOSED = 751;
     //不支持服务（配送，自提）
-    public static final int SHOP_UNSUPPOT = 751;
-
+    public static final int SHOP_UNSUPPOT = 752;
+    public static final int SHOP_NOT_EXSIT = 753;
 
 }

@@ -6,7 +6,9 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.omg.CORBA.INTERNAL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -88,14 +90,13 @@ public class WebCartController {
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
-    public Object add(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
+    public Object add(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
         if (cart == null) {
             return ResponseUtil.badArgument();
         }
-        Integer shopId = cart.getShopId();
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();

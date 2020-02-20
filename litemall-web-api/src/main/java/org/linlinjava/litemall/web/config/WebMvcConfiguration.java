@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.web.config;
 
+import org.linlinjava.litemall.web.annotation.support.LoginShopHandlerMethodArgumentResolver;
 import org.linlinjava.litemall.web.annotation.support.LoginUserHandlerMethodArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -12,5 +13,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new LoginUserHandlerMethodArgumentResolver());
+        argumentResolvers.add(new LoginShopHandlerMethodArgumentResolver());
     }
 }

@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.service.HomeCacheManager;
 import org.linlinjava.litemall.web.vo.CategoryVo;
 import org.linlinjava.litemall.web.vo.GoodsVo;
@@ -124,7 +125,7 @@ public class WebCatalogController {
      * @return
      */
     @GetMapping("list")
-    public Object list(@NotNull Integer shopId) {
+    public Object list(@LoginShop @NotNull Integer shopId) {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
         List<LitemallCategory> categoryList = categoryService.queryByPid(0);

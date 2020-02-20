@@ -9,8 +9,10 @@ import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.util.*;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
+import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.CouponAssignService;
+import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.dto.UserInfo;
@@ -39,10 +41,13 @@ public class WebAuthController {
 
     @Autowired
     private LitemallUserService userService;
+    @Autowired
+    private LitemallAdminService adminService;
 
 
     /**
-     * 账号登录
+     * 账号登录，此账号为普通用户账号和系统用户账号
+     * 普通用户账号为系统生成、账号密码应和系统用户一致
      *
      * @param body    请求内容，{ username: xxx, password: xxx }
      * @param request 请求对象
@@ -56,6 +61,7 @@ public class WebAuthController {
             return ResponseUtil.badArgument();
         }
 
+        //验证普通用户
         List<LitemallUser> userList = userService.queryByUsername(username);
         LitemallUser user = null;
         if (userList.size() > 1) {
@@ -68,6 +74,21 @@ public class WebAuthController {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(password, user.getPassword())) {
+            return ResponseUtil.fail(AUTH_INVALID_ACCOUNT, "账号密码不对");
+        }
+
+        // 验证是否为门店系统用户
+        List<LitemallAdmin> admins = adminService.findAdmin(username);
+        LitemallAdmin admin = null;
+        if (admins.size() > 1) {
+            return ResponseUtil.serious();
+        } else if (admins.size() == 0) {
+            return ResponseUtil.fail(AUTH_NOT_PERMISSION, "无权限的账号");
+        } else {
+            admin = admins.get(0);
+        }
+        BCryptPasswordEncoder encoderAdmin = new BCryptPasswordEncoder();
+        if (!encoderAdmin.matches(password, admin.getPassword())) {
             return ResponseUtil.fail(AUTH_INVALID_ACCOUNT, "账号密码不对");
         }
 
@@ -84,7 +105,7 @@ public class WebAuthController {
         userInfo.setAvatarUrl(user.getAvatar());
 
         // token
-        String token = UserTokenManager.generateToken(user.getId());
+        String token = UserTokenManager.generateToken(user.getId(), admin.getShopId());
 
         Map<Object, Object> result = new HashMap<Object, Object>();
         result.put("token", token);

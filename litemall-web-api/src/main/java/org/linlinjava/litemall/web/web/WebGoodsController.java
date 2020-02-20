@@ -7,6 +7,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -235,7 +236,7 @@ public class WebGoodsController {
 	 */
 	@GetMapping("list")
 	public Object list(
-		@NotNull Integer shopId,
+		@LoginShop @NotNull Integer shopId,
 		Integer categoryId,
 		Integer brandId,
 		String keyword,
@@ -325,7 +326,7 @@ public class WebGoodsController {
 	 * @return 在售的商品总数
 	 */
 	@GetMapping("count")
-	public Object count(@NotNull Integer shopId) {
+	public Object count(@LoginShop @NotNull Integer shopId) {
 		Integer goodsCount = goodsService.queryOnSaleByShop(shopId);
 		return ResponseUtil.ok(goodsCount);
 	}

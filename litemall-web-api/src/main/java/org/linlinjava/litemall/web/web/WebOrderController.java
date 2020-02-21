@@ -7,11 +7,13 @@ import org.linlinjava.litemall.db.domain.LitemallCart;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.service.WebOrderService;
+import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping("/web/order")
@@ -121,7 +123,7 @@ public class WebOrderController {
      *
      * @param userId 用户id
      * @param cart   订单数据
-     * @return 提交订单
+     * @return
      */
     @PostMapping("directly")
     public Object orderDirectly(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
@@ -129,5 +131,20 @@ public class WebOrderController {
             return ResponseUtil.unlogin();
         }
         return orderService.orderDirectly(shopId, userId, cart);
+    }
+
+    /**
+     *  ipad用户下班结算金额
+     *
+     * @param userId 用户id
+     * @param calculationOrderVos   金额数据
+     *
+     */
+    @PostMapping("calculation")
+    public Object calculationOrder(@LoginUser Integer userId, @RequestBody List<CalculationOrderVo> calculationOrderVos) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.calculationOrder(userId, calculationOrderVos);
     }
 }

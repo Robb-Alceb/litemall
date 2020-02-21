@@ -109,4 +109,9 @@ public class Constants {
      */
     public static final Byte ORDER_AET = 1;
     public static final Byte ORDER_SEND = 2;
+
+    /**
+     *  订单支付方式
+     */
+    public static final Byte ORDER_TYPE_CASH = 11;  //现金
 }

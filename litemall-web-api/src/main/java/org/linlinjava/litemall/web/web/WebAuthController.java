@@ -17,6 +17,7 @@ import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.dto.UserInfo;
 import org.linlinjava.litemall.web.service.UserTokenManager;
+import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -137,5 +138,20 @@ public class WebAuthController {
         data.put("email", user.getEmail());
 
         return ResponseUtil.ok(data);
+    }
+
+    /**
+     * ipad用户下班
+     * @param userId
+     * @return
+     */
+    @GetMapping("knockoff")
+    public Object knockOff(@LoginUser Integer userId, @RequestBody List<CalculationOrderVo> calculationOrderVos) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+
+
+        return ResponseUtil.ok();
     }
 }

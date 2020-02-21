@@ -84,6 +84,22 @@ public class LitemallOrderService {
         return orderSn;
     }
 
+
+    public List<LitemallOrder> queryByOrderStatus(Integer userId, List<Short> orderStatus, Boolean today) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.setOrderByClause(LitemallOrder.Column.addTime.desc());
+        LitemallOrderExample.Criteria criteria = example.or();
+        criteria.andUserIdEqualTo(userId);
+        if (orderStatus != null) {
+            criteria.andOrderStatusIn(orderStatus);
+        }
+        if(today != null && today){
+            criteria.andUpdateTimeBetween(LocalDateTime.of(LocalDate.now(), LocalTime.MIN), LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
+        }
+        criteria.andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
+    }
+
     public List<LitemallOrder> queryByOrderStatus(Integer userId, List<Short> orderStatus, Integer page, Integer limit, String sort, String order) {
         return queryTodayByOrderStatus(userId, false, orderStatus, page, limit, sort, order);
     }

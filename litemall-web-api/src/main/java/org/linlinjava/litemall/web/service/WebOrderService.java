@@ -14,6 +14,7 @@ import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.db.beans.Constants.ORDER_AET;
+import static org.linlinjava.litemall.db.beans.Constants.ORDER_TYPE_CASH;
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
 /**
@@ -391,6 +393,7 @@ public class WebOrderService {
         updater.setId(order.getId());
         updater.setOrderStatus(OrderUtil.STATUS_PAY);
         updater.setUpdateTime(order.getUpdateTime());
+        updater.setOrderType(ORDER_TYPE_CASH);
         orderService.updateWithOptimisticLocker(updater);
         return ResponseUtil.ok();
     }
@@ -460,9 +463,9 @@ public class WebOrderService {
             checkedGoodsPrice = checkedGoodsPrice.add(sp.getPrice());
         }
         /**
-         * 税费
+         * 税费(税率/100*总价*数量)
          */
-        BigDecimal taxGoodsPrice = checkedGoodsPrice.divide(new BigDecimal(100.00)).multiply(new BigDecimal(product.getNumber()));
+        BigDecimal taxGoodsPrice = product.getTax().divide(new BigDecimal(100.00)).multiply(checkedGoodsPrice).multiply(new BigDecimal(number));
         BigDecimal actualPrice = checkedGoodsPrice.add(taxGoodsPrice);
 
         LitemallOrder order = new LitemallOrder();
@@ -551,5 +554,29 @@ public class WebOrderService {
             return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
         }*/
         return null;
+    }
+
+    public Object calculationOrder(Integer userId, List<CalculationOrderVo> calculationOrderVos) {
+        if(calculationOrderVos == null || calculationOrderVos.size() == 0){
+            return ResponseUtil.badArgument();
+        }
+        List<Short> status = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CONFIRM, OrderUtil.STATUS_AUTO_CONFIRM}));
+
+        //获取订单总价
+        List<LitemallOrder> litemallOrders = orderService.queryByOrderStatus(userId, status, true);
+        BigDecimal totalAmount = new BigDecimal(0.0);
+        for(LitemallOrder order : litemallOrders){
+            totalAmount = totalAmount.add(order.getActualPrice());
+        }
+        //比较输入价格和订单总价
+        BigDecimal inputAmount = new BigDecimal(0.0);
+        for(CalculationOrderVo vo : calculationOrderVos){
+            inputAmount = inputAmount.add(vo.getAmount().multiply(vo.getNumber()));
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("totalAmount",totalAmount);
+        map.put("inputAmount",inputAmount);
+        return ResponseUtil.ok(map);
     }
 }

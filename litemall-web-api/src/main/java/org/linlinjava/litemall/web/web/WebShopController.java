@@ -2,6 +2,7 @@ package org.linlinjava.litemall.web.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.service.LitemallShopService;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.service.WebShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +41,7 @@ public class WebShopController {
 
 
     @GetMapping("detail")
-    public Object detail(@NotNull Integer id){
-        return ResponseUtil.ok(litemallShopService.findById(id));
+    public Object detail(@LoginShop Integer shopId){
+        return ResponseUtil.ok(litemallShopService.findById(shopId));
     }
 }

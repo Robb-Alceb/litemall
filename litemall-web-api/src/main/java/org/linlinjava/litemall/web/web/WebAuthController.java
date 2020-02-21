@@ -17,6 +17,7 @@ import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.dto.UserInfo;
 import org.linlinjava.litemall.web.service.UserTokenManager;
+import org.linlinjava.litemall.web.service.WebSettlementLogService;
 import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -44,6 +45,8 @@ public class WebAuthController {
     private LitemallUserService userService;
     @Autowired
     private LitemallAdminService adminService;
+    @Autowired
+    private WebSettlementLogService settlementLogService;
 
 
     /**
@@ -132,6 +135,7 @@ public class WebAuthController {
         LitemallUser user = userService.findById(userId);
         Map<Object, Object> data = new HashMap<Object, Object>();
         data.put("nickName", user.getNickname());
+        data.put("name", user.getUsername());
         data.put("avatar", user.getAvatar());
         data.put("gender", user.getGender());
         data.put("mobile", user.getMobile());
@@ -145,12 +149,12 @@ public class WebAuthController {
      * @param userId
      * @return
      */
-    @GetMapping("knockoff")
+    @PostMapping("knockoff")
     public Object knockOff(@LoginUser Integer userId, @RequestBody List<CalculationOrderVo> calculationOrderVos) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-
+        settlementLogService.add(userId, calculationOrderVos);
 
         return ResponseUtil.ok();
     }

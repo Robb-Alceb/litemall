@@ -99,6 +99,26 @@ public class AdminConfigController {
     public Object updateAmount(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
+        return ResponseUtil.ok();
+    }
+
+    @RequiresPermissions("admin:config:settlement:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "结算面额配置"}, button = "详情")
+    @GetMapping("/settlement")
+    @LogAnno
+    public Object listSettlement() {
+        return ResponseUtil.ok(systemConfigService.listSettlement());
+    }
+
+    @RequiresPermissions("admin:config:settlement:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "结算面额配置"}, button = "编辑")
+    @PostMapping("/settlement")
+    @LogAnno
+    public Object updateSettlement(@RequestBody String body) {
+        Map<String, String> data = JacksonUtil.toMap(body);
+        systemConfigService.updateConfig(data);
+        SystemConfig.updateConfigs(data);
         return ResponseUtil.ok();
     }
 

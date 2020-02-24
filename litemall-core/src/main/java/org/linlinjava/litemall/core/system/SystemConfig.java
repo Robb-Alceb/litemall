@@ -30,6 +30,8 @@ public class SystemConfig {
     public final static String LITEMALL_MALL_QQ = "litemall_mall_qq";
     //  交易数据统计x坐标金额配置
     public final static String LITEMALL_STATISTICS_AMOUNT = "litemall_statistics_amount";
+    //  下班结算面额初始值设置
+    public final static String LITEMALL_SETTLEMENT_AMOUNT = "litemall_settlement_amount";
 
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();
@@ -112,6 +114,14 @@ public class SystemConfig {
 
     public static String getMallQQ() {
         return getConfig(LITEMALL_MALL_QQ);
+    }
+
+    public static String getLitemallStatisticsAmount() {
+        return getConfig(LITEMALL_STATISTICS_AMOUNT);
+    }
+
+    public static String getLitemallSettlementAmount() {
+        return getConfig(LITEMALL_SETTLEMENT_AMOUNT);
     }
 
     public static void setConfigs(Map<String, String> configs) {

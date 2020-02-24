@@ -72,6 +72,18 @@ public class LitemallSystemConfigService {
         }
         return data;
     }
+
+    public Map<String,String> listSettlement(){
+        LitemallSystemExample example = new LitemallSystemExample();
+        example.or().andKeyNameLike("litemall_settlement_%").andDeletedEqualTo(false);
+        List<LitemallSystem> systemList = systemMapper.selectByExample(example);
+        Map<String, String> data = new HashMap<>();
+        for(LitemallSystem system : systemList){
+            data.put(system.getKeyName(), system.getKeyValue());
+        }
+        return data;
+    }
+
     public Map<String, String> listExpress() {
         LitemallSystemExample example = new LitemallSystemExample();
         example.or().andKeyNameLike("litemall_express_%").andDeletedEqualTo(false);

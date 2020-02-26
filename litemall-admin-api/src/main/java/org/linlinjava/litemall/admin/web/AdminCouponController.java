@@ -59,7 +59,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:listuser")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询用户")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券管理"}, button = "查询用户")
     @GetMapping("/listuser")
     @LogAnno
     public Object listuser(Integer userId, Integer couponId, Short status,
@@ -81,7 +81,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:create")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "添加")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
     public Object create(@RequestBody LitemallCoupon coupon) {
@@ -101,7 +101,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:read")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "详情")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券管理"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
     public Object read(@NotNull @RequestParam(value = "id") Integer id) {
@@ -110,7 +110,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:update")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "编辑")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
     public Object update(@RequestBody LitemallCoupon coupon) {
@@ -125,7 +125,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:delete")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "删除")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券管理"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
     public Object delete(@RequestBody LitemallCoupon coupon) {
@@ -139,7 +139,7 @@ public class AdminCouponController {
      * @return
      */
     @RequiresPermissions("admin:coupon:goodsList")
-    @RequiresPermissionsDesc(menu = {"推广管理", "商品列表"}, button = "查询")
+    @RequiresPermissionsDesc(menu = {"活动管理", "商品列表"}, button = "查询")
     @GetMapping("/goodsList")
     @LogAnno
     public Object goodsList(@NotNull @RequestParam(value = "id") Integer id,
@@ -158,7 +158,7 @@ public class AdminCouponController {
     }
 
     @RequiresPermissions("admin:coupon:statistics")
-    @RequiresPermissionsDesc(menu = {"推广管理", "优惠券使用统计"}, button = "查询")
+    @RequiresPermissionsDesc(menu = {"活动管理", "优惠券使用统计"}, button = "查询")
     @GetMapping("/statistics")
     @LogAnno
     public Object usedStatistics(@NotNull Integer id){

@@ -24,19 +24,19 @@ public class AdminConfigController {
     @Autowired
     private LitemallSystemConfigService systemConfigService;
 
-//    @RequiresPermissions("admin:config:mall:list")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
-//    @GetMapping("/mall")
-//    @LogAnno
+    @RequiresPermissions("admin:config:mall:list")
+    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "详情")
+    @GetMapping("/mall")
+    @LogAnno
     public Object listMall() {
         Map<String, String> data = systemConfigService.listMail();
         return ResponseUtil.ok(data);
     }
 
-//    @RequiresPermissions("admin:config:mall:updateConfigs")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
-//    @PostMapping("/mall")
-//    @LogAnno
+    @RequiresPermissions("admin:config:mall:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "商场配置"}, button = "编辑")
+    @PostMapping("/mall")
+    @LogAnno
     public Object updateMall(@RequestBody String body) {
         Map<String, String> data = JacksonUtil.toMap(body);
         systemConfigService.updateConfig(data);

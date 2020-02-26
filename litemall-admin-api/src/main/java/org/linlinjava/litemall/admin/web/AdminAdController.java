@@ -33,7 +33,7 @@ public class AdminAdController {
     private AdService adService;
 
     @RequiresPermissions("admin:ad:list")
-    @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "查询")
+    @RequiresPermissionsDesc(menu = {"活动管理", "普通活动"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
     public Object list(String name, String content,
@@ -58,7 +58,7 @@ public class AdminAdController {
     }
 
     @RequiresPermissions("admin:ad:create")
-    @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "添加")
+    @RequiresPermissionsDesc(menu = {"活动管理", "普通活动"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
     public Object create(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
@@ -74,7 +74,7 @@ public class AdminAdController {
     }
 
     @RequiresPermissions("admin:ad:read")
-    @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "详情")
+    @RequiresPermissionsDesc(menu = {"活动管理", "普通活动"}, button = "详情")
     @GetMapping("/read")
     @LogAnno
     public Object read(@NotNull @RequestParam(value = "id") Integer id) {
@@ -83,7 +83,7 @@ public class AdminAdController {
     }
 
     @RequiresPermissions("admin:ad:update")
-    @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "编辑")
+    @RequiresPermissionsDesc(menu = {"活动管理", "普通活动"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
     public Object update(@RequestBody LitemallAd ad, @LoginAdminShopId Integer shopId) {
@@ -98,7 +98,7 @@ public class AdminAdController {
     }
 
     @RequiresPermissions("admin:ad:delete")
-    @RequiresPermissionsDesc(menu = {"推广管理", "广告管理"}, button = "删除")
+    @RequiresPermissionsDesc(menu = {"活动管理", "普通活动"}, button = "删除")
     @PostMapping("/delete")
     @LogAnno
     public Object delete(@RequestBody LitemallAd ad) {

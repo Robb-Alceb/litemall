@@ -13,6 +13,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallShop;
 import org.linlinjava.litemall.db.service.LitemallShopMerchandiseService;
+import org.linlinjava.litemall.db.service.LitemallShopRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,8 @@ public class AdminShopController {
     private ShopService shopService;
     @Autowired
     private LitemallShopMerchandiseService shopMerchandiseService;
+    @Autowired
+    private LitemallShopRegionService shopRegionService;
 
     /**
      * 查询门店
@@ -163,7 +166,18 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店统计信息")
     @GetMapping("/shopOverview")
     @LogAnno
-    public Object querShopGoodsInfo(@LoginAdminShopId @NotNull Integer id){
+    public Object queryShopGoodsInfo(@LoginAdminShopId @NotNull Integer id){
         return ResponseUtil.ok(shopService.querShopGoodsInfo(id));
+    }
+
+    /**
+     * 查询门店位置信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/region")
+    @LogAnno
+    public Object queryShopRegions(@LoginAdminShopId @NotNull Integer id){
+        return ResponseUtil.okList(shopRegionService.queryByShopId(id));
     }
 }

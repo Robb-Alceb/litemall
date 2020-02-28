@@ -239,8 +239,12 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店成员"}, button = "列表")
     @GetMapping("/shop/members")
     @LogAnno
-    public Object getShopMembers(@NotNull @LoginAdminShopId Integer shopId) {
-        return adminService.findShopMembers(shopId);
+    public Object getShopMembers(@LoginAdminShopId Integer shopId) {
+        if(shopId != null){
+            return adminService.findShopMembers(shopId);
+        }else{
+            return adminService.all();
+        }
     }
 
 //    @RequiresPermissions("admin:admin:all")

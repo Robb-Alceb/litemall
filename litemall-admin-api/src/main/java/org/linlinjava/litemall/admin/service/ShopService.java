@@ -47,6 +47,8 @@ public class ShopService {
     private LitemallGoodsService litemallGoodsService;
     @Autowired
     private LitemallAdminOrderService litemallAdminOrderService;
+    @Autowired
+    private LitemallShopRegionService litemallShopRegionService;
 
     public Object list(Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
@@ -59,7 +61,10 @@ public class ShopService {
 
         List<ShopVo> collect = shops.stream().map(s -> {
             List<LitemallAdmin> admins = litemallAdminService.findByShopId(s.getId());
-            return BeanConvert.toShopVo(s, admins);
+            //区域信息
+            List<LitemallShopRegion> regions = litemallShopRegionService.queryByShopId(s.getId());
+
+            return BeanConvert.toShopVo(s, admins, regions);
         }).collect(Collectors.toList());
         return ResponseUtil.okList(collect);
     }
@@ -69,7 +74,9 @@ public class ShopService {
         LitemallShop litemallShop = litemallShopService.findById(shopId);
         //查询门店人员信息
         List<LitemallAdmin> byShopId = litemallAdminService.findByShopId(litemallShop.getId());
-        return ResponseUtil.ok(BeanConvert.toShopVo(litemallShop, byShopId));
+        //区域信息
+        List<LitemallShopRegion> regions = litemallShopRegionService.queryByShopId(litemallShop.getId());
+        return ResponseUtil.ok(BeanConvert.toShopVo(litemallShop, byShopId, regions));
     }
 
     public Object delete(Integer shopId){
@@ -86,6 +93,14 @@ public class ShopService {
     @Transactional(rollbackFor = Exception.class)
     public Object create(ShopDto shop){
         litemallShopService.add(shop.getLitemallShop());
+        if(shop.getRegionIds() != null){
+            for(Integer regionId : shop.getRegionIds()){
+                LitemallShopRegion region = new LitemallShopRegion();
+                region.setShopId(shop.getLitemallShop().getId());
+                region.setRegionId(regionId);
+                litemallShopRegionService.add(region);
+            }
+        }
         //保存日志
         saveShopLog(Constants.CREATE_SHOP+shop.getLitemallShop().getName(), shop.getLitemallShop());
 
@@ -117,6 +132,17 @@ public class ShopService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Object update(ShopDto shop) {
+        //删除位置信息
+        litemallShopRegionService.deletedByShopId(shop.getLitemallShop().getId());
+        //添加位置信息
+        if(shop.getRegionIds() != null){
+            for(Integer regionId : shop.getRegionIds()){
+                LitemallShopRegion region = new LitemallShopRegion();
+                region.setShopId(shop.getLitemallShop().getId());
+                region.setRegionId(regionId);
+                litemallShopRegionService.add(region);
+            }
+        }
         litemallShopService.updateById(shop.getLitemallShop());
         //保存日志
         saveShopLog(Constants.UPDATE_SHOP+shop.getLitemallShop().getName(), shop.getLitemallShop());

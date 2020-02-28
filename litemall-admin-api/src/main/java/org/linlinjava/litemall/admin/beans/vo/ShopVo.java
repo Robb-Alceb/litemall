@@ -1,12 +1,17 @@
 package org.linlinjava.litemall.admin.beans.vo;
 
 import lombok.Data;
+import org.linlinjava.litemall.db.domain.LitemallShopRegion;
+
+import java.util.List;
 
 @Data
 public class ShopVo {
     private Integer shopId;
     private String name;
-    private String address;
+    private String streetAddress;
+    private String aptUnit;
+    private String postalCode;
     private String shopkeeper;
     private int  members;
     private String addTime;
@@ -21,5 +26,6 @@ public class ShopVo {
     private Integer shopkeeperId;
     private Integer shopManagerId;
     private Integer id;
+    private List<LitemallShopRegion> regions;
 
 }

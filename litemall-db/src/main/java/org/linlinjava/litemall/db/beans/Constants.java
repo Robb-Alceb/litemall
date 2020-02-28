@@ -114,4 +114,10 @@ public class Constants {
      *  订单支付方式
      */
     public static final Byte ORDER_TYPE_CASH = 11;  //现金
+
+    /**
+     *  地区类型
+     */
+    public static final Byte REGION_TYPE_COUNTRY = 1;  //国家
+    public static final Byte REGION_TYPE_PROVINCE = 2;  //省份
 }

@@ -23,6 +23,13 @@ public class LitemallRegionService {
         return regionMapper.selectByExample(example);
     }
 
+
+    public List<LitemallRegion> queryByType(Byte type) {
+        LitemallRegionExample example = new LitemallRegionExample();
+        example.or().andTypeEqualTo(type);
+        return regionMapper.selectByExample(example);
+    }
+
     public List<LitemallRegion> queryByPid(Integer parentId) {
         LitemallRegionExample example = new LitemallRegionExample();
         example.or().andPidEqualTo(parentId);
@@ -36,12 +43,17 @@ public class LitemallRegionService {
     public List<LitemallRegion> querySelective(String name, Integer code, Integer page, Integer size, String sort, String order) {
         LitemallRegionExample example = new LitemallRegionExample();
         LitemallRegionExample.Criteria criteria = example.createCriteria();
+        LitemallRegionExample.Criteria criteriaEn = example.createCriteria();
 
         if (!StringUtils.isEmpty(name)) {
-            criteria.andNameLike("%" + name + "%");
+            example.or(criteria);
+            example.or(criteriaEn);
+            criteria.andNameCnLike("%" + name + "%");
+            criteriaEn.andNameEnLike("%" + name + "%");
         }
         if (!StringUtils.isEmpty(code)) {
             criteria.andCodeEqualTo(code);
+            criteriaEn.andCodeEqualTo(code);
         }
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

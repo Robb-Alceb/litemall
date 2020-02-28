@@ -28,9 +28,6 @@ public class LitemallShopService {
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
         }
-        if (!StringUtils.isEmpty(address)) {
-            criteria.andAddressLike("%" + address + "%");
-        }
         if (!StringUtils.isEmpty(status)) {
             criteria.andStatusEqualTo(status);
         }

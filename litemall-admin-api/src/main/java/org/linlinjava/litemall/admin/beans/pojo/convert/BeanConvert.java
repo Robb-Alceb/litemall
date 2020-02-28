@@ -12,11 +12,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BeanConvert {
-    public static ShopVo toShopVo(LitemallShop litemallShop, List<LitemallAdmin> admins){
+    public static ShopVo toShopVo(LitemallShop litemallShop, List<LitemallAdmin> admins, List<LitemallShopRegion> regions){
         ShopVo vo = new ShopVo();
         vo.setId(litemallShop.getId());
         vo.setShopId(litemallShop.getId());
-        vo.setAddress(litemallShop.getAddress());
+        vo.setStreetAddress(litemallShop.getStreetAddress());
+        vo.setAptUnit(litemallShop.getAptUnit());
+        vo.setPostalCode(litemallShop.getPostalCode());
         vo.setMembers(admins.size());
         vo.setName(litemallShop.getName());
         vo.setStatus(Integer.valueOf(litemallShop.getStatus()));
@@ -28,6 +30,7 @@ public class BeanConvert {
         vo.setMobile(litemallShop.getMobile());
         vo.setAddTime(DateUtil.dateToString(litemallShop.getAddTime()));
         vo.setWeeks(litemallShop.getWeeks());
+        vo.setRegions(regions);
         admins.forEach(admin -> {
             if(Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID)){
                 vo.setShopkeeper(admin.getUsername());

@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.vo.RegionVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallRegion;
 import org.linlinjava.litemall.db.service.LitemallRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,33 @@ public class AdminRegionController {
     @Autowired
     private LitemallRegionService regionService;
 
+    /**
+     * 国家列表
+     * @return
+     */
     @GetMapping("/clist")
     @LogAnno
-    public Object clist(@NotNull @RequestParam(value = "id") Integer id) {
-        List<LitemallRegion> regionList = regionService.queryByPid(id);
-        return ResponseUtil.okList(regionList);
+    public Object clist() {
+        List<LitemallRegion> countryList = regionService.queryByPid(0);
+        return ResponseUtil.okList(countryList);
+    }
+
+    /**
+     * 子列表
+     * @param id
+     * @param type {2:省份，3:城市}
+     * @return
+     */
+    @GetMapping("/slist")
+    @LogAnno
+    public Object plist(@RequestParam(value = "id") Integer id, @NotNull Integer type) {
+        if(id == null){
+            //获取所有省份
+            return ResponseUtil.okList(regionService.queryByType(type.byteValue()));
+        }else{
+            List<LitemallRegion> regionList = regionService.queryByPid(id);
+            return ResponseUtil.okList(regionList);
+        }
     }
 
     @GetMapping("/list")
@@ -39,7 +62,32 @@ public class AdminRegionController {
     public Object list() {
         List<RegionVo> regionVoList = new ArrayList<>();
 
-        List<LitemallRegion> provinceList = regionService.queryByPid(0);
+        List<LitemallRegion> countryList = regionService.queryByPid(0);
+        for (LitemallRegion country : countryList) {
+            RegionVo countryVO = new RegionVo();
+            countryVO.setId(country.getId());
+            countryVO.setNameCn(country.getNameCn());
+            countryVO.setNameEn(country.getNameEn());
+            countryVO.setCode(country.getCode());
+            countryVO.setType(country.getType());
+
+            List<LitemallRegion> provinceList = regionService.queryByPid(country.getId());
+            List<RegionVo> provinceVOList = new ArrayList<>();
+            for (LitemallRegion province : provinceList){
+                RegionVo provinceVO = new RegionVo();
+                provinceVO.setId(province.getId());
+                provinceVO.setNameCn(province.getNameCn());
+                provinceVO.setNameEn(province.getNameEn());
+                provinceVO.setCode(province.getCode());
+                provinceVO.setType(province.getType());
+                provinceVOList.add(provinceVO);
+            }
+            countryVO.setChildren(provinceVOList);
+            regionVoList.add(countryVO);
+        }
+        return regionVoList;
+
+        /*List<LitemallRegion> provinceList = regionService.queryByPid(0);
         for (LitemallRegion province : provinceList) {
             RegionVo provinceVO = new RegionVo();
             provinceVO.setId(province.getId());
@@ -74,6 +122,6 @@ public class AdminRegionController {
             regionVoList.add(provinceVO);
         }
 
-        return ResponseUtil.okList(regionVoList);
+        return ResponseUtil.okList(regionVoList);*/
     }
 }

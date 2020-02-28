@@ -38,4 +38,5 @@ public class AdminService {
     public Object all() {
         return ResponseUtil.ok(litemallAdminService.all());
     }
+
 }

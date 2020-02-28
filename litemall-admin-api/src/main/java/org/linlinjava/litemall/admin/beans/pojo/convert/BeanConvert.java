@@ -66,4 +66,15 @@ public class BeanConvert {
         vo.setValueName(goodsName);
         return vo;
     }
+
+    public static LitemallUser toUser(LitemallAdmin admin){
+        LitemallUser user = new LitemallUser();
+        user.setEmail(admin.getEmail());
+        user.setAvatar(admin.getAvatar());
+        user.setMobile(admin.getMobile());
+        user.setNickname(admin.getNickName());
+        user.setPassword(admin.getPassword());
+        user.setUsername(admin.getUsername());
+        return user;
+    }
 }

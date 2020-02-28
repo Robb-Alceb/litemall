@@ -9,6 +9,7 @@ import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.service.AdminService;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
@@ -19,8 +20,10 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallShop;
+import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallShopService;
+import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -46,6 +49,8 @@ public class AdminAdminController {
     private AdminService adminService;
     @Autowired
     private LitemallShopService litemallShopService;
+    @Autowired
+    private LitemallUserService litemallUserService;
 
     @RequiresPermissions("admin:admin:list")
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
@@ -107,6 +112,10 @@ public class AdminAdminController {
         admin.setPassword(encodedPassword);
         litemallAdminService.add(admin);
         logHelper.logAuthSucceed("添加管理员", username);
+
+        //给管理员生成一个user，用于ipad下单
+        LitemallUser user = BeanConvert.toUser(admin);
+        litemallUserService.add(user);
         return ResponseUtil.ok(admin);
     }
 
@@ -170,6 +179,16 @@ public class AdminAdminController {
         }
 
         logHelper.logAuthSucceed("编辑管理员", admin.getUsername());
+
+        //修改admin信息时，同时修改user信息
+        LitemallAdmin info = litemallAdminService.findAdmin(admin.getId());
+        List<LitemallUser> litemallUsers = litemallUserService.queryByUsername(info.getUsername());
+        if(litemallUsers == null || litemallUsers.size() == 0){
+            return ResponseUtil.updatedDataFailed();
+        }
+        LitemallUser user = BeanConvert.toUser(admin);
+        user.setId(litemallUsers.get(0).getId());
+        litemallUserService.updateById(user);
         return ResponseUtil.ok(admin);
     }
 

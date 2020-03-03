@@ -12,6 +12,7 @@ import org.linlinjava.litemall.db.domain.LitemallAddress;
 import org.linlinjava.litemall.db.service.LitemallAddressService;
 import org.linlinjava.litemall.db.service.LitemallRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin/address")
@@ -42,6 +44,19 @@ public class AdminAddressController {
                        @Order @RequestParam(defaultValue = "desc") String order) {
 
         List<LitemallAddress> addressList = addressService.querySelective(userId, name, page, limit, sort, order);
+        addressList.stream().map(litemallAddress -> {
+            Integer countryId = Integer.valueOf(litemallAddress.getCountry());
+            Integer provinceId = Integer.valueOf(litemallAddress.getProvince());
+            Integer cityId = Integer.valueOf(litemallAddress.getCity());
+            if(!StringUtils.isEmpty(litemallAddress.getCounty())){
+                Integer countyId = Integer.valueOf(litemallAddress.getCounty());
+                litemallAddress.setCounty(regionService.findById(countyId).getNameCn());
+            }
+            litemallAddress.setCountry(regionService.findById(countryId).getNameCn());
+            litemallAddress.setProvince(regionService.findById(provinceId).getNameCn());
+            litemallAddress.setCity(regionService.findById(cityId).getNameCn());
+            return litemallAddress;
+        }).collect(Collectors.toList());
         return ResponseUtil.okList(addressList);
     }
 }

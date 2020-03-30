@@ -8,6 +8,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallIssue;
 import org.linlinjava.litemall.db.service.LitemallIssueService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class WxIssueController {
      * 帮助中心
      */
     @RequestMapping("/list")
+    @LogAnno
     public Object list(String question,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer size,

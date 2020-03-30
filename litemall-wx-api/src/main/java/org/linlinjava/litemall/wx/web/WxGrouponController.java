@@ -10,6 +10,7 @@ import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.OrderUtil;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.WxGrouponRuleService;
 import org.linlinjava.litemall.wx.vo.GrouponRuleVo;
@@ -66,6 +67,7 @@ public class WxGrouponController {
      * @return 团购规则列表
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -82,6 +84,7 @@ public class WxGrouponController {
      * @return 团购活动详情
      */
     @GetMapping("detail")
+    @LogAnno
     public Object detail(@LoginUser Integer userId, @NotNull @RequestParam(value = "grouponId") Integer grouponId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -180,6 +183,7 @@ public class WxGrouponController {
      * @return 操作结果
      */
     @GetMapping("join")
+    @LogAnno
     public Object join(@NotNull @RequestParam(value = "grouponId") Integer grouponId) {
         LitemallGroupon groupon = grouponService.queryById(grouponId);
         if (groupon == null) {
@@ -211,6 +215,7 @@ public class WxGrouponController {
      * @return 用户开团或入团情况
      */
     @GetMapping("my")
+    @LogAnno
     public Object my(@LoginUser Integer userId, @RequestParam(defaultValue = "0") Integer showType) {
         if (userId == null) {
             return ResponseUtil.unlogin();

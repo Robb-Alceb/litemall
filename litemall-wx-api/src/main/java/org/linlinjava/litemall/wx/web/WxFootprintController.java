@@ -9,6 +9,7 @@ import org.linlinjava.litemall.db.domain.LitemallFootprint;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.service.LitemallFootprintService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +43,7 @@ public class WxFootprintController {
      * @return 删除操作结果
      */
     @PostMapping("delete")
+    @LogAnno
     public Object delete(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -75,6 +77,7 @@ public class WxFootprintController {
      * @return 用户足迹列表
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@LoginUser Integer userId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit) {

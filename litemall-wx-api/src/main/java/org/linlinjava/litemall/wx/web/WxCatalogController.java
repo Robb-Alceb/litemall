@@ -5,15 +5,14 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
 import org.linlinjava.litemall.wx.vo.CategoryVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -117,6 +116,7 @@ public class WxCatalogController {
      * @return
      */
     @GetMapping("list")
+    @LogAnno
     public Object list() {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
@@ -149,6 +149,26 @@ public class WxCatalogController {
         return ResponseUtil.okList(categoryVoList);
     }
 
+    /**
+     * 所有分类数据
+     * @return
+     */
+    @GetMapping("list/{level}")
+    @LogAnno
+    public Object getListByLevel(@PathVariable String level) {
+        List<CategoryVo> categoryVoList = new ArrayList<>();
+        if(StringUtils.isEmpty(level)){
+            return ResponseUtil.okList(categoryVoList);
+        }
+        List<LitemallCategory> categoryList = categoryService.queryByLevel(level.toLowerCase());
+        for (LitemallCategory category : categoryList) {
+            CategoryVo categoryVO = getCategoryVo(category);
+            categoryVoList.add(categoryVO);
+        }
+
+        return ResponseUtil.okList(categoryVoList);
+    }
+
     private CategoryVo getCategoryVo(LitemallCategory litemallCategory) {
         CategoryVo categoryVoThree = new CategoryVo();
         categoryVoThree.setId(litemallCategory.getId());
@@ -168,6 +188,7 @@ public class WxCatalogController {
      * @return 当前分类栏目
      */
     @GetMapping("current")
+    @LogAnno
     public Object current(@NotNull Integer id) {
         // 当前分类
         LitemallCategory currentCategory = categoryService.findById(id);

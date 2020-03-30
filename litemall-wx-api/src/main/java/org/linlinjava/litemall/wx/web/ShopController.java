@@ -2,6 +2,7 @@ package org.linlinjava.litemall.wx.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.service.LitemallShopService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.service.WxShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -34,12 +35,14 @@ public class ShopController {
      * @return
      */
     @GetMapping("all")
+    @LogAnno
     public Object all(BigDecimal longitude, BigDecimal latitude, Integer type){
         return shopService.all(longitude, latitude, type);
     }
 
 
     @GetMapping("detail")
+    @LogAnno
     public Object detail(@NotNull Integer id){
         return ResponseUtil.ok(litemallShopService.findById(id));
     }

@@ -1,9 +1,9 @@
 package org.linlinjava.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
-import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallShopMapper;
 import org.linlinjava.litemall.db.domain.LitemallShop;
+import org.linlinjava.litemall.db.domain.LitemallShop.Column;
 import org.linlinjava.litemall.db.domain.LitemallShopExample;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,6 +14,7 @@ import java.util.List;
 
 @Service
 public class LitemallShopService {
+    private final Column[] idAndName = new Column[]{Column.id, Column.name, Column.types};
     @Resource
     private LitemallShopMapper litemallShopMapper;
 
@@ -65,5 +66,17 @@ public class LitemallShopService {
         LitemallShopExample example = new LitemallShopExample();
         example.or().andDeletedEqualTo(false);
         return litemallShopMapper.selectByExample(example);
+    }
+
+    public List<LitemallShop> getByIds(List<Integer> ids) {
+        LitemallShopExample example = new LitemallShopExample();
+        example.or().andIdIn(ids).andDeletedEqualTo(false);
+        return litemallShopMapper.selectByExampleSelective(example,idAndName);
+    }
+
+    public LitemallShop getInfoById(Integer id) {
+        LitemallShopExample example = new LitemallShopExample();
+        example.or().andIdEqualTo(id).andDeletedEqualTo(false);
+        return litemallShopMapper.selectOneByExampleSelective(example,idAndName);
     }
 }

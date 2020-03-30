@@ -22,5 +22,6 @@ public class GoodsVo {
     private String picUri;
     private BigDecimal retailPrice;
     private BigDecimal tax;
+    private Boolean userHasCollect;
 
 }

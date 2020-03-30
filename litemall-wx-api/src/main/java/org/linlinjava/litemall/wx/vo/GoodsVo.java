@@ -24,4 +24,5 @@ public class GoodsVo {
     private String picUri;
     private Integer categoryId;
     private String categoryName;
+    private Boolean userHasCollect;
 }

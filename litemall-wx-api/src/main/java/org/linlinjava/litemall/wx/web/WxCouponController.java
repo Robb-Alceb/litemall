@@ -12,6 +12,7 @@ import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.domain.LitemallGrouponRules;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponConstant;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.vo.CouponVo;
 import org.linlinjava.litemall.wx.util.WxResponseCode;
@@ -57,6 +58,7 @@ public class WxCouponController {
      * @return
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -78,6 +80,7 @@ public class WxCouponController {
      * @return
      */
     @GetMapping("mylist")
+    @LogAnno
     public Object mylist(@LoginUser Integer userId,
                        @NotNull @RequestParam(value = "status") Short status,
                        @RequestParam(defaultValue = "1") Integer page,
@@ -124,6 +127,7 @@ public class WxCouponController {
      * @return
      */
     @GetMapping("selectlist")
+    @LogAnno
     public Object selectlist(@LoginUser Integer userId, Integer cartId, Integer grouponRulesId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -182,6 +186,7 @@ public class WxCouponController {
      * @return 操作结果
      */
     @PostMapping("receive")
+    @LogAnno
     public Object receive(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -260,6 +265,7 @@ public class WxCouponController {
      * @return 操作结果
      */
     @PostMapping("exchange")
+    @LogAnno
     public Object exchange(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();

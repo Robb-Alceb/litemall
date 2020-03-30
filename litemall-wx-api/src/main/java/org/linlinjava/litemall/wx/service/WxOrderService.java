@@ -155,6 +155,12 @@ public class WxOrderService {
             orderVo.put("taxPrice", o.getTaxPrice());
             orderVo.put("orderStatus", o.getOrderStatus());
             orderVo.put("handleOption", OrderUtil.build(o));
+            orderVo.put("shop", shopService.getInfoById(o.getShopId()));
+            orderVo.put("message", o.getMessage());
+            orderVo.put("orderType",o.getOrderType());
+            orderVo.put("freightPrice",o.getFreightPrice());
+            orderVo.put("address", o.getAddress());
+
 
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
             if (groupon != null) {
@@ -172,6 +178,8 @@ public class WxOrderService {
                 orderGoodsVo.put("number", orderGoods.getNumber());
                 orderGoodsVo.put("picUrl", orderGoods.getPicUrl());
                 orderGoodsVo.put("specifications", orderGoods.getSpecifications());
+                orderGoodsVo.put("price",orderGoods.getPrice());
+                orderGoodsVo.put("tax",orderGoods.getTaxPrice());
                 orderGoodsVoList.add(orderGoodsVo);
             }
             orderVo.put("goodsList", orderGoodsVoList);
@@ -408,7 +416,7 @@ public class WxOrderService {
                 }
             }
 
-            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
+            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
         }
         checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
@@ -426,10 +434,10 @@ public class WxOrderService {
 
 
         // 根据订单商品总价计算运费，满足条件（例如88元）则免运费，否则需要支付运费（例如8元）；
-//        BigDecimal freightPrice = new BigDecimal(0.00);
-//        if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
-//            freightPrice = SystemConfig.getFreight();
-//        }
+        BigDecimal freightPrice = new BigDecimal(0.00);
+        if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
+            freightPrice = SystemConfig.getFreight();
+        }
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0.00);
@@ -439,7 +447,7 @@ public class WxOrderService {
         // 订单费用
         BigDecimal orderTotalPrice = checkedGoodsPrice.subtract(couponPrice).max(new BigDecimal(0.00));
         // 最终支付费用
-        BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
+        BigDecimal actualPrice = orderTotalPrice.add(freightPrice).subtract(integralPrice);
 
         Integer orderId = null;
         LitemallOrder order = null;

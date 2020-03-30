@@ -9,6 +9,7 @@ import org.linlinjava.litemall.db.service.LitemallCommentService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.service.LitemallTopicService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.linlinjava.litemall.wx.service.UserInfoService;
@@ -87,6 +88,7 @@ public class WxCommentController {
      * @return 发表评论操作结果
      */
     @PostMapping("post")
+    @LogAnno
     public Object post(@LoginUser Integer userId, @RequestBody LitemallComment comment) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -109,6 +111,7 @@ public class WxCommentController {
      * @return 评论数量
      */
     @GetMapping("count")
+    @LogAnno
     public Object count(@NotNull Byte type, @NotNull Integer valueId) {
         int allCount = commentService.count(type, valueId, 0);
         int hasPicCount = commentService.count(type, valueId, 1);
@@ -129,6 +132,7 @@ public class WxCommentController {
      * @return 评论列表
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@NotNull Byte type,
                        @NotNull Integer valueId,
                        @NotNull Integer showType,

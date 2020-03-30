@@ -15,6 +15,7 @@ import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.CouponAssignService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.linlinjava.litemall.wx.dto.UserToken;
@@ -64,6 +65,7 @@ public class WxAuthController {
      * @return 登录结果
      */
     @PostMapping("login")
+    @LogAnno
     public Object login(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -115,6 +117,7 @@ public class WxAuthController {
      * @return 登录结果
      */
     @PostMapping("login_by_weixin")
+    @LogAnno
     public Object loginByWeixin(@RequestBody WxLoginInfo wxLoginInfo, HttpServletRequest request) {
         String code = wxLoginInfo.getCode();
         UserInfo userInfo = wxLoginInfo.getUserInfo();
@@ -185,6 +188,7 @@ public class WxAuthController {
      * @return
      */
     @PostMapping("regCaptcha")
+    @LogAnno
     public Object registerCaptcha(@RequestBody String body) {
         String type = JacksonUtil.parseString(body, "type");
         String email = JacksonUtil.parseString(body, "email");
@@ -260,6 +264,7 @@ public class WxAuthController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("register")
+    @LogAnno
     public Object register(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -374,6 +379,7 @@ public class WxAuthController {
      * @return
      */
     @PostMapping("captcha")
+    @LogAnno
     public Object captcha(@LoginUser Integer userId, @RequestBody String body) {
         if(userId == null){
             return ResponseUtil.unlogin();
@@ -438,6 +444,7 @@ public class WxAuthController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("reset")
+    @LogAnno
     public Object reset(@RequestBody String body, HttpServletRequest request, @LoginUser Integer userId) {
         if(userId == null){
             return ResponseUtil.unlogin();
@@ -507,6 +514,7 @@ public class WxAuthController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("resetPhone")
+    @LogAnno
     public Object resetPhone(@LoginUser Integer userId, @RequestBody String body, HttpServletRequest request) {
         if(userId == null){
             return ResponseUtil.unlogin();
@@ -559,6 +567,7 @@ public class WxAuthController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("resetEmail")
+    @LogAnno
     public Object resetEmail(@LoginUser Integer userId, @RequestBody String body, HttpServletRequest request) {
         if(userId == null){
             return ResponseUtil.unlogin();
@@ -612,6 +621,7 @@ public class WxAuthController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("profile")
+    @LogAnno
     public Object profile(@LoginUser Integer userId, @RequestBody String body, HttpServletRequest request) {
         if(userId == null){
             return ResponseUtil.unlogin();
@@ -646,6 +656,7 @@ public class WxAuthController {
      * @return
      */
     @PostMapping("bindPhone")
+    @LogAnno
     public Object bindPhone(@LoginUser Integer userId, @RequestBody String body) {
     	if (userId == null) {
             return ResponseUtil.unlogin();
@@ -663,6 +674,7 @@ public class WxAuthController {
     }
 
     @PostMapping("logout")
+    @LogAnno
     public Object logout(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -671,6 +683,7 @@ public class WxAuthController {
     }
 
     @GetMapping("info")
+    @LogAnno
     public Object info(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -683,6 +696,9 @@ public class WxAuthController {
         data.put("gender", user.getGender());
         data.put("mobile", user.getMobile());
         data.put("email", user.getEmail());
+        data.put("userLevel", user.getUserLevel());
+        data.put("amount", user.getAvailableAmount());
+        data.put("points", user.getPoints());
 
         return ResponseUtil.ok(data);
     }

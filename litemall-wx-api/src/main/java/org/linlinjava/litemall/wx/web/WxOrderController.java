@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.WxOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class WxOrderController {
      * @return 取消订单操作结果
      */
     @PostMapping("cancel")
+    @LogAnno
     public Object cancel(@LoginUser Integer userId, @RequestBody String body) {
         return wxOrderService.cancel(userId, body);
     }
@@ -86,6 +88,7 @@ public class WxOrderController {
      * @return 支付订单ID
      */
     @PostMapping("prepay")
+    @LogAnno
     public Object prepay(@LoginUser Integer userId, @RequestBody String body, HttpServletRequest request) {
         return wxOrderService.prepay(userId, body, request);
     }
@@ -101,6 +104,7 @@ public class WxOrderController {
      * @return 操作结果
      */
     @PostMapping("pay-notify")
+    @LogAnno
     public Object payNotify(HttpServletRequest request, HttpServletResponse response) {
         return wxOrderService.payNotify(request, response);
     }
@@ -125,6 +129,7 @@ public class WxOrderController {
      * @return 订单操作结果
      */
     @PostMapping("confirm")
+    @LogAnno
     public Object confirm(@LoginUser Integer userId, @RequestBody String body) {
         return wxOrderService.confirm(userId, body);
     }
@@ -137,6 +142,7 @@ public class WxOrderController {
      * @return 订单操作结果
      */
     @PostMapping("delete")
+    @LogAnno
     public Object delete(@LoginUser Integer userId, @RequestBody String body) {
         return wxOrderService.delete(userId, body);
     }
@@ -150,6 +156,7 @@ public class WxOrderController {
      * @return 待评价订单商品信息
      */
     @GetMapping("goods")
+    @LogAnno
     public Object goods(@LoginUser Integer userId,
                         @NotNull Integer orderId,
                         @NotNull Integer goodsId) {
@@ -164,6 +171,7 @@ public class WxOrderController {
      * @return 订单操作结果
      */
     @PostMapping("comment")
+    @LogAnno
     public Object comment(@LoginUser Integer userId, @RequestBody String body) {
         return wxOrderService.comment(userId, body);
     }

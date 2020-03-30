@@ -4,6 +4,7 @@ import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.wx.util.URLUtils;
@@ -38,6 +39,7 @@ public class PaypalController {
 
 
     @GetMapping("/wx/paypal/pay")
+    @LogAnno
     public Object pay(HttpServletRequest request,@LoginUser Integer userId,@NotNull Integer orderId){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
@@ -59,11 +61,13 @@ public class PaypalController {
     }
 
     @GetMapping("/wx/paypal/cancel")
+    @LogAnno
     public Object cancelPay(){
         return ResponseUtil.ok("cancel") ;
     }
 
     @GetMapping("/wx/paypal/success")
+    @LogAnno
     public Object successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId){
         log.debug("paypal success");
         System.out.println("paypal success");
@@ -89,6 +93,7 @@ public class PaypalController {
      * @return
      */
     @GetMapping("/wx/paypal/recharge")
+    @LogAnno
     public Object recharge(HttpServletRequest request, @LoginUser Integer userId, BigDecimal amount){
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_RECHARGE_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_RECHARGE_SUCCESS_URL;

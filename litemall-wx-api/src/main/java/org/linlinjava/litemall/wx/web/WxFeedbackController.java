@@ -9,6 +9,7 @@ import org.linlinjava.litemall.db.domain.LitemallFeedback;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallFeedbackService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -69,6 +70,7 @@ public class WxFeedbackController {
      * @return 操作结果
      */
     @PostMapping("submit")
+    @LogAnno
     public Object submit(@LoginUser Integer userId, @RequestBody LitemallFeedback feedback) {
         if (userId == null) {
             return ResponseUtil.unlogin();

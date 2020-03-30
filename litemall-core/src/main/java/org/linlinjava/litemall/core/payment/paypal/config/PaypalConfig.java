@@ -3,6 +3,7 @@ package org.linlinjava.litemall.core.payment.paypal.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.el.parser.BooleanNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,8 @@ public class PaypalConfig {
     private String clientSecret;
     @Value("${litemall.paypal.mode}")
     private String mode;
+    @Value("${litemall.paypal.active}")
+    private Boolean active;
 
     @Bean
     public Map<String, String> paypalSdkConfig(){
@@ -41,6 +44,9 @@ public class PaypalConfig {
 
     @Bean
     public APIContext apiContext() throws PayPalRESTException{
+        if(!active){
+            return new APIContext();
+        }
         APIContext apiContext = new APIContext(authTokenCredential().getAccessToken());
         apiContext.setConfigurationMap(paypalSdkConfig());
         return apiContext;

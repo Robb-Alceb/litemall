@@ -9,6 +9,7 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.GOODS_NO_STOCK;
 import static org.linlinjava.litemall.wx.util.WxResponseCode.GOODS_UNSHELVE;
@@ -47,6 +49,8 @@ public class WxCartController {
     private LitemallGoodsSpecificationService specificationService;
     @Autowired
     private CouponVerifyService couponVerifyService;
+    @Autowired
+    private LitemallShopService litemallShopService;
 
 
     /**
@@ -56,6 +60,7 @@ public class WxCartController {
      * @return 用户购物车信息
      */
     @GetMapping("index")
+    @LogAnno
     public Object index(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -67,6 +72,10 @@ public class WxCartController {
         Integer checkedGoodsCount = 0;
         BigDecimal checkedGoodsAmount = new BigDecimal(0.00);
         for (LitemallCart cart : cartList) {
+            LitemallShop shop = litemallShopService.findById(cart.getShopId());
+            if(shop != null){
+                cart.setShopName(shop.getName());
+            }
             goodsCount += cart.getNumber();
             goodsAmount = goodsAmount.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
             if (cart.getChecked()) {
@@ -98,6 +107,7 @@ public class WxCartController {
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
+    @LogAnno
     public Object add(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -181,6 +191,7 @@ public class WxCartController {
      * @return 立即购买操作结果
      */
     @PostMapping("fastadd")
+    @LogAnno
     public Object fastadd(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -261,6 +272,7 @@ public class WxCartController {
      * @return 修改结果
      */
     @PostMapping("update")
+    @LogAnno
     public Object update(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -323,6 +335,7 @@ public class WxCartController {
      * @return 购物车信息
      */
     @PostMapping("checked")
+    @LogAnno
     public Object checked(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -361,6 +374,7 @@ public class WxCartController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("delete")
+    @LogAnno
     public Object delete(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -388,6 +402,7 @@ public class WxCartController {
      * @return 购物车商品货品数量
      */
     @GetMapping("goodscount")
+    @LogAnno
     public Object goodscount(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.ok(0);
@@ -416,6 +431,7 @@ public class WxCartController {
      * @return 购物车操作结果
      */
     @GetMapping("checkout")
+    @LogAnno
     public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer grouponRulesId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -443,9 +459,9 @@ public class WxCartController {
             }
         }
 
-        // 团购优惠
+/*        // 团购优惠
         BigDecimal grouponPrice = new BigDecimal(0.00);
-/*        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
+        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
         if (grouponRules != null) {
             grouponPrice = grouponRules.getDiscount();
         }*/
@@ -462,15 +478,99 @@ public class WxCartController {
             checkedGoodsList = new ArrayList<>(1);
             checkedGoodsList.add(cart);
         }
-        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
-/*        for (LitemallCart cart : checkedGoodsList) {
-            //  只有当团购规格商品ID符合才进行团购优惠
-            if (grouponRules != null && grouponRules.getGoodsId().equals(cart.getGoodsId())) {
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().subtract(grouponPrice).multiply(new BigDecimal(cart.getNumber())));
-            } else {
+
+        Map<String,Object> rtn = new HashMap<>();
+        List<Map<String,Object>> list = new ArrayList<>();
+        List<Integer> shopIds = checkedGoodsList.stream().map(LitemallCart::getShopId).collect(Collectors.toList());
+        List<LitemallShop> shops = litemallShopService.getByIds(shopIds);
+        //按门店分组
+        Map<LitemallShop, List<LitemallCart>> groupShop = checkedGoodsList.stream().collect(Collectors
+                .groupingBy(cart -> {
+                    return shops.stream().filter(shop -> {
+                        return shop.getId() == cart.getShopId();
+                    }).findFirst().get();
+                }, Collectors.toList()));
+        //获取所有订单总价、税收总价
+
+        BigDecimal totalPrice = new BigDecimal(0.00);
+        BigDecimal totalTaxPrice = new BigDecimal(0.00);
+
+        Set<Map.Entry<LitemallShop, List<LitemallCart>>> entries = groupShop.entrySet();
+        Iterator<Map.Entry<LitemallShop, List<LitemallCart>>> iterator = entries.iterator();
+        while(iterator.hasNext()){
+            Map.Entry<LitemallShop, List<LitemallCart>> i = iterator.next();
+            LitemallShop shop = i.getKey();
+            List<LitemallCart> carts = i.getValue();
+            BigDecimal taxPrice = new BigDecimal(0.00);
+            BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+            // 计算优惠券可用情况
+            int tmpCouponLength = 0;
+            M:for (LitemallCart cart : carts) {
                 checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
+                taxPrice = taxPrice.add(cart.getTaxPrice().multiply(new BigDecimal(cart.getNumber())));
+                BigDecimal tmpCouponPrice = new BigDecimal(0.00);
+                Integer tmpCouponId = 0;
+                List<LitemallCouponUser> couponUserList = couponUserService.queryAll(userId);
+                for(LitemallCouponUser couponUser : couponUserList){
+                    LitemallCoupon coupon = couponVerifyService.checkCouponGoods(userId, couponUser.getCouponId(), checkedGoodsPrice, cart.getGoodsId());
+                    if(coupon == null){
+                        continue M;
+                    }
+
+                    tmpCouponLength++;
+                    if(tmpCouponPrice.compareTo(coupon.getDiscount()) == -1){
+                        tmpCouponPrice = coupon.getDiscount();
+                        tmpCouponId = coupon.getId();
+                    }
+                }
             }
-        }*/
+
+
+            // 获取优惠券减免金额，优惠券可用数量
+            int availableCouponLength = tmpCouponLength;
+
+            // 根据订单商品总价计算运费，满88则免运费，否则8元；
+            BigDecimal freightPrice = new BigDecimal(0.00);
+            if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
+                freightPrice = SystemConfig.getFreight();
+            }
+
+            // 订单费用
+            BigDecimal orderTotalPrice = checkedGoodsPrice.max(new BigDecimal(0.00)).add(taxPrice).add(freightPrice);
+
+            BigDecimal actualPrice = orderTotalPrice;
+            //添加到总价
+            totalPrice = totalPrice.add(actualPrice);
+            totalTaxPrice = totalTaxPrice.add(taxPrice);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("availableCouponLength", availableCouponLength);
+            data.put("shopGoodsTotalPrice", checkedGoodsPrice);
+            data.put("shopOrderTotalPrice", orderTotalPrice);
+            data.put("shopActualPrice", actualPrice);
+            data.put("shopCheckedGoodsList", checkedGoodsList);
+            data.put("shopTaxTotalPrice",taxPrice);
+            data.put("shopFreightPrice", freightPrice);
+            data.put("shopCouponPrice", 0.00);
+            data.put("shop", shop);
+
+            list.add(data);
+        }
+
+        rtn.put("checkedAddress", checkedAddress);
+        rtn.put("orderTotalPrice",totalPrice);
+        rtn.put("taxTotalPrice",totalTaxPrice);
+        rtn.put("list",list);
+
+        return ResponseUtil.ok(rtn);
+
+
+        /*BigDecimal taxPrice = new BigDecimal(0.00);
+        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        for (LitemallCart cart : checkedGoodsList) {
+            checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
+            taxPrice = taxPrice.add(cart.getTaxPrice().multiply(new BigDecimal(cart.getNumber())));
+        }
 
         // 计算优惠券可用情况
         BigDecimal tmpCouponPrice = new BigDecimal(0.00);
@@ -525,7 +625,7 @@ public class WxCartController {
         BigDecimal integralPrice = new BigDecimal(0.00);
 
         // 订单费用
-        BigDecimal orderTotalPrice = checkedGoodsPrice.add(freightPrice).subtract(couponPrice).max(new BigDecimal(0.00));
+        BigDecimal orderTotalPrice = checkedGoodsPrice.add(freightPrice).subtract(couponPrice).max(new BigDecimal(0.00)).add(taxPrice);
 
         BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
 
@@ -533,8 +633,6 @@ public class WxCartController {
         data.put("addressId", addressId);
         data.put("couponId", couponId);
         data.put("cartId", cartId);
-        data.put("grouponRulesId", grouponRulesId);
-        data.put("grouponPrice", grouponPrice);
         data.put("checkedAddress", checkedAddress);
         data.put("availableCouponLength", availableCouponLength);
         data.put("goodsTotalPrice", checkedGoodsPrice);
@@ -543,6 +641,7 @@ public class WxCartController {
         data.put("orderTotalPrice", orderTotalPrice);
         data.put("actualPrice", actualPrice);
         data.put("checkedGoodsList", checkedGoodsList);
-        return ResponseUtil.ok(data);
+        data.put("taxTotalPrice",taxPrice);
+        return ResponseUtil.ok(data);*/
     }
 }

@@ -7,6 +7,7 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallCategory;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
 import org.linlinjava.litemall.wx.service.WxGrouponRuleService;
@@ -60,6 +61,7 @@ public class WxHomeController {
     private static ThreadPoolExecutor executorService = new ThreadPoolExecutor(9, 9, 1000, TimeUnit.MILLISECONDS, WORK_QUEUE, HANDLER);
 
     @GetMapping("/cache")
+    @LogAnno
     public Object cache(@NotNull String key) {
         if (!key.equals("litemall_cache")) {
             return ResponseUtil.fail();
@@ -76,6 +78,7 @@ public class WxHomeController {
      * @return 首页数据
      */
     @GetMapping("/index")
+    @LogAnno
     public Object index(@LoginUser Integer userId) {
         //优先从缓存中读取
         if (HomeCacheManager.hasData(HomeCacheManager.INDEX)) {

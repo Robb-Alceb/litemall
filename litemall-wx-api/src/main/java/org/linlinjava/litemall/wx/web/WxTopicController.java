@@ -9,6 +9,7 @@ import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallTopic;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
 import org.linlinjava.litemall.db.service.LitemallTopicService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class WxTopicController {
      * @return 专题列表
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
@@ -59,6 +61,7 @@ public class WxTopicController {
      * @return 专题详情
      */
     @GetMapping("detail")
+    @LogAnno
     public Object detail(@NotNull Integer id) {
         LitemallTopic topic = topicService.findById(id);
         List<LitemallGoods> goods = new ArrayList<>();
@@ -81,6 +84,7 @@ public class WxTopicController {
      * @return 相关专题
      */
     @GetMapping("related")
+    @LogAnno
     public Object related(@NotNull Integer id) {
         List<LitemallTopic> topicRelatedList = topicService.queryRelatedList(id, 0, 4);
         return ResponseUtil.okList(topicRelatedList);

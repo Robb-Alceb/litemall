@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.domain.LitemallUserFormid;
 import org.linlinjava.litemall.db.service.LitemallUserFormIdService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +31,7 @@ public class WxUserFormId {
     private LitemallUserFormIdService formIdService;
 
     @GetMapping("create")
+    @LogAnno
     public Object create(@LoginUser Integer userId, @NotNull String formId) {
         if (userId == null) {
             return ResponseUtil.unlogin();

@@ -483,9 +483,9 @@ public class AdminGoodsService {
      * @param order
      * @return
      */
-    public Object queryGoodsLogList(Integer goodsId, String goodsSn, String userName, String content, Integer page,
+    public Object queryGoodsLogList(Integer goodsId, String goodsName, String goodsSn, String userName, String content, Integer page,
                                     Integer limit, String sort, String order){
-        return ResponseUtil.okList(goodsLogService.querySelective(goodsId, goodsSn, userName, content, page, limit, sort, order));
+        return ResponseUtil.okList(goodsLogService.querySelective(goodsId, goodsName, goodsSn, userName, content, page, limit, sort, order));
     }
 
     /**

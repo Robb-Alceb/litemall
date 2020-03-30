@@ -10,6 +10,7 @@ import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,7 @@ public class WxGoodsController {
 	 * @return 商品详情
 	 */
 	@GetMapping("detail")
+	@LogAnno
 	public Object detail(@LoginUser Integer userId, @NotNull Integer id) {
 		// 商品信息
 		LitemallGoods info = goodsService.findById(id);
@@ -222,6 +224,7 @@ public class WxGoodsController {
 	 * @return 商品分类类目
 	 */
 	@GetMapping("category")
+	@LogAnno
 	public Object category(@NotNull Integer id) {
 		LitemallCategory cur = categoryService.findById(id);
 		LitemallCategory parent = null;
@@ -261,6 +264,7 @@ public class WxGoodsController {
 	 * @return 根据条件搜素的商品详情
 	 */
 	@GetMapping("list")
+	@LogAnno
 	public Object list(
 		@NotNull Integer shopId,
 		Integer categoryId,
@@ -295,6 +299,15 @@ public class WxGoodsController {
 			vo.setIsNew(goods.getIsNew());
 			vo.setPicUri(goods.getPicUrl());
 			vo.setCategoryId(goods.getCategoryId());
+
+			// 用户收藏
+			int userHasCollect = 0;
+			if (userId != null) {
+				userHasCollect = collectService.count(userId, goods.getId());
+				vo.setUserHasCollect(userHasCollect > 0);
+			}else{
+				vo.setUserHasCollect(false);
+			}
 			LitemallCategory byId = categoryService.findById(goods.getCategoryId());
 			if(byId != null){
 				vo.setCategoryName(byId.getName());
@@ -349,6 +362,7 @@ public class WxGoodsController {
 	 * @return 商品详情页面推荐商品
 	 */
 	@GetMapping("related")
+	@LogAnno
 	public Object related(@NotNull Integer id) {
 		LitemallGoods goods = goodsService.findById(id);
 		if (goods == null) {
@@ -370,6 +384,7 @@ public class WxGoodsController {
 	 * @return 在售的商品总数
 	 */
 	@GetMapping("count")
+	@LogAnno
 	public Object count(@NotNull Integer shopId) {
 		Integer goodsCount = goodsService.queryOnSaleByShop(shopId);
 		return ResponseUtil.ok(goodsCount);

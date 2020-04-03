@@ -48,4 +48,13 @@ public class WxResponseCode {
     public static final int SHOP_CLOSED = 750;
     //不支持服务（配送，自提）
     public static final int SHOP_UNSUPPOT = 751;
+
+    //不存在该礼物卡
+    public static final Integer CARD_INVALID = 760;
+    //你以拥有该类型的卡
+    public static final Integer CARD_HAS = 761;
+
+    public static final int GIFT_CARD_SHARE_NOT_EXIST = 762;//分享不存在
+    public static final int GIFT_CARD_SHARE_PICKED = 763;   //礼物卡被领取
+    public static final int GIFT_CARD_SHARE_NOT_AUTH = 764;//无法取消分享
 }

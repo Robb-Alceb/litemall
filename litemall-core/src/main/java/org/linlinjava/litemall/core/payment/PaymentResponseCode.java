@@ -42,4 +42,5 @@ public class PaymentResponseCode {
 
 
     public static final int PAYMENT_FAIL= 750;
+
 }

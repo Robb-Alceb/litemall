@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.wx.annotation.support;
 
+import org.apache.commons.lang3.StringUtils;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.UserTokenManager;
 import org.springframework.core.MethodParameter;
@@ -22,7 +23,7 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
                                   NativeWebRequest request, WebDataBinderFactory factory) throws Exception {
 
 //        return new Integer(1);
-        String token = request.getHeader(LOGIN_TOKEN_KEY);
+        String token = StringUtils.isNotBlank(request.getHeader(LOGIN_TOKEN_KEY))?request.getHeader(LOGIN_TOKEN_KEY):request.getParameter(LOGIN_TOKEN_KEY);
         if (token == null || token.isEmpty()) {
             return null;
         }

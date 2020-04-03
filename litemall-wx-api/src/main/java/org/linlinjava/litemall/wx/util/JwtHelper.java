@@ -25,7 +25,7 @@ public class JwtHelper {
 	static final String AUDIENCE = "MINIAPP";
 	
 	
-	public String createToken(Integer userId){
+	public static String createToken(Integer userId){
 		try {
 		    Algorithm algorithm = Algorithm.HMAC256(SECRET);
 		    Map<String, Object> map = new HashMap<String, Object>();
@@ -55,7 +55,7 @@ public class JwtHelper {
 		return null;
 	}
 	
-	public Integer verifyTokenAndGetUserId(String token) {
+	public static Integer verifyTokenAndGetUserId(String token) {
 		try {
 		    Algorithm algorithm = Algorithm.HMAC256(SECRET);
 		    JWTVerifier verifier = JWT.require(algorithm)
@@ -72,7 +72,7 @@ public class JwtHelper {
 		return 0;
 	}
 	
-	public  Date getAfterDate(Date date, int year, int month, int day, int hour, int minute, int second){
+	public static  Date getAfterDate(Date date, int year, int month, int day, int hour, int minute, int second){
 		if(date == null){
 			date = new Date();
 		}

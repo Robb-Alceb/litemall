@@ -6,7 +6,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
-import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
+import org.linlinjava.litemall.core.payment.paypal.service.impl.GoodsPaypalServiceImpl;
 import org.linlinjava.litemall.wx.util.URLUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,7 +35,7 @@ public class PaypalController {
     private Log log = LogFactory.getLog(PaypalController.class);
 
     @Autowired
-    private PaypalService paypalService;
+    private GoodsPaypalServiceImpl paypalService;
 
 
     @GetMapping("/wx/paypal/pay")
@@ -44,6 +44,10 @@ public class PaypalController {
         String cancelUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_CANCEL_URL;
         String successUrl = URLUtils.getBaseURl(request) + "/" + PAYPAL_SUCCESS_URL;
 //        successUrl = "http://192.168.0.101:8080/"+PAYPAL_CANCEL_URL;
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+
         Object obj =  paypalService.getPayment(userId, orderId, successUrl, cancelUrl);
         if(!(obj instanceof Payment)){
             return obj;

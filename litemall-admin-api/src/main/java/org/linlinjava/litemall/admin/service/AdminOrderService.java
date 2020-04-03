@@ -14,7 +14,7 @@ import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderVo;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
-import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
+import org.linlinjava.litemall.core.payment.paypal.service.impl.GoodsPaypalServiceImpl;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -29,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,7 +60,7 @@ public class AdminOrderService {
     @Autowired
     private LitemallAdminOrderService adminOrderService;
     @Autowired
-    private PaypalService paypalService;
+    private GoodsPaypalServiceImpl paypalService;
     @Autowired
     private LitemallCategoryService categoryService;
     @Autowired
@@ -160,7 +159,7 @@ public class AdminOrderService {
         wxPayRefundRequest.setRefundFee(totalFee);*/
 
         if(order.getPayType() == Constants.PAY_TYPE_PAYPAL.byteValue()){
-            if(!paypalService.refund(order)){
+            if(!paypalService.refund(order.getId())){
                 return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
             };
         }

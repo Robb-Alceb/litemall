@@ -5,6 +5,8 @@ import org.linlinjava.litemall.db.dao.LitemallGoodsMapper;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallGoods.Column;
 import org.linlinjava.litemall.db.domain.LitemallGoodsExample;
+import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +22,10 @@ public class LitemallGoodsService {
     @Resource
     private LitemallGoodsMapper goodsMapper;
 
+    @Autowired
+    private LitemallGoodsProductService goodsProductService;
+
+
     /**
      * 获取热卖商品
      *
@@ -32,8 +38,14 @@ public class LitemallGoodsService {
         example.or().andIsHotEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
-
-        return goodsMapper.selectByExampleSelective(example, columns);
+        List<LitemallGoods> litemallGoods = goodsMapper.selectByExampleSelective(example, columns);
+        for(LitemallGoods goods : litemallGoods){
+            List<LitemallGoodsProduct> litemallGoodsProducts = goodsProductService.queryByGid(goods.getId());
+            if(litemallGoodsProducts.size() > 0){
+                goods.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
+            }
+        }
+        return litemallGoods;
     }
 
     /**
@@ -48,8 +60,14 @@ public class LitemallGoodsService {
         example.or().andIsNewEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
-
-        return goodsMapper.selectByExampleSelective(example, columns);
+        List<LitemallGoods> litemallGoods = goodsMapper.selectByExampleSelective(example, columns);
+        for(LitemallGoods goods : litemallGoods){
+            List<LitemallGoodsProduct> litemallGoodsProducts = goodsProductService.queryByGid(goods.getId());
+            if(litemallGoodsProducts.size() > 0){
+                goods.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
+            }
+        }
+        return litemallGoods;
     }
 
     /**

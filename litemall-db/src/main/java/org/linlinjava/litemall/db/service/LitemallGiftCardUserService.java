@@ -58,4 +58,29 @@ public class LitemallGiftCardUserService {
         PageHelper.startPage(page, size);
         return litemallGiftCardUserMapper.selectByExample(example);
     }
+
+    public LitemallGiftCardUser findByNumber(String cardNumber) {
+        LitemallGiftCardUserExample example = new LitemallGiftCardUserExample();
+        example.or().andCardNumberEqualTo(cardNumber);
+        return litemallGiftCardUserMapper.selectOneByExample(example);
+    }
+
+    public int updateById(LitemallGiftCardUser giftCard) {
+        return litemallGiftCardUserMapper.updateByPrimaryKeySelective(giftCard);
+    }
+
+
+    public int updateWithOptimisticLocker(LitemallGiftCardUser giftCard) {
+        LitemallGiftCardUserExample example = new LitemallGiftCardUserExample();
+        example.or().andIdEqualTo(giftCard.getId()).andUpdateTimeEqualTo(giftCard.getUpdateTime());
+        giftCard.setUpdateTime(LocalDateTime.now());
+        return litemallGiftCardUserMapper.updateByExampleSelective(giftCard,example);
+    }
+
+    public long countByCardId(Integer cardId, Integer userId) {
+        LitemallGiftCardUserExample example = new LitemallGiftCardUserExample();
+        example.or().andGiftCardIdEqualTo(cardId).andUserIdEqualTo(userId).andDeletedEqualTo(false);
+        return litemallGiftCardUserMapper.countByExample(example);
+    }
+
 }

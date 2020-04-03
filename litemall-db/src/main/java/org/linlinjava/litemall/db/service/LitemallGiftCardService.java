@@ -58,4 +58,18 @@ public class LitemallGiftCardService {
         giftCard.setUpdateTime(LocalDateTime.now());
         litemallGiftCardMapper.updateByPrimaryKeySelective(giftCard);
     }
+
+    public List<LitemallGiftCard> all() {
+        LitemallGiftCardExample example = new LitemallGiftCardExample();
+        LitemallGiftCardExample.Criteria criteria = example.createCriteria();
+        criteria.andDeletedEqualTo(false);
+        return litemallGiftCardMapper.selectByExample(example);
+    }
+
+    public List<LitemallGiftCard> getByCategoryIds(Integer[] categoryIds) {
+        LitemallGiftCardExample example = new LitemallGiftCardExample();
+        LitemallGiftCardExample.Criteria criteria = example.createCriteria();
+        criteria.andDeletedEqualTo(false).andCategoryIdsEqualTo(categoryIds);
+        return litemallGiftCardMapper.selectByExample(example);
+    }
 }

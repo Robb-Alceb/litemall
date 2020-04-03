@@ -120,4 +120,29 @@ public class Constants {
      */
     public static final Byte REGION_TYPE_COUNTRY = 1;  //国家
     public static final Byte REGION_TYPE_PROVINCE = 2;  //省份
+
+    /**
+     *  礼物卡类型
+     */
+    public static final Byte GIFTCARD_TYPE_COMMON = 1;  //不限
+    public static final Byte GIFTCARD_TYPE_CATEGORY = 2;  //指定类目
+
+
+    /**
+     *  支付状态
+     */
+    public static final Byte PAY_STATUS_DOING= 1;  //进行中
+    public static final Byte PAY_STATUS_DONE = 2;  //已完成
+    public static final Byte PAY_STATUS_REFUSE = 3;  //已退款
+
+
+    /**
+     *  礼物卡日志操作类型
+     */
+    public static final Byte LOG_GIFTCARD_RECHARGE= 1;  //充值
+    public static final Byte LOG_GIFTCARD_CONSUME = 2;  //消费
+    public static final Byte LOG_GIFTCARD_SHARE = 3;  //赠送
+    public static final Byte LOG_GIFTCARD_PICK = 4;  //领取
+    public static final Byte LOG_GIFTCARD_DESTORY = 5;  //销毁
+
 }

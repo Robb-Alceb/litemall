@@ -113,6 +113,11 @@ public class ResponseUtil {
         return fail(401, "参数不对");
     }
 
+
+    public static Object badArgument(Integer code , String msg) {
+        return fail(code, msg);
+    }
+
     public static Object badArgumentValue() {
         return fail(402, "参数值不对");
     }

@@ -168,7 +168,7 @@ public class ShopService {
                      * 添加当前用户为店长
                      */
                     if(shop.getShopkeeperId() == admin.getId()){
-                        setShopRole(admin, shop.getShopkeeperId(), shop.getLitemallShop().getId());
+                        setShopRole(admin, Constants.SHOPKEEPER_ROLE_ID, shop.getLitemallShop().getId());
                         //保存日志
                         saveShopLog(Constants.ADD_SHOPKEEPER+admin.getUsername(), shop.getLitemallShop());
                     }
@@ -184,7 +184,7 @@ public class ShopService {
                      * 添加当前用户为门店经理
                      */
                     if(shop.getShopManagerId() == admin.getId()){
-                        setShopRole(admin, shop.getShopManagerId(), shop.getLitemallShop().getId());
+                        setShopRole(admin, Constants.SHOP_MANAGER_ROLE_ID, shop.getLitemallShop().getId());
                         //保存日志
                         saveShopLog(Constants.ADD_MANAGER+admin.getUsername(), shop.getLitemallShop());
                     }

@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.wx.vo;
 
 import lombok.Data;
+import org.linlinjava.litemall.db.domain.LitemallGiftCardShare;
 
 import java.math.BigDecimal;
 
@@ -11,8 +12,10 @@ import java.math.BigDecimal;
  */
 @Data
 public class MyCardVo {
+    private Integer id;
     private BigDecimal amount;
     private String cardNumber;
-    private String cardName;
+    private String name;
     private String picUrl;
+    private LitemallGiftCardShare shareDetail;
 }

@@ -52,4 +52,10 @@ public class LitemallGiftCardShareService {
         example.or().andUserIdEqualTo(userId);
         return litemallGiftCardShareMapper.selectByExample(example);
     }
+
+    public LitemallGiftCardShare findByCardNumber(String cardNumber) {
+        LitemallGiftCardShareExample example = new LitemallGiftCardShareExample();
+        example.or().andCardNumberEqualTo(cardNumber).andDeletedEqualTo(false);
+        return litemallGiftCardShareMapper.selectOneByExample(example);
+    }
 }

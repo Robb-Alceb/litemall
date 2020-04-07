@@ -57,4 +57,6 @@ public class WxResponseCode {
     public static final int GIFT_CARD_SHARE_NOT_EXIST = 762;//分享不存在
     public static final int GIFT_CARD_SHARE_PICKED = 763;   //礼物卡被领取
     public static final int GIFT_CARD_SHARE_NOT_AUTH = 764;//无法取消分享
+
+
 }

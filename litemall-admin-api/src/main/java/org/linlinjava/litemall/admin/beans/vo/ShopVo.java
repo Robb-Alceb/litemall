@@ -26,6 +26,8 @@ public class ShopVo {
     private Integer shopkeeperId;
     private Integer shopManagerId;
     private Integer id;
+    private Double longitude;
+    private Double latitude;
     private List<LitemallShopRegion> regions;
 
 }

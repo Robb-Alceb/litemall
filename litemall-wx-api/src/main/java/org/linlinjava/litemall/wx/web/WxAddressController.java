@@ -116,6 +116,10 @@ public class WxAddressController extends GetRegionService {
 		if (isDefault == null) {
 			return ResponseUtil.badArgument();
 		}
+
+		if(address.getLatitude() == null || address.getLongitude() == null){
+			return ResponseUtil.badArgument();
+		}
 		return null;
 	}
 

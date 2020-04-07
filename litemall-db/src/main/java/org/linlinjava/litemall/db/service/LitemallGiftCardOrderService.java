@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallGiftCardMapper;
 import org.linlinjava.litemall.db.dao.LitemallGiftCardOrderMapper;
 import org.linlinjava.litemall.db.domain.LitemallGiftCard;
@@ -60,5 +61,13 @@ public class LitemallGiftCardOrderService {
         example.or().andIdEqualTo(order.getId()).andUpdateTimeEqualTo(order.getUpdateTime());
         update.setUpdateTime(LocalDateTime.now());
         return litemallGiftCardOrderMapper.updateByExampleSelective(update,example);
+    }
+
+    public List<LitemallGiftCardOrder> getUnpaidOrder(Integer minutes) {
+        LitemallGiftCardOrderExample example = new LitemallGiftCardOrderExample();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expired = now.minusMinutes(minutes);
+        example.or().andPayStatusEqualTo(Constants.PAY_STATUS_AUTO_CANCEL).andUpdateTimeLessThan(expired).andDeletedEqualTo(false);
+        return litemallGiftCardOrderMapper.selectByExample(example);
     }
 }

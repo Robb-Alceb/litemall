@@ -110,7 +110,7 @@ public class WxGiftCardService {
             boolean anyMath = false;
             for(GiftCardVo item: vos){
                 if(item.getTypeAndName().getType() == vo.getTypeAndName().getType()){
-                    item.setNumber(vo.getNumber());
+                    item.setNumber(vo.getNumber()+(item.getNumber()==null?0:item.getNumber()));
                     item.getCards().addAll(vo.getCards());
                     anyMath = true;
                 }
@@ -312,9 +312,12 @@ public class WxGiftCardService {
             LitemallGiftCard giftCard = litemallGiftCardService.findById(item.getGiftCardId());
             MyCardVo vo = new MyCardVo();
             vo.setAmount(item.getAmount());
-            vo.setCardName(giftCard.getName());
+            vo.setName(giftCard.getName());
             vo.setCardNumber(item.getCardNumber());
             vo.setPicUrl(giftCard.getPicUrl());
+            vo.setId(giftCard.getId());
+            vo.setShareDetail(litemallGiftCardShareService.findByCardNumber(item.getCardNumber()));
+
             cards.add(vo);
         }
         return ResponseUtil.ok(cards);
@@ -327,6 +330,9 @@ public class WxGiftCardService {
      */
     @Transactional
     public void createOrUpdateCard(Integer userId, String paymentId) {
+/*        if(true){
+            throw new RuntimeException("异常");
+        }*/
         LitemallGiftCardOrder order = litemallGiftCardOrderService.findByOutTradeNo(paymentId);
         //添加卡
         if(StringUtils.isEmpty(order.getCardNumber())){

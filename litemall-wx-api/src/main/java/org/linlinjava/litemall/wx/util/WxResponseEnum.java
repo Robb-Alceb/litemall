@@ -48,6 +48,14 @@ public enum WxResponseEnum {
     CARD_HAS(761,""),
     GIFT_CARD_SHARE_NOT_EXIST(762,""),
     GIFT_CARD_SHARE_PICKED(763,""),
+
+
+
+    BAD_ARGUMENT_ORDERID(401001,"orderId为空"),
+    BAD_ARGUMENT_CARDID(401002,"cardId为空"),
+    IS_NULL_CARD(701001,"card不存在"),
+    NOT_ENOUGH_AMOUNT(101001,"余额不足"),
+
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 
     private Integer code;

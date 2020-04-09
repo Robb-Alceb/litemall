@@ -12,6 +12,7 @@ import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderVo;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.impl.GoodsPaypalServiceImpl;
@@ -71,6 +72,8 @@ public class AdminOrderService {
     private LitemallOrderRecordService orderRecordService;
     @Autowired
     private LitemallSystemConfigService systemConfigService;
+    @Autowired
+    private NoticeHelper noticeHelper;
 
     /**
      * 订单列表
@@ -203,6 +206,8 @@ public class AdminOrderService {
                 new String[]{order.getOrderSn().substring(8, 14)});
 
         logHelper.logOrderSucceed("退款", "订单编号 " + orderId);
+        //消息推送和保存
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, "订单编号 "+order.getOrderSn()+"退款", order.getUserId());
         return ResponseUtil.ok();
     }
 
@@ -248,6 +253,8 @@ public class AdminOrderService {
         notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
 
         logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
+        //消息推送和保存
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, "订单编号 "+order.getOrderSn()+"发货", order.getUserId());
         return ResponseUtil.ok();
     }
 
@@ -326,6 +333,7 @@ public class AdminOrderService {
         record.setUserId(admin.getId());
         record.setUserName(admin.getUsername());
         orderRecordService.add(record);
+
 
         return ResponseUtil.ok();
     }

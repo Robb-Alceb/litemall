@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import org.linlinjava.litemall.db.dao.LitemallMessageMapper;
 import org.linlinjava.litemall.db.domain.LitemallMessage;
 import org.linlinjava.litemall.db.domain.LitemallMessageExample;
+import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,7 +46,7 @@ public class LitemallMessageService {
         LitemallMessage litemallMessage = new LitemallMessage();
         litemallMessage.setId(messageId);
         litemallMessage.setDeleted(true);
-        litemallMessageMapper.updateByExample(litemallMessage, messageExample);
+        litemallMessageMapper.updateByExampleSelective(litemallMessage, messageExample);
     }
 
     public int create(LitemallMessage litemallMessage){
@@ -54,4 +55,9 @@ public class LitemallMessageService {
     }
 
 
+    public List<LitemallMessage> queryAll() {
+        LitemallMessageExample messageExample = new LitemallMessageExample();
+        messageExample.or().andDeletedEqualTo(false);
+        return litemallMessageMapper.selectByExampleWithBLOBs(messageExample);
+    }
 }

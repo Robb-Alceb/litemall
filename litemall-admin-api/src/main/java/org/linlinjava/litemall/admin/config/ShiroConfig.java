@@ -9,6 +9,7 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.linlinjava.litemall.admin.shiro.AdminAuthorizingRealm;
 import org.linlinjava.litemall.admin.shiro.AdminWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -21,7 +22,13 @@ public class ShiroConfig {
 
     @Bean
     public Realm realm() {
-        return new AdminAuthorizingRealm();
+        AdminAuthorizingRealm adminAuthorizingRealm = new AdminAuthorizingRealm();
+        adminAuthorizingRealm.setCachingEnabled(true);
+        //只缓存 登陆的token
+        adminAuthorizingRealm.setAuthenticationCachingEnabled(true);
+        //不缓存 权限信息 换成在service 层控制缓存
+        adminAuthorizingRealm.setAuthorizationCachingEnabled(false);
+        return adminAuthorizingRealm;
     }
 
     @Bean
@@ -72,4 +79,5 @@ public class ShiroConfig {
         creator.setProxyTargetClass(true);
         return creator;
     }
+
 }

@@ -12,8 +12,13 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
+import org.linlinjava.litemall.db.beans.Constants;
+import org.linlinjava.litemall.db.domain.LitemallMessage;
+import org.linlinjava.litemall.db.domain.LitemallMsg;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.CouponAssignService;
+import org.linlinjava.litemall.db.service.LitemallMessageService;
+import org.linlinjava.litemall.db.service.LitemallMsgService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
@@ -30,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +62,12 @@ public class WxAuthController {
 
     @Autowired
     private CouponAssignService couponAssignService;
+
+    @Autowired
+    private LitemallMsgService litemallMsgService;
+
+    @Autowired
+    private LitemallMessageService litemallMessageService;
 
     /**
      * 账号登录
@@ -94,6 +106,27 @@ public class WxAuthController {
         if (userService.updateById(user) == 0) {
             return ResponseUtil.updatedDataFailed();
         }
+
+        /**
+         * 这里获取未读的系统消息或站内消息，
+         * 设计思想从一开始生成消息改变为用户登录时判断，避免发布消息是系统资源消耗过高
+         */
+        List<LitemallMessage> messages = litemallMessageService.queryAll();
+        for(LitemallMessage message : messages){
+            long i = litemallMsgService.countByMessageId(message.getId(), user.getId());
+            if(i == 0 ){
+                if(message.getType() == Constants.MESSAGE_TYPE_SYSTEM || (message.getReceiverLevels() != null && Arrays.asList(message.getReceiverLevels()).contains(user.getUserLevel()))){
+                    LitemallMsg msg = new LitemallMsg();
+                    msg.setContent(message.getContent());
+                    msg.setMessageId(message.getId());
+                    msg.setUserId(user.getId());
+                    msg.setType(Constants.MSG_TYPE_SYSTEM);
+                    litemallMsgService.create(msg);
+                }
+            }
+        }
+
+
 
         // userInfo
         UserInfo userInfo = new UserInfo();

@@ -8,14 +8,16 @@ import org.linlinjava.litemall.db.domain.LitemallGiftCardOrder;
 import org.linlinjava.litemall.db.service.LitemallGiftCardOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * @author ：stephen
  * @date ：Created in 2020/4/7 10:15
- * @description：TODO
+ * @description：购买礼物卡订单支付超时检测任务
  */
+@Component
 public class CardOrderJob {
     private final Log logger = LogFactory.getLog(CardOrderJob.class);
 

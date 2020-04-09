@@ -6,13 +6,16 @@ import com.paypal.base.rest.PayPalRESTException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.notify.NotifyService;
+import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
 import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
+import org.linlinjava.litemall.db.domain.LitemallMsg;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallUserFormid;
+import org.linlinjava.litemall.db.service.LitemallMsgService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserFormIdService;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
@@ -21,7 +24,10 @@ import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentIntent;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentMethod;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentState;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -47,6 +53,10 @@ public class GoodsPaypalServiceImpl implements PaypalService {
     private LitemallUserFormIdService formIdService;
     @Autowired
     private NotifyService notifyService;
+    @Autowired
+    private PushService pushService;
+    @Autowired
+    private LitemallMsgService litemallMsgService;
 
 
     public Object getPayment(Integer userId, Integer orderId, String successUrl, String cancelUrl){
@@ -62,7 +72,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
         BigDecimal shipping = litemallOrder.getFreightPrice();
         Amount amount = new Amount();
         amount.setCurrency(DefaultCurType.USD.getType());
-        amount.setTotal(String.format("%.2f", total.add(tax).add(shipping)));
+        amount.setTotal(String.format("%.2f", total));
         Details details = new Details();
         /**
          * 退款金额
@@ -195,7 +205,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             notifyService.notifyMail("新订单通知", order.toString());
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
 //            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
-
+            saveNotice(order.getUserId(), order.getOrderSn() + "支付成功", Constants.MSG_TYPE_ORDER);
             return rtn;
         }else{
             return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, "支付失败");
@@ -259,6 +269,24 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * 推送消息并保存到数据库
+     * @param userId
+     * @param content
+     * @param type
+     * @return
+     */
+    @Async
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void saveNotice( Integer userId, String content, Byte type){
+        pushService.pushMsgToOne(String.valueOf(userId), content);
+        LitemallMsg msg = new LitemallMsg();
+        msg.setType(type);
+        msg.setUserId(userId);
+        msg.setContent(content);
+        litemallMsgService.create(msg);
     }
 
 }

@@ -7,6 +7,8 @@ import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.service.AdminOrderService;
+import org.linlinjava.litemall.core.util.JacksonUtil;
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import javax.xml.ws.Response;
 import java.util.List;
 
 @RestController
@@ -66,14 +69,18 @@ public class AdminOrderController {
     /**
      * 订单退款
      *
-     * @param orderId 订单Id，{ orderId：xxx }
+     * @param body 订单Id，{ orderId：xxx }
      * @return 订单退款操作结果
      */
     @RequiresPermissions("admin:order:refund")
     @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单退款")
     @PostMapping("/refund")
     @LogAnno
-    public Object refund(@NotNull @RequestParam(value = "orderId") Integer orderId, @LoginAdminShopId Integer shopId) {
+    public Object refund(@RequestBody String body, @LoginAdminShopId Integer shopId) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+        if(orderId == null){
+            return ResponseUtil.badArgument();
+        }
         return adminOrderService.refund(orderId, shopId);
     }
 

@@ -10,11 +10,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GeneratorUtil {
     public static String codeGenerator(){
-        return RandomStringUtils.randomAlphabetic(8);
+        return RandomStringUtils.randomAlphabetic(4);
     }
 
     public static String linkGenerator(){
-        return RandomStringUtils.randomAlphabetic(60);
+        return RandomStringUtils.randomAlphabetic(16);
     }
 
     /**
@@ -26,4 +26,5 @@ public class GeneratorUtil {
         String user = StringUtils.leftPad(String.valueOf(userId), 6, "0");
         return type + user + RandomStringUtils.randomNumeric(6);
     }
+
 }

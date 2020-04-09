@@ -264,10 +264,10 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
 
         </table>-->
-        <table tableName="litemall_gift_card_user_log">
+<!--        <table tableName="litemall_gift_card_user_log">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
 
-        </table>
+        </table>-->
 <!--        <table tableName="litemall_gift_card_order">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
 
@@ -277,5 +277,19 @@
 
         </table>-->
 
+<!--        <table tableName="litemall_address">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+
+        </table>-->
+
+        <table tableName="litemall_msg">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+
+        </table>
+<!--        <table tableName="litemall_message">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <columnOverride column="receiver_levels" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+        </table>-->
     </context>
 </generatorConfiguration>

@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -155,5 +156,11 @@ public class LitemallUserService {
 
         PageHelper.startPage(page, size);
         return litemallRechargeConsumptionMapper.selectByExample(example);
+    }
+
+    public List<LitemallUser> queryByUserLevels(List<Byte> integers) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andUserLevelIn(integers).andDeletedEqualTo(false);
+        return litemallUserMapper.selectByExample(example);
     }
 }

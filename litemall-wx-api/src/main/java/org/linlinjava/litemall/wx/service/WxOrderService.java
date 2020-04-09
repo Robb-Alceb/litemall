@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.express.ExpressService;
 import org.linlinjava.litemall.core.express.dao.ExpressInfo;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.qcode.QCodeService;
@@ -28,6 +29,7 @@ import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.util.IpUtil;
 import org.linlinjava.litemall.wx.dto.UserInfo;
+import org.linlinjava.litemall.wx.util.LocationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,6 +122,8 @@ public class WxOrderService {
     private UserInfoService userInfoService;
     @Autowired
     private LitemallShopService shopService;
+    @Autowired
+    private NoticeHelper noticeHelper;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -279,14 +283,17 @@ public class WxOrderService {
         //订单类型（1：自提订单;2:外送订单）
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
 
-        if ((userId == null && cartId == null) || addressId == null || couponId == null || orderType == null || shopId == null) {
+        if ((userId == null && cartId == null) || couponId == null || orderType == null || shopId == null) {
             return ResponseUtil.badArgument();
         }
 
+        if(orderType.byteValue() == Constants.ORDER_SEND && addressId == null){
+            return ResponseUtil.badArgument();
+        }
 
         // 收货地址
         LitemallAddress checkedAddress = addressService.query(userId, addressId);
-        if (checkedAddress == null) {
+        if (orderType.byteValue() == Constants.ORDER_SEND && checkedAddress == null) {
             return ResponseUtil.badArgument();
         }
 
@@ -314,6 +321,14 @@ public class WxOrderService {
         if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
             return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
         }
+        if (orderType == 2) {
+            //外送订单判断距离
+            Double distance = LocationUtils.getDistance(litemallShop.getLatitude().doubleValue(), litemallShop.getLongitude().doubleValue(), checkedAddress.getLatitude().doubleValue(), checkedAddress.getLongitude().doubleValue());
+            if (distance > litemallShop.getRange() * 1000) {
+                return ResponseUtil.fail(SHOP_TOO_LONG, "超过配送距离");
+            }
+        }
+
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
@@ -329,7 +344,6 @@ public class WxOrderService {
         }
 
         //优惠券抵扣价格
-        LitemallCoupon couponServiceById = couponService.findById(couponId);
         BigDecimal couponPrice = new BigDecimal(0.00);
 
         /**
@@ -435,7 +449,7 @@ public class WxOrderService {
 
         // 根据订单商品总价计算运费，满足条件（例如88元）则免运费，否则需要支付运费（例如8元）；
         BigDecimal freightPrice = new BigDecimal(0.00);
-        if (checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
+        if (orderType.byteValue() == Constants.ORDER_SEND && checkedGoodsPrice.compareTo(SystemConfig.getFreightLimit()) < 0) {
             freightPrice = SystemConfig.getFreight();
         }
 
@@ -456,11 +470,17 @@ public class WxOrderService {
         order.setUserId(userId);
         order.setOrderSn(orderService.generateOrderSn(userId));
         order.setOrderStatus(OrderUtil.STATUS_CREATE);
-        order.setConsignee(checkedAddress.getName());
-        order.setMobile(checkedAddress.getTel());
+        if(orderType.byteValue() == Constants.ORDER_AET){
+            order.setConsignee("");
+            order.setMobile("");
+            order.setAddress("");
+        }else if(orderType.byteValue() == Constants.ORDER_SEND){
+            order.setConsignee(checkedAddress.getName());
+            order.setMobile(checkedAddress.getTel());
+            String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty() + " " + checkedAddress.getAddressDetail();
+            order.setAddress(detailedAddress);
+        }
         order.setMessage(message);
-        String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty() + " " + checkedAddress.getAddressDetail();
-        order.setAddress(detailedAddress);
         order.setGoodsPrice(checkedGoodsPrice);
         order.setFreightPrice(new BigDecimal(0.00));
         order.setCouponPrice(couponPrice);
@@ -536,6 +556,7 @@ public class WxOrderService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", orderId);
+        noticeHelper.noticeUser( Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功",order.getUserId());
         return ResponseUtil.ok(data);
     }
 

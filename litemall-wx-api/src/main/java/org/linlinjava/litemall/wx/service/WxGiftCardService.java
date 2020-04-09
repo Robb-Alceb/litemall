@@ -3,6 +3,7 @@ package org.linlinjava.litemall.wx.service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
 import org.linlinjava.litemall.core.payment.PaymentResponseCode;
@@ -67,6 +68,8 @@ public class WxGiftCardService {
     private NotifyService notifyService;
     @Autowired
     private LitemallUserService litemallUserService;
+    @Autowired
+    private NoticeHelper noticeHelper;
 
     @Value("${card.paypal.success}")
     private String successUrl;
@@ -211,6 +214,9 @@ public class WxGiftCardService {
         if(card == null){
             return ResponseUtil.fail(WxResponseCode.CARD_INVALID, "礼物卡不存在");
         }
+        if(litemallGiftCardShareService.findByCardNumber(dto.getCardNumber()) != null){
+            return ResponseUtil.fail(WxResponseCode.CARD_INVALID, "礼物卡已经分享");
+        }
         LitemallGiftCardShare share = new LitemallGiftCardShare();
         share.setCardNumber(dto.getCardNumber());
         share.setCode(StringUtils.isNotBlank(dto.getCode())?dto.getCode(): GeneratorUtil.codeGenerator());
@@ -222,6 +228,9 @@ public class WxGiftCardService {
         share.setUserId(userId);
         litemallGiftCardShareService.add(share);
         log(share.getCardNumber(), Constants.LOG_GIFTCARD_SHARE, "分享礼物卡",userId);
+
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+share.getCardNumber()+"分享成功", userId);
+
         return ResponseUtil.ok(share);
     }
 
@@ -240,6 +249,7 @@ public class WxGiftCardService {
         shareCard.setActiveTime(LocalDateTime.now());
         litemallGiftCardShareService.update(shareCard);
         log(shareCard.getCardNumber(), Constants.LOG_GIFTCARD_SHARE, "取消分享礼物卡",userId);
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+shareCard.getCardNumber()+"取消分享", userId);
         return ResponseUtil.ok(shareCard);
     }
 
@@ -287,6 +297,10 @@ public class WxGiftCardService {
         update.setId(cardUser.getId());
         update.setUpdateTime(cardUser.getUpdateTime());
         update.setUserId(userId);
+        LitemallUser user = litemallUserService.findById(userId);
+        if(StringUtils.isNotEmpty(user.getUsername())){
+            update.setUserName(user.getUsername());
+        }
         if(litemallGiftCardUserService.updateById(update) == 0){
             return ResponseUtil.fail(WxResponseCode.GIFT_CARD_SHARE_PICKED, "礼物卡已被领取");
         }
@@ -296,6 +310,8 @@ public class WxGiftCardService {
 //        notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
 
         log(share.getCardNumber(), Constants.LOG_GIFTCARD_PICK, "领取礼物卡",userId);
+
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+share.getCardNumber()+"被领取", share.getUserId());
         return ResponseUtil.ok(cardUser);
     }
 
@@ -364,7 +380,7 @@ public class WxGiftCardService {
         }else{
             LitemallGiftCardUser card = litemallGiftCardUserService.findByNumber(order.getCardNumber());
             card.setAmount(card.getAmount().add(order.getAmount()));
-            litemallGiftCardUserService.updateWithOptimisticLocker(card);
+            litemallGiftCardUserService.updateWithOptimisticLocker(card, card.getUpdateTime());
             log(order.getCardNumber(), Constants.LOG_GIFTCARD_PICK, "领取礼物卡",userId);
         }
 

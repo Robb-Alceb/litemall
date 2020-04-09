@@ -2,6 +2,7 @@ package org.linlinjava.litemall.core.util;
 
 import com.github.pagehelper.Page;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,9 @@ import java.util.Map;
  * </ul>
  */
 public class ResponseUtil {
+
+    private static Object object;
+
     public static Object ok() {
         Map<String, Object> obj = new HashMap<String, Object>();
         obj.put("errno", 0);
@@ -113,9 +117,34 @@ public class ResponseUtil {
         return fail(401, "参数不对");
     }
 
-
     public static Object badArgument(Integer code , String msg) {
         return fail(code, msg);
+    }
+
+    public static Object badArgument(Object object) {
+        try{
+            Field codeField = object.getClass().getDeclaredField("code");
+            codeField.setAccessible(true); // 私有属性必须设置访问权限
+            Object codeObj = codeField.get(object);
+            Integer code = 0;
+            if(codeObj instanceof Integer){
+                code = (Integer)codeObj;
+            }
+
+            Field nameField = object.getClass().getDeclaredField("msg");
+            nameField.setAccessible(true); // 私有属性必须设置访问权限
+            Object nameObj = nameField.get(object);
+            String name= "";
+            if(nameObj instanceof String){
+                name = (String)nameObj;
+            }
+
+            return fail(code, name);
+
+        }catch (Exception e){
+            return fail();
+        }
+
     }
 
     public static Object badArgumentValue() {

@@ -66,13 +66,14 @@ public class LitemallGiftCardUserService {
     }
 
     public int updateById(LitemallGiftCardUser giftCard) {
+        giftCard.setUpdateTime(LocalDateTime.now());
         return litemallGiftCardUserMapper.updateByPrimaryKeySelective(giftCard);
     }
 
 
-    public int updateWithOptimisticLocker(LitemallGiftCardUser giftCard) {
+    public int updateWithOptimisticLocker(LitemallGiftCardUser giftCard, LocalDateTime updateTime) {
         LitemallGiftCardUserExample example = new LitemallGiftCardUserExample();
-        example.or().andIdEqualTo(giftCard.getId()).andUpdateTimeEqualTo(giftCard.getUpdateTime());
+        example.or().andIdEqualTo(giftCard.getId()).andUpdateTimeEqualTo(updateTime);
         giftCard.setUpdateTime(LocalDateTime.now());
         return litemallGiftCardUserMapper.updateByExampleSelective(giftCard,example);
     }

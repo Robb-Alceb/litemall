@@ -3,17 +3,23 @@ package org.linlinjava.litemall.wx.web;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.CardShareDto;
 import org.linlinjava.litemall.wx.service.WxGiftCardService;
+import org.linlinjava.litemall.wx.util.URLUtils;
+import org.linlinjava.litemall.wx.util.WxResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -65,7 +71,7 @@ public class GiftCardController {
      */
     @GetMapping("pay")
     @LogAnno
-    public Object pay(@LoginUser Integer userId, @NotNull Integer orderId){
+    public Object pay(@LoginUser Integer userId, @NotNull Integer orderId, HttpServletResponse resp) throws Exception{
         if(userId == null){
             return ResponseUtil.unlogin();
         }
@@ -77,6 +83,7 @@ public class GiftCardController {
         Payment payment = (Payment)obj;
         for(Links links : payment.getLinks()){
             if(links.getRel().equals("approval_url")){
+                resp.sendRedirect(links.getHref().toString());
                 return "redirect:" + links.getHref();
             }
         }
@@ -91,7 +98,7 @@ public class GiftCardController {
      */
     @GetMapping("pay/success")
     @LogAnno
-    public Object success(@LoginUser Integer userId, @NotNull @RequestParam("paymentId") String paymentId, @NotNull @RequestParam("PayerID") String payerId){
+    public Object success(@LoginUser Integer userId, @NotNull @RequestParam("paymentId") String paymentId, @NotNull @RequestParam("PayerID") String payerId, HttpServletResponse resp, HttpServletRequest request) throws Exception{
         log.debug("paypal success");
         Object obj =  giftCardService.executePayment(paymentId, payerId);
         if(!(obj instanceof Payment)){
@@ -101,9 +108,18 @@ public class GiftCardController {
         if(payment.getState().equals("approved")){
             //付款完成后生成礼物卡或者更新余额
             giftCardService.createOrUpdateCard(userId,paymentId);
+            log.info(URLUtils.getBaseURl(request));
+//            resp.sendRedirect(URLUtils.getBaseURl(request) + "/wx/pay/success");
+//            return null;
             return ResponseUtil.ok("success");
         }
         return "<script type=\"text/javascript\">location.href=\"/\"</script>" ;
+    }
+
+    @GetMapping("pay/cancel")
+    @LogAnno
+    public Object cancelPay(){
+        return ResponseUtil.ok("cancel") ;
     }
 
     /**
@@ -126,7 +142,7 @@ public class GiftCardController {
      */
     @PostMapping("share")
     @LogAnno
-    public Object share(@LoginUser Integer userId, @Valid CardShareDto dto){
+    public Object share(@LoginUser Integer userId, @Valid @RequestBody CardShareDto dto){
         if(userId == null){
             return ResponseUtil.unlogin();
         }
@@ -201,5 +217,27 @@ public class GiftCardController {
             return ResponseUtil.unlogin();
         }
         return giftCardService.myShares(userId);
+    }
+
+    /**
+     * 充值
+     * @param userId
+     * @return
+     */
+    @PostMapping("recharge")
+    @LogAnno
+    public Object recharge(@LoginUser Integer userId, @RequestBody String body){
+        if(userId == null){
+            return ResponseUtil.unlogin();
+        }
+        String cardNumber = JacksonUtil.parseString(body, "cardNumber");
+        BigDecimal amount = JacksonUtil.parseObject(body, "amount", BigDecimal.class);
+        if(StringUtils.isEmpty(cardNumber)){
+            return ResponseUtil.badArgument();
+        }
+        if(amount == null){
+            return ResponseUtil.badArgument();
+        }
+        return giftCardService.recharge(userId, cardNumber, amount);
     }
 }

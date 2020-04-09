@@ -61,7 +61,7 @@ public class LitemallShopMerchandiseService {
         LitemallShopMerchandise shopMerchandise = new LitemallShopMerchandise();
         shopMerchandise.setDeleted(true);
         shopMerchandise.setUpdateTime(LocalDateTime.now());
-        litemallShopMerchandiseMapper.updateByExample(shopMerchandise, merchandise);
+        litemallShopMerchandiseMapper.updateByExampleSelective(shopMerchandise, merchandise);
     }
 
     public int create(LitemallShopMerchandise merchandise) {

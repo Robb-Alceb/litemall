@@ -48,6 +48,8 @@ public class WxResponseCode {
     public static final int SHOP_CLOSED = 750;
     //不支持服务（配送，自提）
     public static final int SHOP_UNSUPPOT = 751;
+    //超过配送范围
+    public static final int SHOP_TOO_LONG = 752;
 
     //不存在该礼物卡
     public static final Integer CARD_INVALID = 760;

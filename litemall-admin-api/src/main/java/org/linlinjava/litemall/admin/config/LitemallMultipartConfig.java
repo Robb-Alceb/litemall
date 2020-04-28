@@ -29,9 +29,9 @@ public class LitemallMultipartConfig {
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         //  单个数据大小
-        factory.setMaxFileSize("1024011KB"); // KB,MB
+        factory.setMaxFileSize(maxFileSize); // KB,MB
         /// 总上传数据大小
-        factory.setMaxRequestSize("1024011KB");
+        factory.setMaxRequestSize(maxRequestSize);
         return factory.createMultipartConfig();
     }
 }

@@ -30,7 +30,7 @@ public class PaypalConfig {
     @Value("${litemall.paypal.active}")
     private Boolean active;
 
-    @Bean
+/*    @Bean
     public Map<String, String> paypalSdkConfig(){
         Map<String, String> sdkConfig = new HashMap<>();
         sdkConfig.put("mode", mode);
@@ -40,15 +40,16 @@ public class PaypalConfig {
     @Bean
     public OAuthTokenCredential authTokenCredential(){
         return new OAuthTokenCredential(clientId, clientSecret, paypalSdkConfig());
-    }
+    }*/
 
     @Bean
     public APIContext apiContext() throws PayPalRESTException{
         if(!active){
             return new APIContext();
         }
-        APIContext apiContext = new APIContext(authTokenCredential().getAccessToken());
-        apiContext.setConfigurationMap(paypalSdkConfig());
+//        APIContext apiContext = new APIContext(authTokenCredential().getAccessToken());
+//        apiContext.setConfigurationMap(paypalSdkConfig());
+        APIContext apiContext = new APIContext(clientId,clientSecret,mode);
         return apiContext;
     }
 

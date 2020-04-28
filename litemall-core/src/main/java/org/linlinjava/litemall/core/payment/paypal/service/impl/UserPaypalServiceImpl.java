@@ -13,17 +13,12 @@ import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentState;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
-import org.linlinjava.litemall.db.dao.LitemallGiftCardOrderMapper;
-import org.linlinjava.litemall.db.domain.LitemallGiftCardOrder;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallUserFormid;
-import org.linlinjava.litemall.db.service.LitemallGiftCardOrderService;
-import org.linlinjava.litemall.db.util.OrderUtil;
+import org.linlinjava.litemall.db.domain.LitemallUserRechargeOrder;
+import org.linlinjava.litemall.db.service.LitemallUserRechargeOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,22 +26,22 @@ import java.util.List;
 
 /**
  * @author ：stephen
- * @date ：Created in 2020/4/2 16:23
+ * @date ：Created in 2020/4/9 17:43
  * @description：TODO
  */
 @Service
-public class CardPaypalServiceImpl implements PaypalService {
-    private final Log logger = LogFactory.getLog(CardPaypalServiceImpl.class);
+public class UserPaypalServiceImpl implements PaypalService {
+    private final Log logger = LogFactory.getLog(UserPaypalServiceImpl.class);
 
     @Autowired
     private APIContext apiContext;
-    @Resource
-    private LitemallGiftCardOrderService litemallGiftCardOrderService;
+    @Autowired
+    private LitemallUserRechargeOrderService litemallUserRechargeOrderService;
 
 
     @Override
     public Object getPayment(Integer userId, Integer orderId, String successUrl, String cancelUrl) {
-        LitemallGiftCardOrder order = litemallGiftCardOrderService.findById(orderId);
+        LitemallUserRechargeOrder order = litemallUserRechargeOrderService.findById(orderId);
         if(order == null){
             return ResponseUtil.fail(PaymentResponseCode.ORDER_UNKNOWN, "订单不存在");
         }
@@ -90,12 +85,12 @@ public class CardPaypalServiceImpl implements PaypalService {
                 return ResponseUtil.fail(PaymentResponseCode.ORDER_INVALID_OPERATION, "订单不能支付");
             }
             String paymentId = rtn.getId();
-            LitemallGiftCardOrder update = new LitemallGiftCardOrder();
+            LitemallUserRechargeOrder update = new LitemallUserRechargeOrder();
             //保存paymentId作为PayPal的商户订单号
             update.setOutTradeNo(paymentId);
             //状态为进行中
             update.setPayStatus(Constants.PAY_STATUS_DOING);
-            if (litemallGiftCardOrderService.paddingPay(update, order) == 0) {
+            if (litemallUserRechargeOrderService.paddingPay(update, order) == 0) {
                 return ResponseUtil.updatedDateExpired();
             }
             return rtn;
@@ -116,7 +111,7 @@ public class CardPaypalServiceImpl implements PaypalService {
         // 交易号
         String transationId = rtn.getTransactions().get(0).getRelatedResources().get(0).getSale().getId();
         if(rtn.getState().equals("approved")){
-            LitemallGiftCardOrder order = litemallGiftCardOrderService.findByOutTradeNo(paymentId);
+            LitemallUserRechargeOrder order = litemallUserRechargeOrderService.findByOutTradeNo(paymentId);
             List<Transaction> transactions = rtn.getTransactions();
             BigDecimal totalFee = new BigDecimal(0.00);
             if(transactions != null){
@@ -141,7 +136,7 @@ public class CardPaypalServiceImpl implements PaypalService {
                 return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, " : 支付金额不符合 totalFee=" + totalFee);
             }
 
-            LitemallGiftCardOrder update = new LitemallGiftCardOrder();
+            LitemallUserRechargeOrder update = new LitemallUserRechargeOrder();
             update.setPayType(Constants.PAY_TYPE_PAYPAL);
             update.setCurrency(DefaultCurType.USD.getType());
             update.setTransationId(transationId);        //交易号，退款时需要用到
@@ -150,12 +145,9 @@ public class CardPaypalServiceImpl implements PaypalService {
             update.setPayTime(LocalDateTime.now());
             update.setPayStatus(Constants.PAY_STATUS_DONE);
 
-            if (litemallGiftCardOrderService.payDone(order, update) == 0) {
+            if (litemallUserRechargeOrderService.payDone(order, update) == 0) {
                 return ResponseUtil.updatedDateExpired();
             }
-
-            // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
-//            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
 
             return rtn;
         }else{
@@ -165,27 +157,16 @@ public class CardPaypalServiceImpl implements PaypalService {
 
     @Override
     public boolean refund(Integer orderId) {
-        LitemallGiftCardOrder order = litemallGiftCardOrderService.findById(orderId);
+        LitemallUserRechargeOrder order = litemallUserRechargeOrderService.findById(orderId);
         // ###Sale
-        // A sale transaction.
-        // Create a Sale object with the
-        // given sale transaction id.
 
         // ###Refund
-        // A refund transaction.
-        // Use the amount to create
-        // a refund object
         RefundRequest refund = new RefundRequest();
         // ###Amount
-        // Create an Amount object to
-        // represent the amount to be
-        // refunded. Create the refund object, if the refund is partial
         Amount amount = new Amount();
         amount.setCurrency(order.getCurrency());
         amount.setTotal(String.format("%.2f", order.getAmount()));
         refund.setAmount(amount);
-//        refund.setReason(order.getDescription());
-
 
         try {
             if(StringUtils.isEmpty(order.getTransationId())) {
@@ -197,14 +178,6 @@ public class CardPaypalServiceImpl implements PaypalService {
                 order.setTransationId(id);
             }
 
-            // ### Api Context
-            // Pass in a `ApiContext` object to authenticate
-            // the call and to send a unique request id
-            // (that ensures idempotency). The SDK generates
-            // a request id if you do not pass one explicitly.
-
-            // Refund by posting to the APIService
-            // using a valid AccessToken
             Sale sale = new Sale();
             sale.setId(order.getTransationId());
             DetailedRefund res = sale.refund(apiContext, refund);

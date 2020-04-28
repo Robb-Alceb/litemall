@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.wx.util;
+package org.linlinjava.litemall.core.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;

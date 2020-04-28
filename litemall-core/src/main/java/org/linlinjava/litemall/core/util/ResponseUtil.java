@@ -113,15 +113,7 @@ public class ResponseUtil {
         return obj;
     }
 
-    public static Object badArgument() {
-        return fail(401, "参数不对");
-    }
-
-    public static Object badArgument(Integer code , String msg) {
-        return fail(code, msg);
-    }
-
-    public static Object badArgument(Object object) {
+    public static Object fail(Object object) {
         try{
             Field codeField = object.getClass().getDeclaredField("code");
             codeField.setAccessible(true); // 私有属性必须设置访问权限
@@ -144,6 +136,18 @@ public class ResponseUtil {
         }catch (Exception e){
             return fail();
         }
+    }
+
+    public static Object badArgument() {
+        return fail(401, "参数不对");
+    }
+
+    public static Object badArgument(Integer code , String msg) {
+        return fail(code, msg);
+    }
+
+    public static Object badArgument(Object object) {
+        return fail(object);
 
     }
 

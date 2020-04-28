@@ -55,6 +55,8 @@ public enum WxResponseEnum {
     BAD_ARGUMENT_CARDID(401002,"cardId为空"),
     IS_NULL_CARD(701001,"card不存在"),
     NOT_ENOUGH_AMOUNT(101001,"余额不足"),
+    NOT_FIND_ORDER(101002,"订单不存在"),
+    NOT_FIND_USER(101003,"用户不存在"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

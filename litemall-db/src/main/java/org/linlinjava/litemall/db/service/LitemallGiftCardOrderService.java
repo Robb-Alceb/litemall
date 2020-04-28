@@ -4,10 +4,7 @@ import com.github.pagehelper.PageHelper;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallGiftCardMapper;
 import org.linlinjava.litemall.db.dao.LitemallGiftCardOrderMapper;
-import org.linlinjava.litemall.db.domain.LitemallGiftCard;
-import org.linlinjava.litemall.db.domain.LitemallGiftCardExample;
-import org.linlinjava.litemall.db.domain.LitemallGiftCardOrder;
-import org.linlinjava.litemall.db.domain.LitemallGiftCardOrderExample;
+import org.linlinjava.litemall.db.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -60,6 +57,7 @@ public class LitemallGiftCardOrderService {
         LitemallGiftCardOrderExample example = new LitemallGiftCardOrderExample();
         example.or().andIdEqualTo(order.getId()).andUpdateTimeEqualTo(order.getUpdateTime());
         update.setUpdateTime(LocalDateTime.now());
+        update.setPayTime(LocalDateTime.now());
         return litemallGiftCardOrderMapper.updateByExampleSelective(update,example);
     }
 
@@ -67,7 +65,13 @@ public class LitemallGiftCardOrderService {
         LitemallGiftCardOrderExample example = new LitemallGiftCardOrderExample();
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expired = now.minusMinutes(minutes);
-        example.or().andPayStatusEqualTo(Constants.PAY_STATUS_AUTO_CANCEL).andUpdateTimeLessThan(expired).andDeletedEqualTo(false);
+        example.or().andPayStatusIsNull().andUpdateTimeLessThan(expired).andDeletedEqualTo(false);
+        return litemallGiftCardOrderMapper.selectByExample(example);
+    }
+
+    public List<LitemallGiftCardOrder> getDoingOrder(LocalDateTime end) {
+        LitemallGiftCardOrderExample example = new LitemallGiftCardOrderExample();
+        example.or().andPayStatusEqualTo(Constants.PAY_STATUS_DOING).andUpdateTimeLessThan(end).andOutTradeNoIsNotNull().andDeletedEqualTo(false);
         return litemallGiftCardOrderMapper.selectByExample(example);
     }
 }

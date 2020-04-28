@@ -282,14 +282,26 @@
 
         </table>-->
 
-        <table tableName="litemall_msg">
+<!--        <table tableName="litemall_msg">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
 
-        </table>
+        </table>-->
+<!--        <table tableName="litemall_user_recharge_order">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+
+        </table>-->
 <!--        <table tableName="litemall_message">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="receiver_levels" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
         </table>-->
+
+        <table tableName="litemall_gift_card_user_log">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
+
+        <table tableName="litemall_recharge_consumption">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
     </context>
 </generatorConfiguration>

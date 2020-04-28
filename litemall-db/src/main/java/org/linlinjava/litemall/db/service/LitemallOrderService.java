@@ -327,4 +327,13 @@ public class LitemallOrderService {
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
         return litemallOrderMapper.selectByExample(example);
     }
+
+    public List<LitemallOrder> queryTime(LocalDateTime start , LocalDateTime end) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.setOrderByClause(LitemallOrder.Column.addTime.desc());
+        LitemallOrderExample.Criteria criteria = example.or();
+        criteria.andUpdateTimeBetween(start, end);
+        criteria.andDeletedEqualTo(false);
+        return litemallOrderMapper.selectByExample(example);
+    }
 }

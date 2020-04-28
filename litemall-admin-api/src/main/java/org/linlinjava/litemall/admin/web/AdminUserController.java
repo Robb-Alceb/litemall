@@ -14,7 +14,7 @@ import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallRechargeConsumption;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallCouponService;
-import org.linlinjava.litemall.db.service.LitemallRechargeService;
+import org.linlinjava.litemall.db.service.LitemallRechargeConsumptionService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -45,7 +45,7 @@ public class AdminUserController {
     @Autowired
     private AdminUserInfoService adminUserInfoService;
     @Autowired
-    private LitemallRechargeService litemallRechargeService;
+    private LitemallRechargeConsumptionService litemallRechargeService;
 
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
@@ -104,7 +104,7 @@ public class AdminUserController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return ResponseUtil.okList(litemallRechargeService.querySelectiveList(username, mobile, page, limit, sort, order));
+        return ResponseUtil.okList(litemallRechargeService.querySelectiveList(null, username, mobile, page, limit, sort, order));
     }
 
     /**

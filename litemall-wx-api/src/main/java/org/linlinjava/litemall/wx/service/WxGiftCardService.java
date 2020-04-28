@@ -10,20 +10,17 @@ import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.payment.paypal.service.impl.CardPaypalServiceImpl;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
-import org.linlinjava.litemall.db.dao.*;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.dto.CardShareDto;
-import org.linlinjava.litemall.wx.util.GeneratorUtil;
+import org.linlinjava.litemall.core.util.GeneratorUtil;
 import org.linlinjava.litemall.wx.util.WxResponseCode;
 import org.linlinjava.litemall.wx.vo.GiftCardVo;
 import org.linlinjava.litemall.wx.vo.MyCardVo;
 import org.linlinjava.litemall.wx.vo.TypeAndName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -242,7 +239,7 @@ public class WxGiftCardService {
      */
     public Object shareCancel(Integer shareCardId, Integer userId) {
         LitemallGiftCardShare shareCard = litemallGiftCardShareService.findById(shareCardId);
-        if(shareCard.getUserId() != userId){
+        if(shareCard == null || shareCard.getUserId() != userId){
             return ResponseUtil.fail(WxResponseCode.GIFT_CARD_SHARE_NOT_AUTH, "礼物卡不存在");
         }
         shareCard.setDeleted(true);
@@ -352,16 +349,16 @@ public class WxGiftCardService {
         LitemallGiftCardOrder order = litemallGiftCardOrderService.findByOutTradeNo(paymentId);
         //添加卡
         if(StringUtils.isEmpty(order.getCardNumber())){
-            LitemallGiftCardUser card = new LitemallGiftCardUser();
-            card.setUserId(order.getUserId());
-            card.setAmount(order.getAmount());
-            card.setGiftCardId(order.getGiftCardId());
-            LitemallUser user = litemallUserService.findById(order.getUserId());
-            if(user != null){
-                card.setUserName(user.getUsername());
-            }
-            card.setCardNumber(GeneratorUtil.cardNumberGenerator("CG",order.getUserId()));
             try{
+                LitemallGiftCardUser card = new LitemallGiftCardUser();
+                card.setUserId(order.getUserId());
+                card.setAmount(order.getAmount());
+                card.setGiftCardId(order.getGiftCardId());
+                LitemallUser user = litemallUserService.findById(order.getUserId());
+                if(user != null){
+                    card.setUserName(user.getUsername());
+                }
+                card.setCardNumber(GeneratorUtil.cardNumberGenerator("CG",order.getUserId()));
                 //插入用户礼物卡
                 litemallGiftCardUserService.add(card);
                 //修改订单的cardNumber
@@ -370,7 +367,7 @@ public class WxGiftCardService {
                 update.setCardNumber(card.getCardNumber());
                 litemallGiftCardOrderService.update(update);
                 log(order.getCardNumber(), Constants.LOG_GIFTCARD_PICK, "领取礼物卡",userId);
-                log(order.getCardNumber(), Constants.LOG_GIFTCARD_RECHARGE, "充值礼物卡",userId,order.getAmount());
+                log(order.getCardNumber(), Constants.LOG_GIFTCARD_RECHARGE, "充值礼物卡",userId,order.getAmount(),order.getId());
             }catch (Exception e){
                 logger.info("Exception in createCard:"+ e.getMessage());
                 //当cardNumber冲突时重新插入
@@ -438,6 +435,10 @@ public class WxGiftCardService {
         log(cardNumber,type,content,userId,null);
     }
     public void log(String cardNumber, Byte type, String content, Integer userId, BigDecimal amount){
+        log(cardNumber,type,content,userId,amount, null);
+    }
+
+    public void log(String cardNumber, Byte type, String content, Integer userId, BigDecimal amount, Integer orderId){
         LitemallUser user = litemallUserService.findById(userId);
         LitemallGiftCardUserLog log = new LitemallGiftCardUserLog();
         log.setCardNumber(cardNumber);
@@ -445,11 +446,11 @@ public class WxGiftCardService {
         log.setAddUserId(userId);
         log.setContent(content);
         log.setAmount(amount);
+        log.setOrderId(orderId);
         if(user != null){
             log.setContent(user.getUsername() + ":" + content);
             log.setAddUserName(user.getUsername());
         }
         litemallGiftCardUserLogService.add(log);
     }
-
 }

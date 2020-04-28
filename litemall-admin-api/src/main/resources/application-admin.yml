@@ -1,0 +1,4 @@
+litemall:
+  upload:
+    max-file-size: 100MB
+    max-request-size: 1000MB

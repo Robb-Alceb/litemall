@@ -163,4 +163,10 @@ public class LitemallUserService {
         example.or().andUserLevelIn(integers).andDeletedEqualTo(false);
         return litemallUserMapper.selectByExample(example);
     }
+
+    public int updateWithOptimisticLocker(LitemallUser update, LocalDateTime updateTime) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andIdEqualTo(update.getId()).andUpdateTimeEqualTo(updateTime).andDeletedEqualTo(false);
+        return litemallUserMapper.updateByExampleSelective(update,example);
+    }
 }

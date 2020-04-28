@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,14 +18,17 @@ import java.util.List;
  * @Description: TODO
  */
 @Service
-public class LitemallRechargeService {
+public class LitemallRechargeConsumptionService {
     @Resource
     private LitemallRechargeConsumptionMapper litemallRechargeConsumptionMapper;
 
-    public List<LitemallRechargeConsumption> querySelectiveList(String username, String mobile, Integer page, Integer size, String sort, String order) {
+    public List<LitemallRechargeConsumption> querySelectiveList(Integer userId, String username, String mobile, Integer page, Integer size, String sort, String order) {
         LitemallRechargeConsumptionExample example = new LitemallRechargeConsumptionExample();
         LitemallRechargeConsumptionExample.Criteria criteria = example.createCriteria();
 
+        if(userId != null){
+            criteria.andUserIdEqualTo(userId);
+        }
         if (!StringUtils.isEmpty(username)) {
             criteria.andUsernameLike("%" + username + "%");
         }
@@ -44,5 +48,10 @@ public class LitemallRechargeService {
         LitemallRechargeConsumptionExample example = new LitemallRechargeConsumptionExample();
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
         return litemallRechargeConsumptionMapper.selectByExample(example);
+    }
+
+    public int add(LitemallRechargeConsumption record){
+        record.setAddTime(LocalDateTime.now());
+        return litemallRechargeConsumptionMapper.insertSelective(record);
     }
 }

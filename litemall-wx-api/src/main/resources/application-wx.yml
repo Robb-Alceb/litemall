@@ -6,6 +6,6 @@ card:
 #netty消息配置
 webSocket:
   netty:
-    active: true
+    active: false
     port: 58080
     path: /webSocket

@@ -5,6 +5,7 @@ import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.util.CharUtil;
@@ -69,6 +70,9 @@ public class WxAuthController {
     @Autowired
     private LitemallMessageService litemallMessageService;
 
+    @Autowired
+    private NoticeHelper noticeHelper;
+
     /**
      * 账号登录
      *
@@ -116,12 +120,13 @@ public class WxAuthController {
             long i = litemallMsgService.countByMessageId(message.getId(), user.getId());
             if(i == 0 ){
                 if(message.getType() == Constants.MESSAGE_TYPE_SYSTEM || (message.getReceiverLevels() != null && Arrays.asList(message.getReceiverLevels()).contains(user.getUserLevel()))){
-                    LitemallMsg msg = new LitemallMsg();
+                    noticeHelper.noticeUser(Constants.MESSAGE_TYPE_SYSTEM, message.getTitle(), message.getContent(), user.getId());
+/*                    LitemallMsg msg = new LitemallMsg();
                     msg.setContent(message.getContent());
                     msg.setMessageId(message.getId());
                     msg.setUserId(user.getId());
                     msg.setType(Constants.MSG_TYPE_SYSTEM);
-                    litemallMsgService.create(msg);
+                    litemallMsgService.create(msg);*/
                 }
             }
         }

@@ -96,16 +96,22 @@ public class WxAddressController extends GetRegionService {
 			return ResponseUtil.badArgument();
 		}
 
-		String county = address.getCounty();
+
+		String country = address.getCountry();
+		if (StringUtils.isEmpty(country)) {
+			return ResponseUtil.badArgument();
+		}
+
+/*		String county = address.getCounty();
 		if (StringUtils.isEmpty(county)) {
 			return ResponseUtil.badArgument();
-		}
+		}*/
 
 
-		String areaCode = address.getAreaCode();
+/*		String areaCode = address.getAreaCode();
 		if (StringUtils.isEmpty(areaCode)) {
 			return ResponseUtil.badArgument();
-		}
+		}*/
 
 		String detailedAddress = address.getAddressDetail();
 		if (StringUtils.isEmpty(detailedAddress)) {

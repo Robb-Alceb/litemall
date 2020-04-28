@@ -5,6 +5,7 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
@@ -54,7 +55,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
     @Autowired
     private NotifyService notifyService;
     @Autowired
-    private PushService pushService;
+    private NoticeHelper noticeHelper;
     @Autowired
     private LitemallMsgService litemallMsgService;
 
@@ -205,7 +206,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             notifyService.notifyMail("新订单通知", order.toString());
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
 //            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
-            saveNotice(order.getUserId(), order.getOrderSn() + "支付成功", Constants.MSG_TYPE_ORDER);
+            noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功", order.getUserId());
             return rtn;
         }else{
             return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, "支付失败");
@@ -271,22 +272,6 @@ public class GoodsPaypalServiceImpl implements PaypalService {
         }
     }
 
-    /**
-     * 推送消息并保存到数据库
-     * @param userId
-     * @param content
-     * @param type
-     * @return
-     */
-    @Async
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void saveNotice( Integer userId, String content, Byte type){
-        pushService.pushMsgToOne(String.valueOf(userId), content);
-        LitemallMsg msg = new LitemallMsg();
-        msg.setType(type);
-        msg.setUserId(userId);
-        msg.setContent(content);
-        litemallMsgService.create(msg);
-    }
+
 
 }

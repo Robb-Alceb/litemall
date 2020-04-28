@@ -31,6 +31,8 @@ public class WebSocketHandler  extends SimpleChannelInboundHandler<TextWebSocket
         log.info("handlerAdded 被调用"+ctx.channel().id().asLongText());
         // 添加到channelGroup 通道组
         NettyConfig.getChannelGroup().add(ctx.channel());
+        // 回复消息
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("OK！"));
     }
 
     /**

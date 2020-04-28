@@ -136,6 +136,7 @@ public class Constants {
     public static final Byte PAY_STATUS_DONE = 2;  //已完成
     public static final Byte PAY_STATUS_REFUSE = 3;  //已退款
     public static final Byte PAY_STATUS_AUTO_CANCEL = 4;  //自动取消
+    public static final Byte PAY_STATUS_CANCEL = 5;  //手动取消
 
 
     /**

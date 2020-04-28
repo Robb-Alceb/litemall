@@ -3,15 +3,8 @@ spring:
     active: db, core, admin
   messages:
     encoding: UTF-8
-#  servlet:
-#    multipart:
-#      max-file-size: 100MB
-#      max-request-size: 1000MB
 
-litemall:
-  upload:
-    max-file-size: 100MB
-    max-request-size: 1000MB
+
 
 server:
   port: 8083

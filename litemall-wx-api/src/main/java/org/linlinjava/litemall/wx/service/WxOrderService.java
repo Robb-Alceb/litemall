@@ -490,6 +490,7 @@ public class WxOrderService {
         order.setTaxPrice(taxGoodsPrice);
         order.setShopId(shopId);
         order.setOrderType(orderType.byteValue());
+        order.setFreightPrice(freightPrice);
 
         // 有团购活动
 /*

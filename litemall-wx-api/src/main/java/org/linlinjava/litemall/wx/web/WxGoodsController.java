@@ -78,6 +78,8 @@ public class WxGoodsController {
 	private LitemallGrouponRulesService rulesService;
 	@Autowired
 	private LitemallBrowseRecordService browseRecordService;
+	@Autowired
+	private LitemallGoodsTaxService litemallGoodsTaxService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -112,6 +114,10 @@ public class WxGoodsController {
 
 		// 商品问题，这里是一些通用问题
 		Callable<List> issueCallable = () -> goodsIssueService.querySelective("", 1, 4, "", "");
+
+
+		// 商品问题，这里是一些通用问题
+		Callable<List> taxCallable = () -> litemallGoodsTaxService.findByGoodsId(id);
 
 		// 商品品牌商
 		Callable<LitemallBrand> brandCallable = ()->{
@@ -183,6 +189,7 @@ public class WxGoodsController {
 		FutureTask<Map> commentsCallableTsk = new FutureTask<>(commentsCallable);
 		FutureTask<LitemallBrand> brandCallableTask = new FutureTask<>(brandCallable);
         FutureTask<List> grouponRulesCallableTask = new FutureTask<>(grouponRulesCallable);
+		FutureTask<List> taxCallableTask = new FutureTask<>(taxCallable);
 
 		executorService.submit(goodsAttributeListTask);
 		executorService.submit(objectCallableTask);
@@ -191,6 +198,7 @@ public class WxGoodsController {
 		executorService.submit(commentsCallableTsk);
 		executorService.submit(brandCallableTask);
 		executorService.submit(grouponRulesCallableTask);
+		executorService.submit(taxCallableTask);
 
 		Map<String, Object> data = new HashMap<>();
 
@@ -202,6 +210,7 @@ public class WxGoodsController {
 			data.put("specificationList", objectCallableTask.get());
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
+			data.put("taxes", taxCallableTask.get());
 //			data.put("brand", brandCallableTask.get());
 //			data.put("groupon", grouponRulesCallableTask.get());
 			//SystemConfig.isAutoCreateShareImage()
@@ -299,6 +308,8 @@ public class WxGoodsController {
 			vo.setIsNew(goods.getIsNew());
 			vo.setPicUri(goods.getPicUrl());
 			vo.setCategoryId(goods.getCategoryId());
+			//税详情
+			vo.setTaxes(litemallGoodsTaxService.findByGoodsId(goods.getId()));
 
 			// 用户收藏
 			int userHasCollect = 0;

@@ -6,8 +6,8 @@ import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
 import org.linlinjava.litemall.admin.beans.enums.AdminOrderStatusEnum;
-import org.linlinjava.litemall.admin.beans.enums.OrderStatusEnum;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
+import org.linlinjava.litemall.admin.util.AdminResponseEnum;
 import org.linlinjava.litemall.admin.util.DateUtil;
 import org.linlinjava.litemall.admin.beans.vo.ShopVo;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -49,22 +50,39 @@ public class ShopService {
     private LitemallAdminOrderService litemallAdminOrderService;
     @Autowired
     private LitemallShopRegionService litemallShopRegionService;
+    @Autowired
+    private LitemallRegionService litemallRegionService;
 
-    public Object list(Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
+    public Object list(Integer shopId, String name, String address, Integer regionId, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
         if(null != status){
             sp = status.shortValue();
         }
-        List<LitemallShop> shops = litemallShopService.querySelective(shopId, name, address, sp,
-                DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
-                page, limit, sort, order);
+        List<Integer> shopIds = null;
+        if(regionId != null ){
+            List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByRegionId(regionId);
+
+            shopIds = shopRegions.stream().map(LitemallShopRegion::getShopId).collect(Collectors.toList());
+        }
+        List<LitemallShop> shops = null;
+        if(shopIds == null){
+            shops = litemallShopService.querySelective(shopId, name, address, sp,
+                    DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
+                    page, limit, sort, order);
+        }else{
+            shops = litemallShopService.querySelective(shopIds, name, address, sp,
+                    DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
+                    page, limit, sort, order);
+        }
 
         List<ShopVo> collect = shops.stream().map(s -> {
             List<LitemallAdmin> admins = litemallAdminService.findByShopId(s.getId());
             //区域信息
             List<LitemallShopRegion> regions = litemallShopRegionService.queryByShopId(s.getId());
 
-            return BeanConvert.toShopVo(s, admins, regions);
+
+            List<LitemallRegion> rs = litemallRegionService.findByIds(regions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+            return BeanConvert.toShopVo(s, admins, rs);
         }).collect(Collectors.toList());
         return ResponseUtil.okList(collect);
     }
@@ -76,7 +94,8 @@ public class ShopService {
         List<LitemallAdmin> byShopId = litemallAdminService.findByShopId(litemallShop.getId());
         //区域信息
         List<LitemallShopRegion> regions = litemallShopRegionService.queryByShopId(litemallShop.getId());
-        return ResponseUtil.ok(BeanConvert.toShopVo(litemallShop, byShopId, regions));
+        List<LitemallRegion> rs = litemallRegionService.findByIds(regions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+        return ResponseUtil.ok(BeanConvert.toShopVo(litemallShop, byShopId, rs));
     }
 
     public Object delete(Integer shopId){
@@ -92,6 +111,17 @@ public class ShopService {
 
     @Transactional(rollbackFor = Exception.class)
     public Object create(ShopDto shop){
+        if(!StringUtils.isEmpty(shop.getLitemallShop().getName())){
+            if(litemallShopService.countByName(shop.getLitemallShop().getName(),null) > 0){
+                return ResponseUtil.fail(AdminResponseEnum.SHOP_NAME_EXIST);
+            };
+        }
+        if(!StringUtils.isEmpty(shop.getLitemallShop().getStreetAddress())){
+            if(litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(),null) > 0){
+                return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+            };
+        }
+
         litemallShopService.add(shop.getLitemallShop());
         if(shop.getRegionIds() != null){
             for(Integer regionId : shop.getRegionIds()){
@@ -132,6 +162,17 @@ public class ShopService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Object update(ShopDto shop) {
+        if(!StringUtils.isEmpty(shop.getLitemallShop().getName())){
+            if(litemallShopService.countByName(shop.getLitemallShop().getName(),shop.getLitemallShop().getId()) > 0){
+                return ResponseUtil.fail(AdminResponseEnum.SHOP_NAME_EXIST);
+            };
+        }
+        if(!StringUtils.isEmpty(shop.getLitemallShop().getStreetAddress())){
+            if(litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(),shop.getLitemallShop().getId()) > 0){
+                return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+            };
+        }
+
         //删除位置信息
         litemallShopRegionService.deletedByShopId(shop.getLitemallShop().getId());
         //添加位置信息

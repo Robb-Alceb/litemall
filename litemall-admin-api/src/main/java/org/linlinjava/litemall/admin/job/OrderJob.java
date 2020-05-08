@@ -3,11 +3,14 @@ package org.linlinjava.litemall.admin.job;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
+import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
+import org.linlinjava.litemall.db.service.LitemallCouponUserService;
 import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
+import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +33,8 @@ public class OrderJob {
     private LitemallOrderService orderService;
     @Autowired
     private LitemallGoodsProductService productService;
+    @Autowired
+    private LitemallCouponUserService couponUserService;
 
     /**
      * 自动取消订单
@@ -62,6 +67,17 @@ public class OrderJob {
                 Short number = orderGoods.getNumber();
                 if (productService.addStock(productId, number) == 0) {
                     throw new RuntimeException("商品货品库存增加失败");
+                }
+            }
+
+            // 返还优惠券
+            List<LitemallCouponUser> couponUsers = couponUserService.queryByOrderId(orderId);
+            if(couponUsers != null && couponUsers.size() > 0){
+                for(LitemallCouponUser couponUser : couponUsers){
+                    couponUser.setStatus(CouponUserConstant.STATUS_USABLE);
+                    couponUser.setUsedTime(null);
+                    couponUser.setOrderId(null);
+                    couponUserService.recover(couponUser);
                 }
             }
             logger.info("订单 ID" + order.getId() + " 已经超期自动取消订单");

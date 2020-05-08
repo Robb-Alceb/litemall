@@ -58,12 +58,12 @@ public class AdminShopController {
     @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "查询")
     @GetMapping("/list")
     @LogAnno
-    public Object list(@LoginAdminShopId Integer shopId, String name, String address, Integer status, String addTimeFrom, String addTimeTo,
+    public Object list(@LoginAdminShopId Integer shopId, String name, String address, Integer regionId, Integer status, String addTimeFrom, String addTimeTo,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return shopService.list(shopId, name, address, status, addTimeFrom, addTimeTo, page, limit, sort, order);
+        return shopService.list(shopId, name, address, regionId, status, addTimeFrom, addTimeTo, page, limit, sort, order);
     }
 
 

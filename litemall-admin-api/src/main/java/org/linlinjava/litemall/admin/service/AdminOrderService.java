@@ -79,10 +79,19 @@ public class AdminOrderService {
      * 订单列表
      * @return
      */
-    public Object list(Integer id,Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId,
+    public Object list(String userName, Integer id,Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallOrder> litemallOrders = orderService.querySelective(id, userId, orderSn, orderStatusArray, shopId, page, limit,
-                sort, order);
+        List<LitemallUser> users = userService.findByName(userName);
+        List<LitemallOrder> litemallOrders = null;
+        if(users.size() > 0){
+            List<Integer> userIds = users.stream().map(LitemallUser::getId).collect(Collectors.toList());
+            litemallOrders = orderService.querySelective(id, userIds, orderSn, orderStatusArray, shopId, page, limit,
+                    sort, order);
+        }else{
+            litemallOrders = orderService.querySelective(id, userId, orderSn, orderStatusArray, shopId, page, limit,
+                    sort, order);
+        }
+
         List<OrderVo> collect = litemallOrders.stream().map(o -> {
             return BeanConvert.toOrderVo(o, userService.findById(o.getUserId()));
         }).collect(Collectors.toList());

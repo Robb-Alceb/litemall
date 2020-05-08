@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BeanConvert {
-    public static ShopVo toShopVo(LitemallShop litemallShop, List<LitemallAdmin> admins, List<LitemallShopRegion> regions){
+    public static ShopVo toShopVo(LitemallShop litemallShop, List<LitemallAdmin> admins, List<LitemallRegion> regions){
         ShopVo vo = new ShopVo();
         vo.setId(litemallShop.getId());
         vo.setShopId(litemallShop.getId());

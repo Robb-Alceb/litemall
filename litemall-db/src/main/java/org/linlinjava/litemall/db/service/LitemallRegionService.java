@@ -64,4 +64,12 @@ public class LitemallRegionService {
         return regionMapper.selectByExample(example);
     }
 
+    public List<LitemallRegion> findByIds(List<Integer> collect) {
+        if(collect == null || collect.size() == 0){
+            return null;
+        }
+        LitemallRegionExample example = new LitemallRegionExample();
+        example.or().andIdIn(collect);
+        return regionMapper.selectByExample(example);
+    }
 }

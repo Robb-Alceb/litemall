@@ -32,6 +32,8 @@ public class SystemConfig {
     public final static String LITEMALL_STATISTICS_AMOUNT = "litemall_statistics_amount";
     //  下班结算面额初始值设置
     public final static String LITEMALL_SETTLEMENT_AMOUNT = "litemall_settlement_amount";
+    //  积分兑换金额配置（1积分=？钱）
+    public final static String LITEMALL_INTEGRAL_AMOUNT = "litemall_integral_amount";
 
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();

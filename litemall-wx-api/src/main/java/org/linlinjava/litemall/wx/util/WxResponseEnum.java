@@ -57,6 +57,7 @@ public enum WxResponseEnum {
     NOT_ENOUGH_AMOUNT(101001,"余额不足"),
     NOT_FIND_ORDER(101002,"订单不存在"),
     NOT_FIND_USER(101003,"用户不存在"),
+    UNKOWN_LOCATION(101004,"未知的位置"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

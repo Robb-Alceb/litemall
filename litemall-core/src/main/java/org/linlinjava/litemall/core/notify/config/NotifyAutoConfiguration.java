@@ -1,6 +1,8 @@
 package org.linlinjava.litemall.core.notify.config;
 
+import cn.jpush.api.JPushClient;
 import com.github.qcloudsms.SmsSingleSender;
+import org.linlinjava.litemall.core.notify.JpushSender;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.TencentSmsSender;
 import org.linlinjava.litemall.core.notify.WxTemplateSender;
@@ -42,6 +44,11 @@ public class NotifyAutoConfiguration {
             notifyService.setWxTemplateSender(wxTemplateSender());
             notifyService.setWxTemplate(wxConfig.getTemplate());
         }
+
+        NotifyProperties.Jpush jpush = properties.getJpush();
+        if (jpush.isEnable()) {
+            notifyService.setJpushSender(jpushSender());
+        }
         return notifyService;
     }
 
@@ -67,5 +74,14 @@ public class NotifyAutoConfiguration {
         TencentSmsSender smsSender = new TencentSmsSender();
         smsSender.setSender(new SmsSingleSender(smsConfig.getAppid(), smsConfig.getAppkey()));
         return smsSender;
+    }
+
+    @Bean
+    public JpushSender jpushSender(){
+        NotifyProperties.Jpush jpush = properties.getJpush();
+        JpushSender sender = new JpushSender();
+        sender.setjPushClient(new JPushClient(jpush.getSecret(), jpush.getAppKey()));
+        sender.setApnsProduction(jpush.isApnsProduction());
+        return sender;
     }
 }

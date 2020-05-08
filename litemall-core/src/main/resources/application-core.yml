@@ -54,6 +54,13 @@ litemall:
         templateId: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - name: refund
         templateId: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    jpush:
+      enable: true
+      secret: cb73f3661cede39b98d4fca9
+      appKey: 40d54b646164c70ef2b677e3
+      #推送的apns环境，false表示开发，true表示生产；对android和自定义消息无意义
+      apnsProduction: false
+
 
   # 快鸟物流查询配置
   express:

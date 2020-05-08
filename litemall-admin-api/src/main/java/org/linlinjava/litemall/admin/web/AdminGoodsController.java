@@ -11,6 +11,7 @@ import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
 import org.linlinjava.litemall.admin.beans.dto.GoodsStoreDto;
 import org.linlinjava.litemall.admin.beans.dto.PriceDto;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
+import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
@@ -88,6 +89,26 @@ public class AdminGoodsController {
     @LogAnno
     public Object delete(@RequestBody LitemallGoods goods, @LoginAdminShopId Integer shopId) {
         return adminGoodsService.delete(goods, shopId);
+    }
+
+    /**
+     * 批量添加商品
+     *
+     * @param goodsAllinone
+     * @return
+     */
+    @RequiresPermissions("admin:goods:batch")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新增")
+    @PostMapping("/batch")
+    @LogAnno
+    public Object batch(@RequestBody GoodsAllinone goodsAllinone) {
+        if(goodsAllinone.getShopIds() != null && goodsAllinone.getShopIds().size() > 0){
+            for(Integer shopId : goodsAllinone.getShopIds()){
+                goodsAllinone.getGoods().setShopId(shopId);
+                adminGoodsService.create(goodsAllinone);
+            }
+        }
+        return ResponseUtil.ok();
     }
 
     /**

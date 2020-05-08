@@ -103,4 +103,15 @@ public class LitemallCouponUserService {
         example.or().andCouponIdEqualTo(couponId).andStatusEqualTo(status).andDeletedEqualTo(false);
         return couponUserMapper.selectByExample(example);
     }
+
+    public List<LitemallCouponUser> queryByOrderId(Integer orderId) {
+        LitemallCouponUserExample example = new LitemallCouponUserExample();
+        example.or().andOrderIdEqualTo(orderId).andStatusEqualTo(CouponUserConstant.STATUS_USED).andDeletedEqualTo(false);
+        return couponUserMapper.selectByExample(example);
+    }
+
+    public int recover(LitemallCouponUser couponUser) {
+        couponUser.setUpdateTime(LocalDateTime.now());
+        return couponUserMapper.updateByPrimaryKey(couponUser);
+    }
 }

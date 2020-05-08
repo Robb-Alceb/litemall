@@ -54,7 +54,7 @@ public class AdminUserController {
     public Object list(String username, String mobile,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
-                       @Sort @RequestParam(defaultValue = "add_time") String sort,
+                       @Sort(accepts = {"id", "add_time", "username", "user_level", "status"}) @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         List<LitemallUser> userList = litemallUserService.querySelective(username, mobile, page, limit, sort, order);
         return ResponseUtil.okList(userList);

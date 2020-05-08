@@ -5,7 +5,9 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.util.JacksonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,11 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PushServiceImpl implements PushService{
     private static final Log log = LogFactory.getLog(PushServiceImpl.class);
+    @Autowired
+    private NotifyService notifyService;
     /**
-     *
+     * TODO 返回值为true表明不能保证发送成功。其实是有问题的，后续改造
      * @param userId
      * @param msg
-     * @return TODO 返回值为true表明不能保证发送成功。其实是有问题的，后续改造
+     * @return
      */
     @Override
     public boolean pushMsgToOne(String userId, Object msg){
@@ -32,6 +36,7 @@ public class PushServiceImpl implements PushService{
             String msgStr = JSON.toJSONString(msg);
             log.info("pushMsgToOne msg :" + msgStr);
             channel.writeAndFlush(new TextWebSocketFrame(msgStr));
+            notifyService.sendToRegistrationId(userId, "", "", msgStr, "");
             return true;
         }
         return false;
@@ -41,6 +46,7 @@ public class PushServiceImpl implements PushService{
         String msgStr = JSON.toJSONString(msg);
         log.info("pushMsgToAll msg :" + msgStr);
         NettyConfig.getChannelGroup().writeAndFlush(new TextWebSocketFrame(msgStr));
+        notifyService.sendToAll("", "", msgStr, "");
         return true;
     }
 
@@ -51,6 +57,7 @@ public class PushServiceImpl implements PushService{
         Channel channel = userChannelMap.get(userId);
         if(channel != null){
             channel.writeAndFlush(new TextWebSocketFrame(msg));
+            notifyService.sendToRegistrationId(userId, "", "", msg, "");
             return true;
         }
         return false;
@@ -59,6 +66,7 @@ public class PushServiceImpl implements PushService{
     public boolean pushMsgToAll(String msg){
         log.info("pushMsgToAll msg :" + msg);
         NettyConfig.getChannelGroup().writeAndFlush(new TextWebSocketFrame(msg));
+        notifyService.sendToAll("", "", msg, "");
         return true;
     }
 }

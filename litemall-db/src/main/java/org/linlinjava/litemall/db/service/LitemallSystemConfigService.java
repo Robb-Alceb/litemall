@@ -118,4 +118,24 @@ public class LitemallSystemConfigService {
         systemMapper.insertSelective(system);
     }
 
+    public Map<String,String> queryByKeyName(String keyName){
+        LitemallSystemExample example = new LitemallSystemExample();
+        example.or().andKeyNameLike(keyName).andDeletedEqualTo(false);
+        List<LitemallSystem> systemList = systemMapper.selectByExample(example);
+        Map<String, String> data = new HashMap<>();
+        for(LitemallSystem system : systemList){
+            data.put(system.getKeyName(), system.getKeyValue());
+        }
+        return data;
+    }
+
+    public int updateByKeyName(String keyName, String keyValue){
+        LitemallSystemExample example = new LitemallSystemExample();
+        example.or().andKeyNameEqualTo(keyName).andDeletedEqualTo(false);
+        LitemallSystem system = new LitemallSystem();
+        system.setKeyName(keyName);
+        system.setKeyValue(keyValue);
+        system.setUpdateTime(LocalDateTime.now());
+        return systemMapper.updateByExampleSelective(system, example);
+    }
 }

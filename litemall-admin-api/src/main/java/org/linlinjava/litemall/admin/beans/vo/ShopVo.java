@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.admin.beans.vo;
 
 import lombok.Data;
+import org.linlinjava.litemall.db.domain.LitemallRegion;
 import org.linlinjava.litemall.db.domain.LitemallShopRegion;
 
 import java.util.List;
@@ -28,6 +29,6 @@ public class ShopVo {
     private Integer id;
     private Double longitude;
     private Double latitude;
-    private List<LitemallShopRegion> regions;
+    private List<LitemallRegion> regions;
 
 }

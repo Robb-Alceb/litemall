@@ -125,17 +125,25 @@ public class LitemallOrderService {
     }
 
     public List<LitemallOrder> querySelective(Integer id, Integer userId, String orderSn, List<Short> orderStatusArray, Integer shopId, Integer page, Integer limit, String sort, String order) {
+        List<Integer> userIds = new ArrayList<>();
+        if(userId != null){
+            userIds.add(userId);
+        }
+        return querySelective(id, userIds, orderSn, orderStatusArray, shopId, page, limit, sort, order);
+    }
+
+    public List<LitemallOrder> querySelective(Integer id, List<Integer> userIds, String orderSn, List<Short> orderStatusArray, Integer shopId, Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         LitemallOrderExample.Criteria criteria = example.createCriteria();
 
         if (id != null) {
             criteria.andIdEqualTo(id);
         }
-        if (userId != null) {
-            criteria.andUserIdEqualTo(userId);
+        if (userIds != null && userIds.size() > 0) {
+            criteria.andUserIdIn(userIds);
         }
         if (!StringUtils.isEmpty(orderSn)) {
-            criteria.andOrderSnEqualTo(orderSn);
+            criteria.andOrderSnLike("%"+orderSn+"%");
         }
         if (orderStatusArray != null && orderStatusArray.size() != 0) {
             criteria.andOrderStatusIn(orderStatusArray);

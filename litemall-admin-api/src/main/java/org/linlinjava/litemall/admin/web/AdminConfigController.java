@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -122,23 +123,24 @@ public class AdminConfigController {
         return ResponseUtil.ok();
     }
 
-//    @RequiresPermissions("admin:config:wx:list")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "详情")
-//    @GetMapping("/wx")
+    @RequiresPermissions("admin:config:system:query")
+    @RequiresPermissionsDesc(menu = {"配置管理", "其他配置"}, button = "详情")
+    @GetMapping("/system")
     @LogAnno
-    public Object listWx() {
-        Map<String, String> data = systemConfigService.listWx();
-        return ResponseUtil.ok(data);
+    public Object system(String keyName) {
+        return ResponseUtil.ok(systemConfigService.queryByKeyName(keyName));
     }
 
-//    @RequiresPermissions("admin:config:wx:updateConfigs")
-//    @RequiresPermissionsDesc(menu = {"配置管理", "小程序配置"}, button = "编辑")
-//    @PostMapping("/wx")
+    @RequiresPermissions("admin:config:integral:updateConfigs")
+    @RequiresPermissionsDesc(menu = {"配置管理", "其他配置"}, button = "编辑")
+    @PostMapping("/system")
     @LogAnno
-    public Object updateWx(@RequestBody String body) {
-        Map<String, String> data = JacksonUtil.toMap(body);
-        systemConfigService.updateConfig(data);
-        SystemConfig.updateConfigs(data);
-        return ResponseUtil.ok();
+    public Object updateIntegral(@RequestBody String body) {
+        String keyName = JacksonUtil.parseString(body, "keyName");
+        String keyValue = JacksonUtil.parseString(body, "keyValue");
+        Map<String, String> map = new HashMap<>();
+        map.put(keyName, keyValue);
+        SystemConfig.updateConfigs(map);
+        return ResponseUtil.ok(systemConfigService.updateByKeyName(keyName, keyValue));
     }
 }

@@ -228,7 +228,7 @@ public class WebCartController {
      * 购物车商品删除
      *
      * @param userId 用户ID
-     * @param body   购物车商品信息， { productIds: xxx }
+     * @param body   购物车商品信息， { cartIds: xxx }
      * @return 购物车信息
      * 成功则
      * {
@@ -247,13 +247,13 @@ public class WebCartController {
             return ResponseUtil.badArgument();
         }
 
-        List<Integer> productIds = JacksonUtil.parseIntegerList(body, "productIds");
+        List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
 
-        if (productIds == null || productIds.size() == 0) {
+        if (cartIds == null || cartIds.size() == 0) {
             return ResponseUtil.badArgument();
         }
 
-        cartService.delete(productIds, userId);
+        cartService.delete(cartIds, userId);
         return index(userId);
     }
 

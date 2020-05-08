@@ -322,16 +322,18 @@ public class WxGiftCardService {
         List<MyCardVo> cards = new ArrayList<>();
         List<LitemallGiftCardUser> litemallGiftCardUsers = litemallGiftCardUserService.queryByUserId(userId);
         for(LitemallGiftCardUser item : litemallGiftCardUsers){
-            LitemallGiftCard giftCard = litemallGiftCardService.findById(item.getGiftCardId());
-            MyCardVo vo = new MyCardVo();
-            vo.setAmount(item.getAmount());
-            vo.setName(giftCard.getName());
-            vo.setCardNumber(item.getCardNumber());
-            vo.setPicUrl(giftCard.getPicUrl());
-            vo.setId(giftCard.getId());
-            vo.setShareDetail(litemallGiftCardShareService.findByCardNumber(item.getCardNumber()));
+            if(StringUtils.isNotEmpty(item.getCardNumber())){
+                LitemallGiftCard giftCard = litemallGiftCardService.findById(item.getGiftCardId());
+                MyCardVo vo = new MyCardVo();
+                vo.setAmount(item.getAmount());
+                vo.setName(giftCard.getName());
+                vo.setCardNumber(item.getCardNumber());
+                vo.setPicUrl(giftCard.getPicUrl());
+                vo.setId(giftCard.getId());
+                vo.setShareDetail(litemallGiftCardShareService.findByCardNumber(item.getCardNumber()));
 
-            cards.add(vo);
+                cards.add(vo);
+            }
         }
         return ResponseUtil.ok(cards);
     }

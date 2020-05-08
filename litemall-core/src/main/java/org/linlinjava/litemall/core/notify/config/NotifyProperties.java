@@ -11,6 +11,7 @@ public class NotifyProperties {
     private Mail mail;
     private Sms sms;
     private Wx wx;
+    private Jpush jpush;
 
     public Mail getMail() {
         return mail;
@@ -34,6 +35,14 @@ public class NotifyProperties {
 
     public void setWx(Wx wx) {
         this.wx = wx;
+    }
+
+    public Jpush getJpush() {
+        return jpush;
+    }
+
+    public void setJpush(Jpush jpush) {
+        this.jpush = jpush;
     }
 
     public static class Mail {
@@ -150,6 +159,45 @@ public class NotifyProperties {
 
         public void setTemplate(List<Map<String, String>> template) {
             this.template = template;
+        }
+    }
+
+    public static class Jpush {
+        private boolean enable;
+        private String secret;
+        private String appKey;
+        private boolean apnsProduction;
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
+
+        public String getSecret() {
+            return secret;
+        }
+
+        public void setSecret(String secret) {
+            this.secret = secret;
+        }
+
+        public String getAppKey() {
+            return appKey;
+        }
+
+        public void setAppKey(String appKey) {
+            this.appKey = appKey;
+        }
+
+        public boolean isApnsProduction() {
+            return apnsProduction;
+        }
+
+        public void setApnsProduction(boolean apnsProduction) {
+            this.apnsProduction = apnsProduction;
         }
     }
 

@@ -1,5 +1,7 @@
 package org.linlinjava.litemall.admin.web;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -17,10 +19,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/admin/storage")
@@ -92,5 +100,43 @@ public class AdminStorageController {
         litemallStorageService.deleteByKey(key);
         storageService.delete(key);
         return ResponseUtil.ok();
+    }
+
+
+    AtomicInteger ac = new AtomicInteger(0);
+    @PostMapping("/track")
+    @LogAnno
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PrintWriter writer = response.getWriter();
+
+        Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");
+        String body = scanner.hasNext() ? scanner.next() : "";
+
+        JSONObject jsonObj = JSON.parseObject(body);
+
+        logger.info("body is :"+body);
+        if((int) jsonObj.get("status") == 2)
+        {
+            String downloadUri = (String) jsonObj.get("url");
+
+            URL url = new URL(downloadUri);
+            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+            InputStream stream = connection.getInputStream();
+
+            String pathForSave = "E:\\temp\\only\\"+ac.incrementAndGet();
+            File savedFile = new File(pathForSave);
+            try (FileOutputStream out = new FileOutputStream(savedFile)) {
+                int read;
+                final byte[] bytes = new byte[1024];
+                while ((read = stream.read(bytes)) != -1) {
+                    out.write(bytes, 0, read);
+                }
+
+                out.flush();
+            }
+
+            connection.disconnect();
+        }
+        writer.write("{\"error\":0}");
     }
 }

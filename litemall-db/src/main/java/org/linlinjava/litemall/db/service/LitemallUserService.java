@@ -169,4 +169,10 @@ public class LitemallUserService {
         example.or().andIdEqualTo(update.getId()).andUpdateTimeEqualTo(updateTime).andDeletedEqualTo(false);
         return litemallUserMapper.updateByExampleSelective(update,example);
     }
+
+    public List<LitemallUser> findByName(String userName) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andUsernameLike("%"+userName+"%").andDeletedEqualTo(false);
+        return litemallUserMapper.selectByExample(example);
+    }
 }

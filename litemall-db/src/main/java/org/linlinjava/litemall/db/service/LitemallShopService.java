@@ -32,8 +32,39 @@ public class LitemallShopService {
         if (!StringUtils.isEmpty(status)) {
             criteria.andStatusEqualTo(status);
         }
+        if(!StringUtils.isEmpty(address)){
+            criteria.andStreetAddressLike("%" + address + "%");
+        }
         if (null != addTimeFrom && null != addTimeTo) {
             criteria.andAddTimeBetween(addTimeFrom,addTimeTo);
+        }
+        criteria.andDeletedEqualTo(false);
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+        PageHelper.startPage(page, limit);
+        return litemallShopMapper.selectByExampleSelective(example);
+    }
+
+    public List<LitemallShop> querySelective(List<Integer> shopIds, String name, String address, Short status,
+                                             LocalDateTime addTimeFrom, LocalDateTime addTimeTo, Integer page,
+                                             Integer limit, String sort, String order) {
+        LitemallShopExample example = new LitemallShopExample();
+        LitemallShopExample.Criteria criteria = example.createCriteria();
+        if(null != shopIds && shopIds.size() > 0){
+            criteria.andIdIn(shopIds);
+        }
+        if (!StringUtils.isEmpty(name)) {
+            criteria.andNameLike("%" + name + "%");
+        }
+        if (!StringUtils.isEmpty(status)) {
+            criteria.andStatusEqualTo(status);
+        }
+        if (null != addTimeFrom && null != addTimeTo) {
+            criteria.andAddTimeBetween(addTimeFrom,addTimeTo);
+        }
+        if(!StringUtils.isEmpty(address)){
+            criteria.andStreetAddressLike("%" + address + "%");
         }
         criteria.andDeletedEqualTo(false);
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
@@ -78,5 +109,21 @@ public class LitemallShopService {
         LitemallShopExample example = new LitemallShopExample();
         example.or().andIdEqualTo(id).andDeletedEqualTo(false);
         return litemallShopMapper.selectOneByExampleSelective(example,idAndName);
+    }
+
+    public int countByName(String name, Integer id) {
+        LitemallShopExample example = new LitemallShopExample();
+        example.or().andNameEqualTo(name.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
+        return (int)litemallShopMapper.countByExample(example);
+    }
+
+    public int countByAddress(String streetAddress, Integer id) {
+        LitemallShopExample example = new LitemallShopExample();
+        if(id != null){
+            example.or().andNameEqualTo(streetAddress.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
+        }else{
+            example.or().andNameEqualTo(streetAddress.trim()).andDeletedEqualTo(false);
+        }
+        return (int)litemallShopMapper.countByExample(example);
     }
 }

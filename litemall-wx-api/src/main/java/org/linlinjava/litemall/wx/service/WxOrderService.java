@@ -30,6 +30,7 @@ import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.util.IpUtil;
 import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.linlinjava.litemall.wx.util.LocationUtils;
+import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.*;
 
@@ -321,7 +323,10 @@ public class WxOrderService {
         if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
             return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
         }
-        if (orderType == 2) {
+        if (orderType.byteValue() == Constants.ORDER_AET) {
+            if(litemallShop.getLatitude() == null || litemallShop.getLongitude() == null || checkedAddress.getLatitude() == null || checkedAddress.getLongitude() == null){
+                return ResponseUtil.fail(WxResponseEnum.UNKOWN_LOCATION);
+            }
             //外送订单判断距离
             Double distance = LocationUtils.getDistance(litemallShop.getLatitude().doubleValue(), litemallShop.getLongitude().doubleValue(), checkedAddress.getLatitude().doubleValue(), checkedAddress.getLongitude().doubleValue());
             if (distance > litemallShop.getRange() * 1000) {
@@ -384,14 +389,6 @@ public class WxOrderService {
             }
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
-            //判断指定商品类型优惠券
-            if (couponId != 0 && couponId != -1) {
-                LitemallCoupon coupon = couponVerifyService.checkCouponGoods(userId, couponId, checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())), goodsId);
-                if (coupon == null) {
-                    return ResponseUtil.badArgumentValue();
-                }
-                couponPrice = coupon.getDiscount();
-            }
 
             if(litemallGoods != null && litemallGoods.getPriceType() != null){
                 //会员价格需要乘以商品数
@@ -432,20 +429,27 @@ public class WxOrderService {
 
             taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
         }
-        checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
-        // 全商品类型优惠券
-        // 获取可用的优惠券信息
-        // 使用优惠券减免的金额
-
+        /**
+         * 优惠券优惠价格不计入税费及其他优惠
+         */
         // 如果couponId=0则没有优惠券，couponId=-1则不使用优惠券
         if (couponId != 0 && couponId != -1) {
-            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponId, checkedGoodsPrice);
+            List<Integer> cartIds = checkedGoodsList.stream().map(LitemallCart::getId).collect(Collectors.toList());
+            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponId, cartIds);
             if (coupon != null) {
-                couponPrice = coupon.getDiscount();
+                if(coupon.getDiscountType() == Constants.DISCOUNT_TYPE_RATE){
+                    couponPrice = checkedGoodsPrice.divide(new BigDecimal(100 - coupon.getDiscountRate()));
+                }else{
+                    couponPrice = coupon.getDiscount();
+                }
             }
         }
 
+        /**
+         * 计算其他价格
+         */
+        checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
         // 根据订单商品总价计算运费，满足条件（例如88元）则免运费，否则需要支付运费（例如8元）；
         BigDecimal freightPrice = new BigDecimal(0.00);
@@ -492,14 +496,6 @@ public class WxOrderService {
         order.setOrderType(orderType.byteValue());
         order.setFreightPrice(freightPrice);
 
-        // 有团购活动
-/*
-        if (grouponRules != null) {
-            order.setGrouponPrice(grouponPrice);    //  团购价格
-        } else {
-            order.setGrouponPrice(new BigDecimal(0.00));    //  团购价格
-        }
-*/
 
         // 添加订单表项
         orderService.add(order);
@@ -568,7 +564,6 @@ public class WxOrderService {
      * 2. 设置订单取消状态；
      * 3. 商品货品库存恢复；
      * 4. TODO 优惠券；
-     * 5. TODO 团购活动。
      *
      * @param userId 用户ID
      * @param body   订单信息，{ orderId：xxx }
@@ -614,6 +609,17 @@ public class WxOrderService {
             Short number = orderGoods.getNumber();
             if (productService.addStock(productId, number) == 0) {
                 throw new RuntimeException("商品货品库存增加失败");
+            }
+        }
+
+        // 返还优惠券
+        List<LitemallCouponUser> couponUsers = couponUserService.queryByOrderId(orderId);
+        if(couponUsers != null && couponUsers.size() > 0){
+            for(LitemallCouponUser couponUser : couponUsers){
+                couponUser.setStatus(CouponUserConstant.STATUS_USABLE);
+                couponUser.setUsedTime(null);
+                couponUser.setOrderId(null);
+                couponUserService.recover(couponUser);
             }
         }
 

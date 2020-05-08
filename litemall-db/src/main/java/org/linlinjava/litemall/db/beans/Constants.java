@@ -163,4 +163,10 @@ public class Constants {
     public static final Byte MSG_TYPE_ORDER = 2;  //订单消息
     public static final Byte MSG_TYPE_PROMOTION = 3;  //推广消息
     public static final Byte MSG_TYPE_OTHER = 4;  //其他消息
+
+    /**
+     * 优惠券折扣类型
+     */
+    public static final Byte DISCOUNT_TYPE_REDUCE = 1;   //满减
+    public static final Byte DISCOUNT_TYPE_RATE = 2;     //百分比
 }

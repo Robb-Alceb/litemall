@@ -46,9 +46,9 @@ public class LitemallCartService {
         return cartMapper.selectByExample(example);
     }
 
-    public int delete(List<Integer> productIdList, int userId) {
+    public int delete(List<Integer> cartIds, int userId) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andUserIdEqualTo(userId).andProductIdIn(productIdList);
+        example.or().andUserIdEqualTo(userId).andIdIn(cartIds);
         return cartMapper.logicalDeleteByExample(example);
     }
 
@@ -117,5 +117,11 @@ public class LitemallCartService {
         LitemallCartExample example = new LitemallCartExample();
         example.or().andGoodsIdEqualTo(goodsId).andCheckedEqualTo(true).andDeletedEqualTo(false);
         return cartMapper.countByExample(example) != 0;
+    }
+
+    public List<LitemallCart> queryByIds(List<Integer> cartIds) {
+        LitemallCartExample example = new LitemallCartExample();
+        example.or().andIdIn(cartIds);
+        return cartMapper.selectByExample(example);
     }
 }

@@ -37,4 +37,10 @@ public class LitemallShopRegionService {
         example.or().andShopIdEqualTo(shopId);
         return shopRegionMapper.logicalDeleteByExample(example);
     }
+
+    public List<LitemallShopRegion> queryByRegionId(Integer regionId){
+        LitemallShopRegionExample example = new LitemallShopRegionExample();
+        example.or().andRegionIdEqualTo(regionId);
+        return shopRegionMapper.selectByExample(example);
+    }
 }

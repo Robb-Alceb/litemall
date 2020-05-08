@@ -2,8 +2,10 @@ package org.linlinjava.litemall.wx.vo;
 
 
 import lombok.Data;
+import org.linlinjava.litemall.db.domain.LitemallGoodsTax;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @Author: stephen
@@ -25,4 +27,5 @@ public class GoodsVo {
     private Integer categoryId;
     private String categoryName;
     private Boolean userHasCollect;
+    private List<LitemallGoodsTax> taxes;
 }

@@ -57,6 +57,8 @@ class SystemInistService {
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_STATISTICS_AMOUNT, "0-50;50-100;100-200;200-500;500-1000;1000-5000;5000-10000");
         //  下班结算面额配置
         DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_SETTLEMENT_AMOUNT, "0.01;0.05;0.1;0.5;1;5;10;50;100");
+        //  积分兑换金额配置（1积分=？钱）
+        DEFAULT_CONFIGS.put(SystemConfig.LITEMALL_INTEGRAL_AMOUNT, "0.01");
     }
 
     @Autowired

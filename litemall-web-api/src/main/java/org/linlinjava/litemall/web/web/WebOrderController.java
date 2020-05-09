@@ -4,6 +4,7 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallCart;
+import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.service.WebOrderService;
@@ -33,6 +34,7 @@ public class WebOrderController {
      * @return 订单列表
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@LoginUser Integer userId,
                        @RequestParam(defaultValue = "1") Boolean today,
                        @RequestParam(defaultValue = "0") Integer showType,
@@ -51,6 +53,7 @@ public class WebOrderController {
      * @return 订单详情
      */
     @GetMapping("detail")
+    @LogAnno
     public Object detail(@LoginUser Integer userId, @NotNull Integer orderId) {
         return orderService.detail(userId, orderId);
     }
@@ -63,6 +66,7 @@ public class WebOrderController {
      * @return 提交订单
      */
     @PostMapping("submit")
+    @LogAnno
     public Object submit(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -77,6 +81,7 @@ public class WebOrderController {
      * @return
      */
     @PostMapping("pay")
+    @LogAnno
     public Object pay(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -85,6 +90,7 @@ public class WebOrderController {
     }
 
     @PostMapping("complete")
+    @LogAnno
     public Object complete(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -98,6 +104,7 @@ public class WebOrderController {
      * @return
      */
     @GetMapping("countorder")
+    @LogAnno
     public Object countorder(@LoginUser Integer userId){
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -111,6 +118,7 @@ public class WebOrderController {
      * @return
      */
     @GetMapping("countbystatus")
+    @LogAnno
     public Object countByStatus(@LoginUser Integer userId){
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -126,6 +134,7 @@ public class WebOrderController {
      * @return
      */
     @PostMapping("directly")
+    @LogAnno
     public Object orderDirectly(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -141,6 +150,7 @@ public class WebOrderController {
      *
      */
     @PostMapping("calculation")
+    @LogAnno
     public Object calculationOrder(@LoginUser Integer userId, @RequestBody List<CalculationOrderVo> calculationOrderVos) {
         if (userId == null) {
             return ResponseUtil.unlogin();

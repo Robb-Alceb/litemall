@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -279,8 +280,7 @@ public class WxOrderService {
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
         Integer shopId = JacksonUtil.parseInteger(body, "shopId");
         String message = JacksonUtil.parseString(body, "message");
-        Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
-        Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
+        Integer integral = JacksonUtil.parseInteger(body, "integral");
 
         //订单类型（1：自提订单;2:外送订单）
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
@@ -459,7 +459,22 @@ public class WxOrderService {
 
         // 可以使用的其他钱，例如用户积分
         BigDecimal integralPrice = new BigDecimal(0.00);
-
+        if(integral != null && integral > 0){
+            LitemallUser user = userService.findById(userId);
+            //传入的积分大于用户总积分
+            if(user.getPoints().compareTo(new BigDecimal(integral)) == -1){
+                integral = user.getPoints().intValue();
+            }
+            String config = SystemConfig.getConfig(SystemConfig.LITEMALL_INTEGRAL_AMOUNT);
+            if(!StringUtils.isEmpty(config)){
+                try{
+                    double v = Double.parseDouble(config);
+                    integralPrice = new BigDecimal(v*integral);
+                }catch (Exception e){
+                    logger.info(e);
+                }
+            }
+        }
 
 
         // 订单费用
@@ -550,6 +565,15 @@ public class WxOrderService {
             couponUserService.update(couponUser);
         }
 
+        // 如果使用了积分，更新积分
+        if (integral != null && integral > 0) {
+            LitemallUser user = userService.findById(userId);
+            LitemallUser update = new LitemallUser();
+            update.setId(userId);
+            update.setPoints(user.getPoints().subtract(new BigDecimal(integral)));
+            userService.updateById(update);
+        }
+
 
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", orderId);
@@ -563,7 +587,8 @@ public class WxOrderService {
      * 1. 检测当前订单是否能够取消；
      * 2. 设置订单取消状态；
      * 3. 商品货品库存恢复；
-     * 4. TODO 优惠券；
+     * 4. 返还优惠券；
+     * 5. 退回积分；
      *
      * @param userId 用户ID
      * @param body   订单信息，{ orderId：xxx }
@@ -621,6 +646,25 @@ public class WxOrderService {
                 couponUser.setOrderId(null);
                 couponUserService.recover(couponUser);
             }
+        }
+
+        // 如果使用了积分，更新积分
+        if (order.getIntegralPrice() != null && order.getIntegralPrice().compareTo(new BigDecimal(0.00)) > 0) {
+            String config = SystemConfig.getConfig(SystemConfig.LITEMALL_INTEGRAL_AMOUNT);
+            if(!StringUtils.isEmpty(config)){
+                try{
+                    double v = Double.parseDouble(config);
+                    LitemallUser user = userService.findById(userId);
+                    LitemallUser update = new LitemallUser();
+                    update.setId(userId);
+                    update.setPoints(user.getPoints().add(order.getIntegralPrice().divide(new BigDecimal(v))));
+                    userService.updateById(update);
+                }catch (Exception e){
+                    logger.info("取消订单，返还积分失败");
+                    logger.info(e);
+                }
+            }
+
         }
 
         return ResponseUtil.ok();

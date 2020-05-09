@@ -2,6 +2,7 @@ package org.linlinjava.litemall.web.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.service.LitemallSystemConfigService;
+import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ public class WebConfigController {
     private LitemallSystemConfigService systemConfigService;
 
     @GetMapping("settlement")
+    @LogAnno
     public Object listSettlement(@LoginUser Integer userId){
         if(userId == null){
             return ResponseUtil.unlogin();

@@ -7,6 +7,9 @@ spring:
 server:
   port: 8086
 
+zone:
+  offset: 0
+
 logging:
   level:
     root:  ERROR

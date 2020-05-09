@@ -1,6 +1,8 @@
 package org.linlinjava.litemall.admin.service;
 
+import org.linlinjava.litemall.admin.util.RandomUtils;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
 import org.linlinjava.litemall.db.domain.LitemallAddress;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallUser;
@@ -9,6 +11,7 @@ import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,5 +42,19 @@ public class AdminUserInfoService {
         map.put("addressList", addressList);
         map.put("orders", orders);
         return ResponseUtil.ok(map);
+    }
+
+    public Object resetPwd(Integer userId, String newPwd) {
+        if(StringUtils.isEmpty(newPwd)){
+            newPwd = RandomUtils.generateRandomStr(6);
+        }
+        LitemallUser user = litemallUserService.findById(userId);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encodedPassword = encoder.encode(newPwd);
+        LitemallUser update = new LitemallUser();
+        update.setId(user.getId());
+        update.setPassword(encodedPassword);
+        litemallUserService.updateById(update);
+        return ResponseUtil.ok(newPwd);
     }
 }

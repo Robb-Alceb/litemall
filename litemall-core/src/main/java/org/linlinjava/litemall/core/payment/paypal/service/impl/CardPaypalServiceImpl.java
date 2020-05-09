@@ -14,10 +14,11 @@ import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallGiftCardOrderMapper;
-import org.linlinjava.litemall.db.domain.LitemallGiftCardOrder;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallUserFormid;
+import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.LitemallGiftCardOrderService;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
+import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * @author ：stephen
@@ -42,6 +44,12 @@ public class CardPaypalServiceImpl implements PaypalService {
     private APIContext apiContext;
     @Resource
     private LitemallGiftCardOrderService litemallGiftCardOrderService;
+    @Autowired
+    private LitemallOrderGoodsService litemallOrderGoodsService;
+    @Autowired
+    private LitemallUserService userService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
 
     @Override
@@ -152,6 +160,24 @@ public class CardPaypalServiceImpl implements PaypalService {
 
             if (litemallGiftCardOrderService.payDone(order, update) == 0) {
                 return ResponseUtil.updatedDateExpired();
+            }
+
+            //用户增加积分
+            List<LitemallOrderGoods> orderGoods = litemallOrderGoodsService.queryByOid(order.getId());
+            BigDecimal giveAwayPoints = new BigDecimal(0.00);
+            for(LitemallOrderGoods item : orderGoods){
+                LitemallGoods goods = goodsService.findById(item.getId());
+                giveAwayPoints = giveAwayPoints.add(goods.getGiveAwayPoints().multiply(new BigDecimal(item.getNumber())));
+            }
+            if(giveAwayPoints.compareTo(new BigDecimal(0.00)) > 0){
+                LitemallUser user = userService.findById(order.getUserId());
+                if(user != null){
+                    LitemallUser litemallUser = new LitemallUser();
+                    litemallUser.setId(order.getUserId());
+                    litemallUser.setPoints(user.getPoints().add(giveAwayPoints));
+                    userService.updateById(litemallUser);
+                }
+
             }
 
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位

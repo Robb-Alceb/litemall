@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.nickName, Column.mobile, Column.avatar, Column.roleIds, Column.shopId, Column.addTime, Column.location, Column.email};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.nickName, Column.mobile, Column.avatar, Column.roleIds, Column.shopId, Column.addTime, Column.location, Column.email, Column.code, Column.socialSecurityNumber, Column.gender, Column.birthday};
     @Resource
     private LitemallAdminMapper adminMapper;
 
@@ -28,12 +28,15 @@ public class LitemallAdminService {
         return adminMapper.selectByPrimaryKey(id);
     }
 
-    public List<LitemallAdmin> querySelective(String nickname, Integer shopId, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallAdmin> querySelective(String nickname, Integer shopId, Integer roleId, Integer page, Integer limit, String sort, String order) {
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
 
         if (!StringUtils.isEmpty(nickname)) {
             criteria.andNickNameLike("%" + nickname + "%");
+        }
+        if(roleId != null){
+            criteria.andRoleIdsLike(new Integer[]{roleId});
         }
         if(null != shopId){
             criteria.andShopIdEqualTo(shopId);

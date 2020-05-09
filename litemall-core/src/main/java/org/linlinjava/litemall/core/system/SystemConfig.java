@@ -38,7 +38,7 @@ public class SystemConfig {
     //所有的配置均保存在该 HashMap 中
     private static Map<String, String> SYSTEM_CONFIGS = new HashMap<>();
 
-    private static String getConfig(String keyName) {
+    public static String getConfig(String keyName) {
         return SYSTEM_CONFIGS.get(keyName);
     }
 

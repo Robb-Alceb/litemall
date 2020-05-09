@@ -169,4 +169,17 @@ public class Constants {
      */
     public static final Byte DISCOUNT_TYPE_REDUCE = 1;   //满减
     public static final Byte DISCOUNT_TYPE_RATE = 2;     //百分比
+
+    /**
+     * 性别
+     */
+    public static final Integer GENDER_TYPE_OTHER = 1;   //其他
+    public static final Integer GENDER_TYPE_WOMAN = 2;   //女
+    public static final Integer GENDER_TYPE_MAN = 3;     //男
+
+    /**
+     * 性别
+     */
+    public static final Integer BARCODE_PAY_BALANCE = 1;    //扫码余额支付
+    public static final Integer BARCODE_PAY_CARD = 2;       //扫码卡支付
 }

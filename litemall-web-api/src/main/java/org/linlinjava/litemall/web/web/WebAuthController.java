@@ -14,6 +14,7 @@ import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.CouponAssignService;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.dto.UserInfo;
 import org.linlinjava.litemall.web.service.UserTokenManager;
@@ -58,6 +59,7 @@ public class WebAuthController {
      * @return 登录结果
      */
     @PostMapping("login")
+    @LogAnno
     public Object login(@RequestBody String body, HttpServletRequest request) {
         String username = JacksonUtil.parseString(body, "username");
         String password = JacksonUtil.parseString(body, "password");
@@ -119,6 +121,7 @@ public class WebAuthController {
 
 
     @PostMapping("logout")
+    @LogAnno
     public Object logout(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -127,6 +130,7 @@ public class WebAuthController {
     }
 
     @GetMapping("info")
+    @LogAnno
     public Object info(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -150,6 +154,7 @@ public class WebAuthController {
      * @return
      */
     @PostMapping("knockoff")
+    @LogAnno
     public Object knockOff(@LoginUser Integer userId, @RequestBody List<CalculationOrderVo> calculationOrderVos) {
         if (userId == null) {
             return ResponseUtil.unlogin();

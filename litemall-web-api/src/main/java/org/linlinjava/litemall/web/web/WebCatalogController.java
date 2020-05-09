@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallGoodsProduct;
 import org.linlinjava.litemall.db.service.LitemallCategoryService;
 import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.service.HomeCacheManager;
 import org.linlinjava.litemall.web.vo.CategoryVo;
@@ -50,6 +51,7 @@ public class WebCatalogController {
      * @return 分类详情
      */
     @GetMapping("index")
+    @LogAnno
     public Object index(Integer id) {
 
         // 所有一级分类目录
@@ -82,6 +84,7 @@ public class WebCatalogController {
      * @return 所有分类数据
      */
     @GetMapping("all")
+    @LogAnno
     public Object queryAll() {
         //优先从缓存中读取
         if (HomeCacheManager.hasData(HomeCacheManager.CATALOG)) {
@@ -125,6 +128,7 @@ public class WebCatalogController {
      * @return
      */
     @GetMapping("list")
+    @LogAnno
     public Object list(@LoginShop @NotNull Integer shopId) {
         List<CategoryVo> categoryVoList = new ArrayList<>();
 
@@ -178,6 +182,7 @@ public class WebCatalogController {
      * @return 当前分类栏目
      */
     @GetMapping("current")
+    @LogAnno
     public Object current(@NotNull Integer id) {
         // 当前分类
         LitemallCategory currentCategory = categoryService.findById(id);

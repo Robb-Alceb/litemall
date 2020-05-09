@@ -6,6 +6,7 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.omg.CORBA.INTERNAL;
@@ -48,6 +49,7 @@ public class WebCartController {
      * @return 用户购物车信息
      */
     @GetMapping("index")
+    @LogAnno
     public Object index(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -90,6 +92,7 @@ public class WebCartController {
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
+    @LogAnno
     public Object add(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -169,6 +172,7 @@ public class WebCartController {
      * @return 修改结果
      */
     @PostMapping("update")
+    @LogAnno
     public Object update(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -239,6 +243,7 @@ public class WebCartController {
      * 失败则 { errno: XXX, errmsg: XXX }
      */
     @PostMapping("delete")
+    @LogAnno
     public Object delete(@LoginUser Integer userId, @RequestBody String body) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -258,6 +263,7 @@ public class WebCartController {
     }
 
     @PostMapping("clear")
+    @LogAnno
     public Object clear(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.unlogin();
@@ -275,6 +281,7 @@ public class WebCartController {
      * @return 购物车商品货品数量
      */
     @GetMapping("goodscount")
+    @LogAnno
     public Object goodscount(@LoginUser Integer userId) {
         if (userId == null) {
             return ResponseUtil.ok(0);

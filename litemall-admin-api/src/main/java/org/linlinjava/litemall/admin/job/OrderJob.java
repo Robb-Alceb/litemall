@@ -6,17 +6,17 @@ import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
-import org.linlinjava.litemall.db.service.LitemallCouponUserService;
-import org.linlinjava.litemall.db.service.LitemallGoodsProductService;
-import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
-import org.linlinjava.litemall.db.service.LitemallOrderService;
+import org.linlinjava.litemall.db.domain.LitemallUser;
+import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +35,8 @@ public class OrderJob {
     private LitemallGoodsProductService productService;
     @Autowired
     private LitemallCouponUserService couponUserService;
+    @Autowired
+    private LitemallUserService userService;
 
     /**
      * 自动取消订单
@@ -79,6 +81,25 @@ public class OrderJob {
                     couponUser.setOrderId(null);
                     couponUserService.recover(couponUser);
                 }
+            }
+
+            // 如果使用了积分，更新积分
+            if (order.getIntegralPrice() != null && order.getIntegralPrice().compareTo(new BigDecimal(0.00)) > 0) {
+                String config = SystemConfig.getConfig(SystemConfig.LITEMALL_INTEGRAL_AMOUNT);
+                if(!StringUtils.isEmpty(config)){
+                    try{
+                        double v = Double.parseDouble(config);
+                        LitemallUser user = userService.findById(order.getUserId());
+                        LitemallUser update = new LitemallUser();
+                        update.setId(order.getUserId());
+                        update.setPoints(user.getPoints().add(order.getIntegralPrice().divide(new BigDecimal(v))));
+                        userService.updateById(update);
+                    }catch (Exception e){
+                        logger.info("取消订单，返还积分失败");
+                        logger.info(e);
+                    }
+                }
+
             }
             logger.info("订单 ID" + order.getId() + " 已经超期自动取消订单");
         }

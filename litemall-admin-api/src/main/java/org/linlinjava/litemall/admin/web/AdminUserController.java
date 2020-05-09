@@ -18,10 +18,7 @@ import org.linlinjava.litemall.db.service.LitemallRechargeConsumptionService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -161,5 +158,18 @@ public class AdminUserController {
         map.put("totalConsume",totalConsume);
         map.put("totalBalance",totalBalance);
         return ResponseUtil.ok(map);
+    }
+
+    /**
+     * 用户信息
+     * @param userId
+     * @return
+     */
+    @RequiresPermissions("admin:user:resetpwd")
+    @RequiresPermissionsDesc(menu = {"用户管理", "重置密码"}, button = "重置密码")
+    @PutMapping("/resetpwd")
+    @LogAnno
+    public Object resetpwd(@NotNull Integer userId, String newPwd) {
+        return adminUserInfoService.resetPwd(userId, newPwd);
     }
 }

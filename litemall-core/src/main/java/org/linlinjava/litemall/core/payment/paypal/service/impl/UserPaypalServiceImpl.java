@@ -13,8 +13,14 @@ import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentState;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
+import org.linlinjava.litemall.db.domain.LitemallGoods;
+import org.linlinjava.litemall.db.domain.LitemallOrderGoods;
+import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.domain.LitemallUserRechargeOrder;
+import org.linlinjava.litemall.db.service.LitemallGoodsService;
+import org.linlinjava.litemall.db.service.LitemallOrderGoodsService;
 import org.linlinjava.litemall.db.service.LitemallUserRechargeOrderService;
+import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -37,7 +43,12 @@ public class UserPaypalServiceImpl implements PaypalService {
     private APIContext apiContext;
     @Autowired
     private LitemallUserRechargeOrderService litemallUserRechargeOrderService;
-
+    @Autowired
+    private LitemallOrderGoodsService litemallOrderGoodsService;
+    @Autowired
+    private LitemallUserService userService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
     @Override
     public Object getPayment(Integer userId, Integer orderId, String successUrl, String cancelUrl) {
@@ -147,6 +158,24 @@ public class UserPaypalServiceImpl implements PaypalService {
 
             if (litemallUserRechargeOrderService.payDone(order, update) == 0) {
                 return ResponseUtil.updatedDateExpired();
+            }
+
+            //用户增加积分
+            List<LitemallOrderGoods> orderGoods = litemallOrderGoodsService.queryByOid(order.getId());
+            BigDecimal giveAwayPoints = new BigDecimal(0.00);
+            for(LitemallOrderGoods item : orderGoods){
+                LitemallGoods goods = goodsService.findById(item.getId());
+                giveAwayPoints = giveAwayPoints.add(goods.getGiveAwayPoints().multiply(new BigDecimal(item.getNumber())));
+            }
+            if(giveAwayPoints.compareTo(new BigDecimal(0.00)) > 0){
+                LitemallUser user = userService.findById(order.getUserId());
+                if(user != null){
+                    LitemallUser litemallUser = new LitemallUser();
+                    litemallUser.setId(order.getUserId());
+                    litemallUser.setPoints(user.getPoints().add(giveAwayPoints));
+                    userService.updateById(litemallUser);
+                }
+
             }
 
             return rtn;

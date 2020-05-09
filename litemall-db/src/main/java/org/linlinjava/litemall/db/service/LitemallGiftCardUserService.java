@@ -84,4 +84,8 @@ public class LitemallGiftCardUserService {
         return litemallGiftCardUserMapper.countByExample(example);
     }
 
+    public int unbind(LitemallGiftCardUser giftCard) {
+        giftCard.setUpdateTime(LocalDateTime.now());
+        return litemallGiftCardUserMapper.updateByPrimaryKey(giftCard);
+    }
 }

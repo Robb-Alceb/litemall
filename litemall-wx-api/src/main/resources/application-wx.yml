@@ -9,3 +9,9 @@ webSocket:
     active: false
     port: 58080
     path: /webSocket
+
+zone:
+  offset: 0
+
+barcode:
+  key: Yliyun_123

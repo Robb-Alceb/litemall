@@ -9,10 +9,12 @@ import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.dto.AdminDto;
 import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.service.AdminService;
 import org.linlinjava.litemall.admin.service.LogHelper;
 import org.linlinjava.litemall.admin.util.AdminResponseCode;
+import org.linlinjava.litemall.core.util.DateTimeUtil;
 import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +26,7 @@ import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallAdminService;
 import org.linlinjava.litemall.db.service.LitemallShopService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -31,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
@@ -58,11 +62,12 @@ public class AdminAdminController {
     @LogAnno
     public Object list(String nickname,
                        @LoginAdminShopId Integer shopId,
+                       Integer roleId,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAdmin> adminList = litemallAdminService.querySelective(nickname, shopId, page, limit, sort, order);
+        List<LitemallAdmin> adminList = litemallAdminService.querySelective(nickname, shopId, roleId, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
 
@@ -94,7 +99,9 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
     @PostMapping("/create")
     @LogAnno
-    public Object create(@RequestBody LitemallAdmin admin) {
+    public Object create(@RequestBody AdminDto dto) {
+        LitemallAdmin admin = new LitemallAdmin();
+        BeanUtils.copyProperties(dto, admin);
         Object error = validate(admin);
         if (error != null) {
             return error;
@@ -132,7 +139,9 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "编辑")
     @PostMapping("/update")
     @LogAnno
-    public Object update(@RequestBody LitemallAdmin admin) {
+    public Object update(@RequestBody AdminDto dto) {
+        LitemallAdmin admin = new LitemallAdmin();
+        BeanUtils.copyProperties(dto, admin);
         Object error = validatePassword(admin);
         if (error != null) {
             return error;

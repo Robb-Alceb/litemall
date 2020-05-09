@@ -13,12 +13,8 @@ import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
-import org.linlinjava.litemall.db.domain.LitemallMsg;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.domain.LitemallUserFormid;
-import org.linlinjava.litemall.db.service.LitemallMsgService;
-import org.linlinjava.litemall.db.service.LitemallOrderService;
-import org.linlinjava.litemall.db.service.LitemallUserFormIdService;
+import org.linlinjava.litemall.db.domain.*;
+import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentIntent;
@@ -58,6 +54,12 @@ public class GoodsPaypalServiceImpl implements PaypalService {
     private NoticeHelper noticeHelper;
     @Autowired
     private LitemallMsgService litemallMsgService;
+    @Autowired
+    private LitemallOrderGoodsService litemallOrderGoodsService;
+    @Autowired
+    private LitemallUserService userService;
+    @Autowired
+    private LitemallGoodsService goodsService;
 
 
     public Object getPayment(Integer userId, Integer orderId, String successUrl, String cancelUrl){
@@ -200,6 +202,25 @@ public class GoodsPaypalServiceImpl implements PaypalService {
                     return ResponseUtil.updatedDateExpired();
                 }
             }
+
+            //用户增加积分
+            List<LitemallOrderGoods> orderGoods = litemallOrderGoodsService.queryByOid(order.getId());
+            BigDecimal giveAwayPoints = new BigDecimal(0.00);
+            for(LitemallOrderGoods item : orderGoods){
+                LitemallGoods goods = goodsService.findById(item.getId());
+                giveAwayPoints = giveAwayPoints.add(goods.getGiveAwayPoints().multiply(new BigDecimal(item.getNumber())));
+            }
+            if(giveAwayPoints.compareTo(new BigDecimal(0.00)) > 0){
+                LitemallUser user = userService.findById(order.getUserId());
+                if(user != null){
+                    LitemallUser update = new LitemallUser();
+                    update.setId(order.getUserId());
+                    update.setPoints(user.getPoints().add(giveAwayPoints));
+                    userService.updateById(update);
+                }
+
+            }
+
 
             //TODO 发送邮件和短信通知，这里采用异步发送
             // 订单支付成功以后，会发送短信给用户，以及发送邮件给管理员

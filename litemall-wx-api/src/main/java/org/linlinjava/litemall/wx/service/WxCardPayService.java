@@ -134,6 +134,7 @@ public class WxCardPayService {
     @Transactional
     public LitemallGiftCardUserLog saveLog( LitemallOrder order, LitemallGiftCardUser card, Integer userId, String content){
         LitemallGiftCardUserLog log = new LitemallGiftCardUserLog();
+        log.setOrderId(order.getId());
         log.setAmount(order.getActualPrice());
         log.setAddUserId(userId);
         log.setType(Constants.LOG_GIFTCARD_CONSUME);

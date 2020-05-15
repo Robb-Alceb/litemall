@@ -8,6 +8,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.core.validator.Order;
+import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.CardShareDto;
@@ -239,5 +241,19 @@ public class GiftCardController {
             return ResponseUtil.badArgument();
         }
         return giftCardService.recharge(userId, cardNumber, amount);
+    }
+
+    @GetMapping("bill/list")
+    @LogAnno
+    public Object history(@LoginUser Integer userId,
+                          @NotNull String cardNumber,
+                          @RequestParam(defaultValue = "1") Integer page,
+                          @RequestParam(defaultValue = "10") Integer limit,
+                          @Sort @RequestParam(defaultValue = "add_time") String sort,
+                          @Order @RequestParam(defaultValue = "desc") String order) {
+        if(userId == null){
+            return ResponseUtil.unlogin();
+        }
+        return giftCardService.bill(userId, cardNumber, page, limit, sort, order);
     }
 }

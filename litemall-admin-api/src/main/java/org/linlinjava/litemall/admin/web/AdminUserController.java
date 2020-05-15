@@ -161,7 +161,7 @@ public class AdminUserController {
     }
 
     /**
-     * 用户信息
+     * 重置密码
      * @param userId
      * @return
      */
@@ -171,5 +171,19 @@ public class AdminUserController {
     @LogAnno
     public Object resetpwd(@NotNull Integer userId, String newPwd) {
         return adminUserInfoService.resetPwd(userId, newPwd);
+    }
+
+
+    /**
+     * 赠送积分
+     * @param userId
+     * @return
+     */
+    @RequiresPermissions("admin:user:integral")
+    @RequiresPermissionsDesc(menu = {"用户管理", "赠送积分"}, button = "赠送积分")
+    @PutMapping("/integral")
+    @LogAnno
+    public Object integral(@NotNull Integer userId, Integer integral) {
+        return adminUserInfoService.integral(userId, integral);
     }
 }

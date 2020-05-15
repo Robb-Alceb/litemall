@@ -63,9 +63,16 @@ public class LitemallCartService {
         return cartMapper.selectByPrimaryKey(id);
     }
 
+
+    public List<LitemallCart> findByIds(List<Integer> ids) {
+        LitemallCartExample example = new LitemallCartExample();
+        example.or().andIdIn(ids).andDeletedEqualTo(false);
+        return cartMapper.selectByExample(example);
+    }
+
     public int updateCheck(Integer userId, List<Integer> idsList, Boolean checked) {
         LitemallCartExample example = new LitemallCartExample();
-        example.or().andUserIdEqualTo(userId).andProductIdIn(idsList).andDeletedEqualTo(false);
+        example.or().andUserIdEqualTo(userId).andIdIn(idsList).andDeletedEqualTo(false);
         LitemallCart cart = new LitemallCart();
         cart.setChecked(checked);
         cart.setUpdateTime(LocalDateTime.now());
@@ -73,7 +80,7 @@ public class LitemallCartService {
     }
 
     public void clearGoods(Integer userId) {
-        clearGoods(userId, null);
+        clearGoods(userId, 0);
     }
 
 
@@ -81,8 +88,20 @@ public class LitemallCartService {
         LitemallCartExample example = new LitemallCartExample();
         LitemallCartExample.Criteria criteria = example.createCriteria();
         criteria.andUserIdEqualTo(userId);
-        if(null != id){
+        if(null != id && id > 0){
             criteria.andIdEqualTo(id);
+        }
+        LitemallCart cart = new LitemallCart();
+        cart.setDeleted(true);
+        cartMapper.updateByExampleSelective(cart, example);
+    }
+
+    public void clearGoods(Integer userId, List<Integer> ids) {
+        LitemallCartExample example = new LitemallCartExample();
+        LitemallCartExample.Criteria criteria = example.createCriteria();
+        criteria.andUserIdEqualTo(userId);
+        if(null != ids && ids.size() > 0){
+            criteria.andIdIn(ids);
         }
         LitemallCart cart = new LitemallCart();
         cart.setDeleted(true);

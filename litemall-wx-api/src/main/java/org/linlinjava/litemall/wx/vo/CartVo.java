@@ -1,7 +1,7 @@
 package org.linlinjava.litemall.wx.vo;
 
 import lombok.Data;
-import org.linlinjava.litemall.db.domain.LitemallGoodsTax;
+import org.linlinjava.litemall.db.domain.LitemallTax;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,5 +32,5 @@ public class CartVo {
     private LocalDateTime addTime;
     private LocalDateTime updateTime;
     private Boolean deleted;
-    private List<LitemallGoodsTax> taxes;
+    private List<LitemallTax> taxes;
 }

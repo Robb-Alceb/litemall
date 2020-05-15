@@ -4,19 +4,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.vo.RegionVo;
+import org.linlinjava.litemall.admin.service.AdminRegionService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallRegion;
 import org.linlinjava.litemall.db.service.LitemallRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -27,6 +26,8 @@ public class AdminRegionController {
 
     @Autowired
     private LitemallRegionService regionService;
+    @Autowired
+    private AdminRegionService adminRegionService;
 
     /**
      * 国家列表
@@ -123,5 +124,18 @@ public class AdminRegionController {
         }
 
         return ResponseUtil.okList(regionVoList);*/
+    }
+
+    /**
+     * 获取所有父级id
+     * @param id
+     * @return
+     */
+    @GetMapping("/parents/{id}")
+    @LogAnno
+    public Object parents(@PathVariable Integer id) {
+        LinkedList<Integer> list = new LinkedList<>();
+        adminRegionService.getParentIds(id, list);
+        return ResponseUtil.ok(list);
     }
 }

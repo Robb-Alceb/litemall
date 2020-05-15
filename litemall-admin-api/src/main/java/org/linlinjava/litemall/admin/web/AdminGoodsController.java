@@ -98,7 +98,7 @@ public class AdminGoodsController {
      * @return
      */
     @RequiresPermissions("admin:goods:batch")
-    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新增")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "批量新增")
     @PostMapping("/batch")
     @LogAnno
     public Object batch(@RequestBody GoodsAllinone goodsAllinone) {
@@ -280,7 +280,7 @@ public class AdminGoodsController {
      * @return
      */
     @RequiresPermissions("admin:goods:updateDiscountPrice")
-    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品优惠价格（包括会员价格、满减价格、阶梯价格）")
+    @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "修改商品优惠价格（包括会员优惠价格、满减价格、阶梯价格）")
     @PutMapping("/updateDiscountPrice")
     @LogAnno
     public Object updateVipGoodsPrice(@RequestBody GoodsAllinone goodsAllinone){

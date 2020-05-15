@@ -2,20 +2,25 @@ package org.linlinjava.litemall.web.web;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
-import org.omg.CORBA.INTERNAL;
+import org.linlinjava.litemall.web.vo.GoodsDetailVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
@@ -41,6 +46,10 @@ public class WebCartController {
     private LitemallGoodsProductService productService;
     @Autowired
     private LitemallGoodsSpecificationService specificationService;
+    @Autowired
+    private LitemallShopRegionService litemallShopRegionService;
+    @Autowired
+    private LitemallTaxService litemallTaxService;
 
     /**
      * 用户购物车信息
@@ -133,19 +142,19 @@ public class WebCartController {
             cart.setPicUrl(goods.getPicUrl());
             BigDecimal sellPrice = product.getSellPrice();
             List<String> specifications = new ArrayList<>();
-            if(null != specIds && specIds.length > 0 ){
+/*            if(null != specIds && specIds.length > 0 ){
                 cart.setSpecificationIds(specIds);
-                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
+                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
                     sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
-            }
+            }*/
             cart.setPrice(sellPrice);
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setSpecificationIds(specIds);
             cart.setUserId(userId);
-            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
+//            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
             cart.setChecked(true);
             cartService.add(cart);
         } else {
@@ -294,5 +303,74 @@ public class WebCartController {
         }
 
         return ResponseUtil.ok(goodsCount);
+    }
+
+    @GetMapping("checkout")
+    @LogAnno
+    public Object checkout(@LoginShop Integer shopId, @LoginUser Integer userId) {
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+
+        // 商品价格
+        List<LitemallCart> checkedGoodsList = new ArrayList<>();
+        checkedGoodsList = cartService.queryByUidAndChecked(userId);
+
+        Map<String,Object> rtn = new HashMap<>();
+        List<GoodsDetailVo> list = new ArrayList<>();
+
+        //获取所有订单总价、税收总价
+        BigDecimal totalPrice = new BigDecimal(0.00);
+        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        for(LitemallCart cart : checkedGoodsList){
+            GoodsDetailVo vo = new GoodsDetailVo();
+            vo.setId(cart.getId());
+            vo.setName(cart.getGoodsName());
+            vo.setNumber(cart.getNumber().intValue());
+            vo.setPrice(cart.getPrice());
+            vo.setSpecifications(new ArrayList<>());
+            /**
+             * 税费和总价
+             */
+            BigDecimal specGoodsPrice = new BigDecimal(0.00);
+            checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
+            if(cart.getSpecificationIds() != null && cart.getSpecificationIds().length > 0){
+                for(Integer sid : cart.getSpecificationIds()){
+                    LitemallGoodsSpecification specificationServiceById = specificationService.findById(sid);
+                    vo.getSpecifications().add(specificationServiceById);
+                    if(specificationServiceById != null){
+                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(cart.getNumber())));
+                    }
+                }
+            }
+            checkedGoodsPrice = checkedGoodsPrice.add(specGoodsPrice);
+            list.add(vo);
+        }
+
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+        /**
+         * 获取总税率/100
+         */
+        BigDecimal tax = new BigDecimal(0.00);
+        for(LitemallTax item : litemallTaxes){
+            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+        }
+        BigDecimal taxPrice = new BigDecimal(0.00);
+        /**
+         * 计算 商品总税费 = 商品总价 * 税率
+         */
+        taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
+
+        totalPrice = totalPrice.add(checkedGoodsPrice).add(taxPrice);
+
+        rtn.put("carts", list);
+        rtn.put("taxes", litemallTaxes);
+        rtn.put("totalPrice", totalPrice);
+        return ResponseUtil.ok(rtn);
+
     }
 }

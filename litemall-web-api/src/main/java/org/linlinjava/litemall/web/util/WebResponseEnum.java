@@ -11,6 +11,11 @@ public enum WebResponseEnum {
     IS_NULL_CARD(700006,"礼物卡不存在"),
     NOT_ENOUGH_AMOUNT(700007,"余额不足"),
     SCAN_PAY_ERROR(700008,"扫码支付失败"),
+    COUPON_BARCODE_ERROR(700009,"不存在的优惠券"),
+    COUPON_BARCODE_EXPIRE(700010,"优惠券过期"),
+    COUPON_BARCODE_NOT_ENOUGH(700011,"优惠券使用数量已达上限"),
+    COUPON_BARCODE_ORDER(700012,"优惠券不能使用，订单金额不够"),
+    ORDER_NOT_EXIST(700013,"订单不存在"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

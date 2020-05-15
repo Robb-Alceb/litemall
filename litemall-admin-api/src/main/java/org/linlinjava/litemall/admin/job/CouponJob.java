@@ -2,12 +2,11 @@ package org.linlinjava.litemall.admin.job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.service.LitemallCouponService;
 import org.linlinjava.litemall.db.service.LitemallCouponUserService;
-import org.linlinjava.litemall.db.util.CouponConstant;
-import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -37,13 +36,13 @@ public class CouponJob {
 
         List<LitemallCoupon> couponList = couponService.queryExpired();
         for (LitemallCoupon coupon : couponList) {
-            coupon.setStatus(CouponConstant.STATUS_EXPIRED);
+            coupon.setStatus(Constants.STATUS_EXPIRED);
             couponService.updateById(coupon);
         }
 
         List<LitemallCouponUser> couponUserList = couponUserService.queryExpired();
         for (LitemallCouponUser couponUser : couponUserList) {
-            couponUser.setStatus(CouponUserConstant.STATUS_EXPIRED);
+            couponUser.setStatus(Constants.STATUS_EXPIRED);
             couponUserService.update(couponUser);
         }
     }

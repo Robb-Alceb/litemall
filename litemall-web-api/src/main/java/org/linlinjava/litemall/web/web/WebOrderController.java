@@ -7,6 +7,7 @@ import org.linlinjava.litemall.db.domain.LitemallCart;
 import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.dto.CartDto;
 import org.linlinjava.litemall.web.service.WebOrderService;
 import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,14 @@ public class WebOrderController {
     @GetMapping("list")
     @LogAnno
     public Object list(@LoginUser Integer userId,
+                       @RequestParam(name = "isAll", defaultValue = "0")Boolean isAll,
                        @RequestParam(defaultValue = "1") Boolean today,
                        @RequestParam(defaultValue = "0") Integer showType,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return orderService.list(userId, today, showType, page, limit, sort, order);
+        return orderService.list(isAll, userId, today, showType, page, limit, sort, order);
     }
 
     /**
@@ -109,7 +111,7 @@ public class WebOrderController {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        return orderService.countorder(userId);
+        return orderService.countorder(null);
     }
 
     /**
@@ -130,16 +132,16 @@ public class WebOrderController {
      * 跳过添加购物车、直接下单
      *
      * @param userId 用户id
-     * @param cart   订单数据
+     * @param cartDto   订单数据
      * @return
      */
     @PostMapping("directly")
     @LogAnno
-    public Object orderDirectly(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
+    public Object orderDirectly(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody CartDto cartDto) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        return orderService.orderDirectly(shopId, userId, cart);
+        return orderService.orderDirectly(shopId, userId, cartDto);
     }
 
     /**

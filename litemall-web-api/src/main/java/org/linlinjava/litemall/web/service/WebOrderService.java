@@ -10,15 +10,15 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
-import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
-import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.dto.CartDto;
 import org.linlinjava.litemall.web.vo.CalculationOrderVo;
+import org.linlinjava.litemall.web.vo.OrderGoodsVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,7 +27,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.linlinjava.litemall.db.beans.Constants.ORDER_AET;
 import static org.linlinjava.litemall.db.beans.Constants.ORDER_TYPE_CASH;
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
@@ -74,6 +73,12 @@ public class WebOrderService {
     private LitemallCartService cartService;
     @Autowired
     private LitemallGoodsSpecificationService goodsSpecificationService;
+    @Autowired
+    private LitemallTaxService litemallTaxService;
+    @Autowired
+    private LitemallShopRegionService litemallShopRegionService;
+    @Autowired
+    private LitemallOrderTaxService litemallOrderTaxService;
 
     /**
      * 订单列表
@@ -89,13 +94,18 @@ public class WebOrderService {
      * @param limit     分页大小
      * @return 订单列表
      */
-    public Object list(Integer userId,Boolean today, Integer showType, Integer page, Integer limit, String sort, String order) {
+    public Object list(Boolean isAll, Integer userId,Boolean today, Integer showType, Integer page, Integer limit, String sort, String order) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
 
         List<Short> orderStatus = OrderUtil.orderStatus(showType);
-        List<LitemallOrder> orderList = orderService.queryTodayByOrderStatus(userId, today, orderStatus, page, limit, sort, order);
+        List<LitemallOrder> orderList;
+        if(isAll != null && isAll){
+            orderList = orderService.queryTodayByOrderStatus(null, today, orderStatus, page, limit, sort, order);
+        }else{
+            orderList = orderService.queryTodayByOrderStatus(userId, today, orderStatus, page, limit, sort, order);
+        }
 
         List<Map<String, Object>> orderVoList = new ArrayList<>(orderList.size());
         for (LitemallOrder o : orderList) {
@@ -107,6 +117,8 @@ public class WebOrderService {
             orderVo.put("taxPrice", o.getTaxPrice());
             orderVo.put("orderStatus", o.getOrderStatus());
             orderVo.put("handleOption", OrderUtil.build(o));
+            orderVo.put("orderSource", o.getOrderSource());
+            orderVo.put("orderType", o.getOrderType());
 
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
             if (groupon != null) {
@@ -154,6 +166,7 @@ public class WebOrderService {
         if (!order.getUserId().equals(userId)) {
             return ResponseUtil.fail(ORDER_INVALID, "不是当前用户的订单");
         }
+
         Map<String, Object> orderVo = new HashMap<String, Object>();
         orderVo.put("id", order.getId());
         orderVo.put("orderSn", order.getOrderSn());
@@ -172,11 +185,22 @@ public class WebOrderService {
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expNo", order.getShipSn());
 
+
+
+        List<OrderGoodsVo> vos = new ArrayList<>();
         List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(order.getId());
+        for(LitemallOrderGoods orderGoods : orderGoodsList){
+            OrderGoodsVo vo = new OrderGoodsVo();
+            BeanUtils.copyProperties(orderGoods, vo);
+            vo.setSpecificationList(goodsSpecificationService.queryByIds(orderGoods.getSpecificationIds()));
+            vos.add(vo);
+        }
+        List<LitemallOrderTax> litemallOrderTaxes = litemallOrderTaxService.queryByOrderId(order.getId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("orderInfo", orderVo);
-        result.put("orderGoods", orderGoodsList);
+        result.put("orderGoods", vos);
+        result.put("orderTaxes", litemallOrderTaxes);
 
         // 订单状态为已发货且物流信息不为空
         //"YTO", "800669400640887922"
@@ -270,8 +294,26 @@ public class WebOrderService {
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
 
-            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
+//            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
         }
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+        /**
+         * 获取总税率/100
+         */
+        BigDecimal tax = new BigDecimal(0.00);
+        for(LitemallTax item : litemallTaxes){
+            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+        }
+
+        /**
+         * 计算 商品总税费 = 商品总价 * 税率
+         */
+        taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkedGoodsPrice));
+
         checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
 
@@ -306,6 +348,7 @@ public class WebOrderService {
         order.setShopId(shopId);
         order.setOrderType(orderType.byteValue());
         order.setShopOrder(true);
+        order.setOrderSource(Constants.ORDER_SOURCE_POS);
 
         // 添加订单表项
         orderService.add(order);
@@ -326,8 +369,20 @@ public class WebOrderService {
             orderGoods.setSpecifications(cartGoods.getSpecifications());
             orderGoods.setAddTime(LocalDateTime.now());
             orderGoods.setTaxPrice(cartGoods.getTaxPrice());
+            orderGoods.setSpecificationIds(cartGoods.getSpecificationIds());
 
             orderGoodsService.add(orderGoods);
+        }
+
+        // 添加订单税费表项
+        for(LitemallTax item : litemallTaxes){
+            LitemallOrderTax orderTax = new LitemallOrderTax();
+            orderTax.setCode(item.getCode());
+            orderTax.setName(item.getName());
+            orderTax.setOrderId(order.getId());
+            orderTax.setType(item.getType());
+            orderTax.setValue(item.getValue());
+            litemallOrderTaxService.add(orderTax);
         }
 
         // 删除购物车里面的商品信息
@@ -366,7 +421,7 @@ public class WebOrderService {
         List<Short> payStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_PAY}));
         List<Short> confirmStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CONFIRM}));
         map.put("1", orderService.count(userId, createStatus, true));
-        map.put("2", orderService.count(userId, payStatus, true));
+        map.put("2", orderService.count(null, payStatus, true));
         map.put("4", orderService.count(userId, confirmStatus, true));
         return ResponseUtil.ok(map);
     }
@@ -426,20 +481,20 @@ public class WebOrderService {
     /**
      * 跳过添加购物车、直接下单
      * @param userId
-     * @param cart
+     * @param cartDto
      * @return
      */
     @Transactional
-    public Object orderDirectly(Integer shopId, Integer userId, LitemallCart cart) {
+    public Object orderDirectly(Integer shopId, Integer userId, CartDto cartDto) {
 //        Integer shopId = cart.getShopId();
         Object error = validShop(shopId);
         if( error != null){
             return error;
         }
-        Integer productId = cart.getProductId();
-        Integer number = cart.getNumber().intValue();
-        Integer goodsId = cart.getGoodsId();
-        Integer[] specIds = cart.getSpecificationIds();
+        Integer productId = cartDto.getProductId();
+        Integer number = cartDto.getNumber().intValue();
+        Integer goodsId = cartDto.getGoodsId();
+        Integer[] specIds = cartDto.getSpecificationIds();
         if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
             return ResponseUtil.badArgument();
         }
@@ -453,7 +508,7 @@ public class WebOrderService {
             return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
         }
         LitemallGoodsProduct product = productService.findById(productId);
-        List<LitemallGoodsSpecification> specifications = goodsSpecificationService.findByIds(specIds);
+        List<LitemallGoodsSpecification> specifications = goodsSpecificationService.queryByIds(specIds);
         /**
          * 商品价格
          */
@@ -484,7 +539,7 @@ public class WebOrderService {
         order.setActualPrice(actualPrice);
         order.setTaxPrice(taxGoodsPrice);
         order.setShopId(shopId);
-        order.setOrderType(ORDER_AET);
+        order.setOrderType(cartDto.getOrderType());
         order.setShopOrder(true);
 
         Integer orderId = null;

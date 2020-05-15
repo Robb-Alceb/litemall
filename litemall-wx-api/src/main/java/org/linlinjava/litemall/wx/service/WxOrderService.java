@@ -127,6 +127,12 @@ public class WxOrderService {
     private LitemallShopService shopService;
     @Autowired
     private NoticeHelper noticeHelper;
+    @Autowired
+    private LitemallTaxService litemallTaxService;
+    @Autowired
+    private LitemallShopRegionService litemallShopRegionService;
+    @Autowired
+    private LitemallOrderTaxService litemallOrderTaxService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -275,7 +281,7 @@ public class WxOrderService {
         if (body == null) {
             return ResponseUtil.badArgument();
         }
-        Integer cartId = JacksonUtil.parseInteger(body, "cartId");
+        List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
         Integer addressId = JacksonUtil.parseInteger(body, "addressId");
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
         Integer shopId = JacksonUtil.parseInteger(body, "shopId");
@@ -285,7 +291,7 @@ public class WxOrderService {
         //订单类型（1：自提订单;2:外送订单）
         Integer orderType = JacksonUtil.parseInteger(body, "orderType");
 
-        if ((userId == null && cartId == null) || couponId == null || orderType == null || shopId == null) {
+        if ((userId == null && (cartIds == null || cartIds.size() == 0)) || couponId == null || orderType == null || shopId == null) {
             return ResponseUtil.badArgument();
         }
 
@@ -323,7 +329,7 @@ public class WxOrderService {
         if(!Arrays.asList(litemallShop.getTypes()).contains(orderType)){
             return ResponseUtil.fail(SHOP_UNSUPPOT, "不支持该服务");
         }
-        if (orderType.byteValue() == Constants.ORDER_AET) {
+        if (orderType.byteValue() == Constants.ORDER_SEND) {
             if(litemallShop.getLatitude() == null || litemallShop.getLongitude() == null || checkedAddress.getLatitude() == null || checkedAddress.getLongitude() == null){
                 return ResponseUtil.fail(WxResponseEnum.UNKOWN_LOCATION);
             }
@@ -337,12 +343,12 @@ public class WxOrderService {
 
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
-        if (cartId == null || cartId.equals(0)) {
+        if (cartIds == null || cartIds.size() == 0) {
             checkedGoodsList = cartService.queryByUidAndChecked(userId);
         } else {
-            LitemallCart cart = cartService.findById(cartId);
-            checkedGoodsList = new ArrayList<>(1);
-            checkedGoodsList.add(cart);
+            List<LitemallCart> carts = cartService.findByIds(cartIds);
+            checkedGoodsList = new ArrayList<>();
+            checkedGoodsList.addAll(carts);
         }
         if (checkedGoodsList.size() == 0) {
             return ResponseUtil.badArgumentValue();
@@ -404,7 +410,7 @@ public class WxOrderService {
                     }else if(info.getUserLevel() == Constants.USER_LEVEL_DIAMOND){
                         discountPrice = discountPrice.add(litemallVipGoodsPrice.getDiamondVipPrice());
                     }
-                    taxGoodsPrice.subtract(discountPrice.multiply(new BigDecimal(checkGoods.getNumber())));
+//                    taxGoodsPrice.subtract(discountPrice.multiply(new BigDecimal(checkGoods.getNumber())));
                     //阶梯价格，找到数量最符合的那一条
                 }else if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_LADDER){
                     List<LitemallGoodsLadderPrice> litemallGoodsLadderPrices = litemallGoodsLadderPriceService.queryByGoodsId(goodsId);
@@ -430,13 +436,32 @@ public class WxOrderService {
             taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
         }
 
+
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+        /**
+         * 获取总税率/100
+         */
+        BigDecimal tax = new BigDecimal(0.00);
+        for(LitemallTax item : litemallTaxes){
+            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+        }
+
+        /**
+         * 计算 商品总税费 = 商品总价 * 税率
+         */
+        taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkedGoodsPrice));
+
         /**
          * 优惠券优惠价格不计入税费及其他优惠
          */
         // 如果couponId=0则没有优惠券，couponId=-1则不使用优惠券
         if (couponId != 0 && couponId != -1) {
-            List<Integer> cartIds = checkedGoodsList.stream().map(LitemallCart::getId).collect(Collectors.toList());
-            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponId, cartIds);
+            List<Integer> cartIds1 = checkedGoodsList.stream().map(LitemallCart::getId).collect(Collectors.toList());
+            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponId, cartIds1);
             if (coupon != null) {
                 if(coupon.getDiscountType() == Constants.DISCOUNT_TYPE_RATE){
                     couponPrice = checkedGoodsPrice.divide(new BigDecimal(100 - coupon.getDiscountRate()));
@@ -516,6 +541,7 @@ public class WxOrderService {
         orderService.add(order);
         orderId = order.getId();
 
+
         // 添加订单商品表项
         for (LitemallCart cartGoods : checkedGoodsList) {
             // 订单商品
@@ -531,15 +557,27 @@ public class WxOrderService {
             orderGoods.setSpecifications(cartGoods.getSpecifications());
             orderGoods.setAddTime(LocalDateTime.now());
             orderGoods.setTaxPrice(cartGoods.getTaxPrice());
+            orderGoods.setSpecificationIds(cartGoods.getSpecificationIds());
 
             orderGoodsService.add(orderGoods);
         }
+        // 添加订单税费表项
+        for(LitemallTax item : litemallTaxes){
+            LitemallOrderTax orderTax = new LitemallOrderTax();
+            orderTax.setCode(item.getCode());
+            orderTax.setName(item.getName());
+            orderTax.setOrderId(order.getId());
+            orderTax.setType(item.getType());
+            orderTax.setValue(item.getValue());
+            litemallOrderTaxService.add(orderTax);
+        }
 
         // 删除购物车里面的商品信息
-        if(cartId != null){
-            cartService.clearGoods(userId, cartId);
-        }else{
+        if(cartIds == null || cartIds.size() == 0){
             cartService.clearGoods(userId);
+        }else{
+            cartService.clearGoods(userId, cartIds);
+
         }
 
         // 商品货品数量减少

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,5 +57,14 @@ public class AdminUserInfoService {
         update.setPassword(encodedPassword);
         litemallUserService.updateById(update);
         return ResponseUtil.ok(newPwd);
+    }
+
+    public Object integral(Integer userId, Integer integral) {
+        LitemallUser user = litemallUserService.findById(userId);
+        LitemallUser update = new LitemallUser();
+        update.setId(user.getId());
+        update.setPoints(user.getPoints().add(new BigDecimal(integral)));
+        litemallUserService.updateById(update);
+        return ResponseUtil.ok();
     }
 }

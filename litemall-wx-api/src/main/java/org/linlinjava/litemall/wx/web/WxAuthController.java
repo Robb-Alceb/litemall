@@ -228,9 +228,13 @@ public class WxAuthController {
     @PostMapping("regCaptcha")
     @LogAnno
     public Object registerCaptcha(@RequestBody String body) {
+        String username = JacksonUtil.parseString(body, "username");
         String type = JacksonUtil.parseString(body, "type");
         String email = JacksonUtil.parseString(body, "email");
         String phoneNumber = JacksonUtil.parseString(body, "mobile");
+        if(!StringUtils.isEmpty(username)){
+            return ResponseUtil.badArgument();
+        }
         if("email".equals(type)){
             if (StringUtils.isEmpty(email)) {
                 return ResponseUtil.badArgument();
@@ -311,7 +315,7 @@ public class WxAuthController {
         String wxCode = JacksonUtil.parseString(body, "wxCode");
         String email = JacksonUtil.parseString(body, "email");
 
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) || (StringUtils.isEmpty(mobile) && StringUtils.isEmpty(email))
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)
                 || (StringUtils.isEmpty(wxCode) && StringUtils.isEmpty(code))) {
             return ResponseUtil.badArgument();
         }
@@ -321,24 +325,24 @@ public class WxAuthController {
             return ResponseUtil.fail(AUTH_NAME_REGISTERED, "用户名已注册");
         }
 
-        if(!StringUtils.isEmpty(mobile)){
-            userList = userService.queryByMobile(mobile);
+        if (!RegexUtil.isMobileExact(username) && !RegexUtil.isEmailExact(username)) {
+            return ResponseUtil.fail(AUTH_INVALID_MOBILE, "手机号或邮箱格式不正确");
+        }
+
+        if(RegexUtil.isMobileExact(username)){
+            userList = userService.queryByMobile(username);
             if (userList.size() > 0) {
                 return ResponseUtil.fail(AUTH_MOBILE_REGISTERED, "手机号已注册");
             }
-            if (!StringUtils.isEmpty(mobile) && !RegexUtil.isMobileExact(mobile)) {
-                return ResponseUtil.fail(AUTH_INVALID_MOBILE, "手机号格式不正确");
-            }
+            mobile = username;
         }
 
-        if(!StringUtils.isEmpty(email)) {
-            userList = userService.queryByEmail(email);
+        if(RegexUtil.isEmailExact(username)) {
+            userList = userService.queryByEmail(username);
             if (userList.size() > 0) {
                 return ResponseUtil.fail(AUTH_EMAIL_REGISTERED, "邮箱已注册");
             }
-            if (!StringUtils.isEmpty(email) && !RegexUtil.isEmailExact(email)) {
-                return ResponseUtil.fail(AUTH_INVALID_EMAIL, "邮箱格式不正确");
-            }
+            email = username;
         }
 
         //判断验证码是否正确
@@ -346,29 +350,6 @@ public class WxAuthController {
 //        if (cacheCode == null || cacheCode.isEmpty() || !cacheCode.equals(code)) {
 //            return ResponseUtil.fail(AUTH_CAPTCHA_UNMATCH, "验证码错误");
 //        }
-
-        String openId = null;
-        if(!StringUtils.isEmpty(wxCode)){
-            try {
-                WxMaJscode2SessionResult result = this.wxService.getUserService().getSessionInfo(wxCode);
-                openId = result.getOpenid();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseUtil.fail(AUTH_OPENID_UNACCESS, "openid 获取失败");
-            }
-            userList = userService.queryByOpenid(openId);
-            if (userList.size() > 1) {
-                return ResponseUtil.serious();
-            }
-            if (userList.size() == 1) {
-                LitemallUser checkUser = userList.get(0);
-                String checkUsername = checkUser.getUsername();
-                String checkPassword = checkUser.getPassword();
-                if (!checkUsername.equals(openId) || !checkPassword.equals(openId)) {
-                    return ResponseUtil.fail(AUTH_OPENID_BINDED, "openid已绑定账号");
-                }
-            }
-        }
 
 
         LitemallUser user = null;
@@ -379,7 +360,6 @@ public class WxAuthController {
         user.setPassword(encodedPassword);
         user.setMobile(mobile);
         user.setEmail(email);
-        user.setWeixinOpenid(openId);
         user.setAvatar("https://yanxuan.nosdn.127.net/80841d741d7fa3073e0ae27bf487339f.jpg?imageView&quality=90&thumbnail=64x64");
         user.setNickname(username);
         user.setGender((byte) 0);

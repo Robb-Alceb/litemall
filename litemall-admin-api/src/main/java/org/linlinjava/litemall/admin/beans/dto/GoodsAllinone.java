@@ -16,7 +16,6 @@ public class GoodsAllinone {
     private LitemallVipGoodsPrice vipPrice;
     private LitemallGoodsLadderPrice[] ladderPrices;
     private LitemallGoodsMaxMinusPrice[] maxMinusPrices;
-    private LitemallGoodsTax[] goodsTaxes;
 
 
 }

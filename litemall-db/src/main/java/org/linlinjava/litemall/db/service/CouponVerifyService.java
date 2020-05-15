@@ -1,10 +1,10 @@
 package org.linlinjava.litemall.db.service;
 
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallCart;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
-import org.linlinjava.litemall.db.util.CouponConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,12 +48,12 @@ public class CouponVerifyService {
         Short timeType = coupon.getTimeType();
         Short days = coupon.getDays();
         LocalDateTime now = LocalDateTime.now();
-        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+        if (timeType.equals(Constants.TIME_TYPE_TIME)) {
             if (now.isBefore(coupon.getStartTime()) || now.isAfter(coupon.getEndTime())) {
                 return null;
             }
         }
-        else if(timeType.equals(CouponConstant.TIME_TYPE_DAYS)) {
+        else if(timeType.equals(Constants.TIME_TYPE_DAYS)) {
             LocalDateTime expired = couponUser.getAddTime().plusDays(days);
             if (now.isAfter(expired)) {
                 return null;
@@ -66,13 +66,13 @@ public class CouponVerifyService {
         // 检测商品是否符合
         // TODO 目前仅支持全平台商品，所以不需要检测
         Short goodType = coupon.getGoodsType();
-        if (!goodType.equals(CouponConstant.GOODS_TYPE_ALL)) {
+        if (!goodType.equals(Constants.GOODS_TYPE_ALL)) {
             return null;
         }
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(CouponConstant.STATUS_NORMAL)) {
+        if (!status.equals(Constants.STATUS_NORMAL)) {
             return null;
         }
         // 检测是否满足最低消费
@@ -98,12 +98,12 @@ public class CouponVerifyService {
         Short timeType = coupon.getTimeType();
         Short days = coupon.getDays();
         LocalDateTime now = LocalDateTime.now();
-        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+        if (timeType.equals(Constants.TIME_TYPE_TIME)) {
             if (now.isBefore(coupon.getStartTime()) || now.isAfter(coupon.getEndTime())) {
                 return null;
             }
         }
-        else if(timeType.equals(CouponConstant.TIME_TYPE_DAYS)) {
+        else if(timeType.equals(Constants.TIME_TYPE_DAYS)) {
             LocalDateTime expired = couponUser.getAddTime().plusDays(days);
             if (now.isAfter(expired)) {
                 return null;
@@ -115,7 +115,7 @@ public class CouponVerifyService {
 
         // 检测商品是否符合
         Short goodType = coupon.getGoodsType();
-        if (goodType.equals(CouponConstant.GOODS_TYPE_ARRAY)) {
+        if (goodType.equals(Constants.GOODS_TYPE_ARRAY)) {
             if(coupon.getGoodsValue() != null && Arrays.asList(coupon.getGoodsValue()).contains(goodsId)){
                 if(checkedGoodsPrice.compareTo(coupon.getMin()) == -1){
                     return coupon;
@@ -125,14 +125,14 @@ public class CouponVerifyService {
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(CouponConstant.STATUS_NORMAL)) {
+        if (!status.equals(Constants.STATUS_NORMAL)) {
             return null;
         }
         // 检测是否满足最低消费
         if (checkedGoodsPrice.compareTo(coupon.getMin()) == -1) {
             return null;
         }
-        if (goodType.equals(CouponConstant.GOODS_TYPE_CATEGORY)){
+        if (goodType.equals(Constants.GOODS_TYPE_CATEGORY)){
             if(categoryId == null){
                 return null;
             }
@@ -161,12 +161,12 @@ public class CouponVerifyService {
         Short timeType = coupon.getTimeType();
         Short days = coupon.getDays();
         LocalDateTime now = LocalDateTime.now();
-        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+        if (timeType.equals(Constants.TIME_TYPE_TIME)) {
             if (now.isBefore(coupon.getStartTime()) || now.isAfter(coupon.getEndTime())) {
                 return null;
             }
         }
-        else if(timeType.equals(CouponConstant.TIME_TYPE_DAYS)) {
+        else if(timeType.equals(Constants.TIME_TYPE_DAYS)) {
             LocalDateTime expired = couponUser.getAddTime().plusDays(days);
             if (now.isAfter(expired)) {
                 return null;
@@ -178,7 +178,7 @@ public class CouponVerifyService {
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(CouponConstant.STATUS_NORMAL)) {
+        if (!status.equals(Constants.STATUS_NORMAL)) {
             return null;
         }
 
@@ -186,7 +186,7 @@ public class CouponVerifyService {
         Short goodType = coupon.getGoodsType();
         List<LitemallCart> carts = litemallCartService.queryByIds(cartIds);
         //全场通用，比较总价
-        if(goodType.equals(CouponConstant.GOODS_TYPE_ALL)){
+        if(goodType.equals(Constants.GOODS_TYPE_ALL)){
             Double totalPrice = carts.stream().mapToDouble(item -> {
                 return item.getPrice().doubleValue();
             }).sum();
@@ -195,7 +195,7 @@ public class CouponVerifyService {
             }
             return coupon;
         //指定类目，比较符合类目的商品总价
-        }else if(goodType.equals(CouponConstant.GOODS_TYPE_CATEGORY)){
+        }else if(goodType.equals(Constants.GOODS_TYPE_CATEGORY)){
             List<Integer> goodsIds = carts.stream().map(LitemallCart::getGoodsId).collect(Collectors.toList());
             List<LitemallGoods> goodsList = litemallGoodsService.findByIds(goodsIds);
             List<Integer> filterGoodsIds = goodsList.stream().filter(goods -> {
@@ -212,7 +212,7 @@ public class CouponVerifyService {
             }
             return coupon;
             //指定商品，单个商品比较
-        }else if(goodType.equals(CouponConstant.GOODS_TYPE_ARRAY)){
+        }else if(goodType.equals(Constants.GOODS_TYPE_ARRAY)){
             boolean match = carts.stream().anyMatch(cart -> {
                 return cart.getPrice().compareTo(coupon.getMin()) > -1;
             });

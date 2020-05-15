@@ -26,7 +26,6 @@ import java.time.ZoneOffset;
  */
 @Service
 public class WebScanPayService {
-    private static final long expire = 1;
 
     @Value("${zone.offset}")
     private int zoneOffset;
@@ -56,7 +55,7 @@ public class WebScanPayService {
 
         //判断二维码有效期
         LocalDateTime dateTime = LocalDateTime.ofEpochSecond(timestamp,0, ZoneOffset.ofHours(zoneOffset));
-        dateTime = dateTime.plusMinutes(expire);
+        dateTime = dateTime.plusSeconds(Constants.BARCODE_EXPIRE_SECOND);
         if(dateTime.compareTo(LocalDateTime.now()) == -1){
             return ResponseUtil.fail(WebResponseEnum.BARCODE_EXPIRE);
         }

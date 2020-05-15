@@ -79,6 +79,13 @@ public class WebGoodsController {
 
 	private static ThreadPoolExecutor executorService = new ThreadPoolExecutor(16, 16, 1000, TimeUnit.MILLISECONDS, WORK_QUEUE, HANDLER);
 
+	@Autowired
+	private LitemallTaxService litemallTaxService;
+	@Autowired
+	private LitemallShopService litemallShopService;
+	@Autowired
+	private LitemallShopRegionService litemallShopRegionService;
+
 	/**
 	 * 商品详情
 	 * <p>
@@ -104,82 +111,33 @@ public class WebGoodsController {
 		// 商品规格对应的数量和价格
 		Callable<List> productListCallable = () -> productService.queryByGid(id);
 
-		// 商品问题，这里是一些通用问题
-		Callable<List> issueCallable = () -> goodsIssueService.querySelective("", 1, 4, "", "");
+		LitemallShop shop = litemallShopService.findById(info.getShopId());
+		List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
 
-		// 商品品牌商
-		Callable<LitemallBrand> brandCallable = ()->{
-			Integer brandId = info.getBrandId();
-			LitemallBrand brand;
-			if (brandId == 0) {
-				brand = new LitemallBrand();
-			} else {
-				brand = brandService.findById(info.getBrandId());
-			}
-			return brand;
-		};
+		// 商品税费
+		Callable<List> taxCallable = () -> litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
 
-		// 评论
-		Callable<Map> commentsCallable = () -> {
-			List<LitemallComment> comments = commentService.queryGoodsByGid(id, 0, 2);
-			List<Map<String, Object>> commentsVo = new ArrayList<>(comments.size());
-			long commentCount = PageInfo.of(comments).getTotal();
-			for (LitemallComment comment : comments) {
-				Map<String, Object> c = new HashMap<>();
-				c.put("id", comment.getId());
-				c.put("addTime", comment.getAddTime());
-				c.put("content", comment.getContent());
-				LitemallUser user = userService.findById(comment.getUserId());
-				c.put("nickname", user == null ? "" : user.getNickname());
-				c.put("avatar", user == null ? "" : user.getAvatar());
-				c.put("picList", comment.getPicUrls());
-				commentsVo.add(c);
-			}
-			Map<String, Object> commentList = new HashMap<>();
-			commentList.put("count", commentCount);
-			commentList.put("data", commentsVo);
-			return commentList;
-		};
 
-		//团购信息
-		Callable<List> grouponRulesCallable = () ->rulesService.queryByGoodsId(id);
 
-		// 用户收藏
-		int userHasCollect = 0;
-		if (userId != null) {
-			userHasCollect = collectService.count(userId, id);
-		}
 
 		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
 		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
 		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
-		FutureTask<List> issueCallableTask = new FutureTask<>(issueCallable);
-		FutureTask<Map> commentsCallableTsk = new FutureTask<>(commentsCallable);
-		FutureTask<LitemallBrand> brandCallableTask = new FutureTask<>(brandCallable);
-        FutureTask<List> grouponRulesCallableTask = new FutureTask<>(grouponRulesCallable);
+		FutureTask<List> taxListCallableTask = new FutureTask<>(taxCallable);
 
 		executorService.submit(goodsAttributeListTask);
 		executorService.submit(objectCallableTask);
 		executorService.submit(productListCallableTask);
-		executorService.submit(issueCallableTask);
-		executorService.submit(commentsCallableTsk);
-		executorService.submit(brandCallableTask);
-		executorService.submit(grouponRulesCallableTask);
+		executorService.submit(taxListCallableTask);
 
 		Map<String, Object> data = new HashMap<>();
 
 		try {
 			data.put("info", info);
-			data.put("userHasCollect", userHasCollect);
-//			data.put("issue", issueCallableTask.get());
-//			data.put("comment", commentsCallableTsk.get());
 			data.put("specificationList", objectCallableTask.get());
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
-//			data.put("brand", brandCallableTask.get());
-//			data.put("groupon", grouponRulesCallableTask.get());
-			//SystemConfig.isAutoCreateShareImage()
-//			data.put("share", SystemConfig.isAutoCreateShareImage());
+			data.put("taxes", taxListCallableTask.get());
 
 		}
 		catch (Exception e) {
@@ -191,7 +149,7 @@ public class WebGoodsController {
 		return ResponseUtil.ok(data);
 	}
 
-	/**
+	/**Metadata
 	 * 商品分类类目
 	 *
 	 * @param id 分类类目ID
@@ -248,7 +206,7 @@ public class WebGoodsController {
 		Boolean isHot,
 		Integer userId,
 		@RequestParam(defaultValue = "1") Integer page,
-		@RequestParam(defaultValue = "10") Integer limit,
+		@RequestParam(defaultValue = "10000") Integer limit,
 		@Sort(accepts = {"add_time", "retail_price", "name"}) @RequestParam(defaultValue = "add_time") String sort,
 		@Order @RequestParam(defaultValue = "desc") String order) {
 
@@ -271,6 +229,7 @@ public class WebGoodsController {
 			vo.setId(goods.getId());
 			vo.setName(goods.getName());
 			vo.setIsNew(goods.getIsNew());
+			vo.setPicUri(goods.getPicUrl());
 
 			if(litemallGoodsProducts.size() > 0){
 				vo.setTax(litemallGoodsProducts.get(0).getTax());

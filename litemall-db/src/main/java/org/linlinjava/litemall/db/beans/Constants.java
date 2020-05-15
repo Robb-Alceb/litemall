@@ -86,11 +86,6 @@ public class Constants {
     public static final Byte USER_LEVEL_PLATINUNM = 3;
     public static final Byte USER_LEVEL_DIAMOND = 4;
 
-    /**
-     * 优惠券类型（0：全商品；2：指定商品）
-     */
-    public static final Short COUPON_TYPE_COMMON = 0;
-    public static final Short COUPON_TYPE_GOODS = 2;
 
     /**
      * 门店状态（1:营业；2：歇业；3：装修）
@@ -106,10 +101,11 @@ public class Constants {
     public static final Byte USER_CONSUME = 2;
 
     /**
-     * 订单类型(1:自提；2：外送)
+     * 订单类型(1:自提；2：外送;3:堂食)
      */
     public static final Byte ORDER_AET = 1;
     public static final Byte ORDER_SEND = 2;
+    public static final Byte ORDER_EAT = 3;
 
     /**
      *  订单支付方式
@@ -182,4 +178,45 @@ public class Constants {
      */
     public static final Integer BARCODE_PAY_BALANCE = 1;    //扫码余额支付
     public static final Integer BARCODE_PAY_CARD = 2;       //扫码卡支付
+
+    /**
+     * 二维码过期时间
+     */
+    public static final Integer BARCODE_EXPIRE_SECOND = 30;       //30秒
+
+    /**
+     * 优惠券类型
+     */
+    public static final Short TYPE_COMMON = 0;      //通用券
+    public static final Short TYPE_REGISTER = 1;    //注册赠券
+    public static final Short TYPE_CODE = 2;        //优惠券码兑换
+    public static final Short TYPE_BARCODE = 3;     //实物优惠券
+
+    /**
+     * 优惠券商品类型
+     */
+    public static final Short GOODS_TYPE_ALL = 0;       //全场通用
+    public static final Short GOODS_TYPE_CATEGORY = 1;  //指定类型
+    public static final Short GOODS_TYPE_ARRAY = 2;     //指定商品
+
+    /**
+     *  优惠券状态
+     */
+    public static final Short STATUS_NORMAL = 0;
+    public static final Short STATUS_USED = 1;
+    public static final Short STATUS_EXPIRED = 2;
+    public static final Short STATUS_OUT = 3;
+
+    /**
+     * 优惠券过期类型
+     */
+    public static final Short TIME_TYPE_DAYS = 0;
+    public static final Short TIME_TYPE_TIME = 1;
+
+
+    /**
+     * 订单来源
+     */
+    public static final Byte ORDER_SOURCE_APP = 1;
+    public static final Byte ORDER_SOURCE_POS = 2;
 }

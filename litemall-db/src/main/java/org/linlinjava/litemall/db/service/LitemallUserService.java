@@ -176,4 +176,10 @@ public class LitemallUserService {
         example.or().andUsernameLike("%"+userName+"%").andDeletedEqualTo(false);
         return litemallUserMapper.selectByExample(example);
     }
+
+    public void deleteByUserName(String username) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andUsernameEqualTo(username).andInnerAccountEqualTo(true).andDeletedEqualTo(false);
+        litemallUserMapper.logicalDeleteByExample(example);
+    }
 }

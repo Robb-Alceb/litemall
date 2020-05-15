@@ -73,9 +73,9 @@ public class WxUserController {
         return ResponseUtil.ok(wxUserService.recharge(userId, dto));
     }
 
-    @PostMapping("recharge/{id}")
+    @GetMapping("recharge")
     @LogAnno
-    public Object pay(@LoginUser Integer userId, @PathVariable Integer id, HttpServletResponse res,  HttpServletRequest request) throws Exception {
+    public Object pay(@LoginUser Integer userId, @NotNull @RequestParam("id") Integer id, HttpServletResponse res,  HttpServletRequest request) throws Exception {
         if(userId == null){
             return ResponseUtil.unlogin();
         }

@@ -329,7 +329,7 @@ public class WxGiftCardService {
                 vo.setName(giftCard.getName());
                 vo.setCardNumber(item.getCardNumber());
                 vo.setPicUrl(giftCard.getPicUrl());
-                vo.setId(giftCard.getId());
+                vo.setId(item.getId());
                 vo.setShareDetail(litemallGiftCardShareService.findByCardNumber(item.getCardNumber()));
 
                 cards.add(vo);
@@ -454,5 +454,20 @@ public class WxGiftCardService {
             log.setAddUserName(user.getUsername());
         }
         litemallGiftCardUserLogService.add(log);
+    }
+
+    /**
+     * 获取card充值消费记录，不包括之前用户的记录
+     * @param userId
+     * @param cardNumber
+     * @param page
+     * @param limit
+     * @param sort
+     * @param order
+     * @return
+     */
+    public Object bill(Integer userId, String cardNumber, Integer page, Integer limit, String sort, String order) {
+        List<Byte> types = new ArrayList<>(Arrays.asList(new Byte[]{Constants.LOG_GIFTCARD_RECHARGE,Constants.LOG_GIFTCARD_CONSUME}));
+        return ResponseUtil.okList(litemallGiftCardUserLogService.querySelective(types,userId, cardNumber, page, limit, sort, order));
     }
 }

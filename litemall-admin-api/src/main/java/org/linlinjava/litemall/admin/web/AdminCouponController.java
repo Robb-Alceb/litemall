@@ -9,15 +9,8 @@ import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
-import org.linlinjava.litemall.db.domain.LitemallCoupon;
-import org.linlinjava.litemall.db.domain.LitemallCouponUser;
-import org.linlinjava.litemall.db.domain.LitemallGoods;
-import org.linlinjava.litemall.db.domain.LitemallOrder;
-import org.linlinjava.litemall.db.service.LitemallCouponService;
-import org.linlinjava.litemall.db.service.LitemallCouponUserService;
-import org.linlinjava.litemall.db.service.LitemallGoodsService;
-import org.linlinjava.litemall.db.service.LitemallOrderService;
-import org.linlinjava.litemall.db.util.CouponConstant;
+import org.linlinjava.litemall.db.domain.*;
+import org.linlinjava.litemall.db.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -25,10 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin/coupon")
@@ -44,6 +34,8 @@ public class AdminCouponController {
     private LitemallGoodsService goodsService;
     @Autowired
     private LitemallOrderService orderService;
+    @Autowired
+    private LitemallCategoryService categoryService;
 
     @RequiresPermissions("admin:coupon:list")
     @RequiresPermissionsDesc(menu = {"推广管理", "优惠券管理"}, button = "查询")
@@ -91,9 +83,14 @@ public class AdminCouponController {
         }
 
         // 如果是兑换码类型，则这里需要生存一个兑换码
-        if (coupon.getType().equals(CouponConstant.TYPE_CODE)) {
+        if (coupon.getType().equals(org.linlinjava.litemall.db.beans.Constants.TYPE_CODE)) {
             String code = couponService.generateCode();
             coupon.setCode(code);
+        }
+        // 如果是实物优惠券，则这里需要生存一个二维码
+        if (coupon.getType().equals(org.linlinjava.litemall.db.beans.Constants.TYPE_BARCODE)) {
+            String code = couponService.generateCouponCode();
+            coupon.setBarCode(code);
         }
 
         couponService.add(coupon);
@@ -157,6 +154,30 @@ public class AdminCouponController {
         return ResponseUtil.okList(litemallGoods);
     }
 
+    /**
+     * 根据优惠券ID 查询指定商品类目列表
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:coupon:categoryList")
+    @RequiresPermissionsDesc(menu = {"活动管理", "商品类目列表"}, button = "查询")
+    @GetMapping("/categoryList")
+    @LogAnno
+    public Object categoryList(@NotNull @RequestParam(value = "id") Integer id,
+                            @RequestParam(defaultValue = "1") Integer page,
+                            @RequestParam(defaultValue = "10") Integer limit,
+                            @Sort @RequestParam(defaultValue = "add_time") String sort,
+                            @Order @RequestParam(defaultValue = "desc") String order) {
+        LitemallCoupon coupon = couponService.findById(id);
+        //2:指定商品
+        List<LitemallCategory> litemallCategories = new ArrayList<>();
+        if(coupon!=null && coupon.getGoodsType()== Constants.TYPE_BARCODE
+                &&coupon.getGoodsValue()!=null && coupon.getGoodsValue().length>0){
+            litemallCategories = categoryService.querySelective(Arrays.asList(coupon.getGoodsValue()), page, limit, sort, order);
+        }
+        return ResponseUtil.okList(litemallCategories);
+    }
+
     @RequiresPermissions("admin:coupon:statistics")
     @RequiresPermissionsDesc(menu = {"活动管理", "优惠券使用统计"}, button = "查询")
     @GetMapping("/statistics")
@@ -165,15 +186,15 @@ public class AdminCouponController {
         Map<String,Object> map = new HashMap<>();
 
         map.put("pullNumber",couponUserService.countCoupon(id));
-        map.put("expiredNumber",couponUserService.countCoupon(id, CouponConstant.STATUS_EXPIRED));
+        map.put("expiredNumber",couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_EXPIRED));
         LitemallCoupon coupon = couponService.findById(id);
-        Integer usedNumber = couponUserService.countCoupon(id, CouponConstant.STATUS_USED);
+        Integer usedNumber = couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_USED);
         map.put("usedNumber",usedNumber);
         if(null != coupon){
             map.put("totalDiscount",coupon.getDiscount().multiply(new BigDecimal(usedNumber)));
         }
         List<LitemallOrder> orders = new ArrayList<>();
-        List<LitemallCouponUser> litemallCouponUsers = couponUserService.queryByCoupon(id, CouponConstant.STATUS_USED);
+        List<LitemallCouponUser> litemallCouponUsers = couponUserService.queryByCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_USED);
         for(LitemallCouponUser item : litemallCouponUsers){
             if(null !=item.getOrderId()){
                 orders.add(orderService.findById(item.getOrderId()));

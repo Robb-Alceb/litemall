@@ -76,6 +76,9 @@ public class WebAuthController {
             return ResponseUtil.fail(AUTH_INVALID_ACCOUNT, "账号不存在");
         } else {
             user = userList.get(0);
+            if(!user.getInnerAccount()){
+                return ResponseUtil.fail(AUTH_INVALID_ACCOUNT, "账号不存在");
+            }
         }
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

@@ -42,6 +42,27 @@ public class LitemallGiftCardUserLogService {
         return litemallGiftCardUserLogMapper.selectByExample(example);
     }
 
+    public List<LitemallGiftCardUserLog> querySelective(List<Byte> types, Integer userId, String cardNumber, Integer page, Integer size, String sort, String order){
+        LitemallGiftCardUserLogExample example = new LitemallGiftCardUserLogExample();
+        LitemallGiftCardUserLogExample.Criteria criteria = example.createCriteria();
+
+        if(types!= null && types.size() > 0){
+            criteria.andTypeIn(types);
+        }
+        if(userId != null){
+            criteria.andAddUserIdEqualTo(userId);
+        }
+        if(!StringUtils.isEmpty(cardNumber)){
+            criteria.andCardNumberEqualTo(cardNumber);
+        }
+        criteria.andDeletedEqualTo(false);
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+        PageHelper.startPage(page, size);
+        return litemallGiftCardUserLogMapper.selectByExample(example);
+    }
+
     public List<LitemallGiftCardUserLog> queryByUserId(Byte type){
         LitemallGiftCardUserLogExample example = new LitemallGiftCardUserLogExample();
         example.or().andTypeEqualTo(type).andDeletedEqualTo(false);

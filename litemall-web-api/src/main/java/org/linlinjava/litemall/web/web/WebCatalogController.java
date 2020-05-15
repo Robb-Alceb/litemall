@@ -197,6 +197,7 @@ public class WebCatalogController {
         return ResponseUtil.ok(data);
     }
 
+
     private List<GoodsVo> toVo(List<LitemallGoods> goodsList){
         return goodsList.stream().map(goods -> {
             List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGid(goods.getId());

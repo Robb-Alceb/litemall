@@ -23,6 +23,7 @@
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="available_amount" jdbcType="DECIMAL" property="availableAmount" />
     <result column="points" jdbcType="DECIMAL" property="points" />
+    <result column="inner_account" jdbcType="BIT" property="innerAccount" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -100,7 +101,7 @@
     -->
     id, username, `password`, gender, birthday, last_login_time, last_login_ip, user_level, 
     nickname, email, mobile, avatar, weixin_openid, session_key, `status`, available_amount, 
-    points, add_time, update_time, deleted
+    points, inner_account, add_time, update_time, deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallUserExample" resultMap="BaseResultMap">
     <!--
@@ -226,15 +227,15 @@
       user_level, nickname, email, 
       mobile, avatar, weixin_openid, 
       session_key, `status`, available_amount, 
-      points, add_time, update_time, 
-      deleted)
+      points, inner_account, add_time, 
+      update_time, deleted)
     values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{gender,jdbcType=TINYINT}, 
       #{birthday,jdbcType=DATE}, #{lastLoginTime,jdbcType=TIMESTAMP}, #{lastLoginIp,jdbcType=VARCHAR}, 
       #{userLevel,jdbcType=TINYINT}, #{nickname,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{mobile,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{weixinOpenid,jdbcType=VARCHAR}, 
       #{sessionKey,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{availableAmount,jdbcType=DECIMAL}, 
-      #{points,jdbcType=DECIMAL}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{deleted,jdbcType=BIT})
+      #{points,jdbcType=DECIMAL}, #{innerAccount,jdbcType=BIT}, #{addTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallUser">
     <!--
@@ -294,6 +295,9 @@
       <if test="points != null">
         points,
       </if>
+      <if test="innerAccount != null">
+        inner_account,
+      </if>
       <if test="addTime != null">
         add_time,
       </if>
@@ -352,6 +356,9 @@
       </if>
       <if test="points != null">
         #{points,jdbcType=DECIMAL},
+      </if>
+      <if test="innerAccount != null">
+        #{innerAccount,jdbcType=BIT},
       </if>
       <if test="addTime != null">
         #{addTime,jdbcType=TIMESTAMP},
@@ -432,6 +439,9 @@
       <if test="record.points != null">
         points = #{record.points,jdbcType=DECIMAL},
       </if>
+      <if test="record.innerAccount != null">
+        inner_account = #{record.innerAccount,jdbcType=BIT},
+      </if>
       <if test="record.addTime != null">
         add_time = #{record.addTime,jdbcType=TIMESTAMP},
       </if>
@@ -469,6 +479,7 @@
       `status` = #{record.status,jdbcType=TINYINT},
       available_amount = #{record.availableAmount,jdbcType=DECIMAL},
       points = #{record.points,jdbcType=DECIMAL},
+      inner_account = #{record.innerAccount,jdbcType=BIT},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       deleted = #{record.deleted,jdbcType=BIT}
@@ -531,6 +542,9 @@
       <if test="points != null">
         points = #{points,jdbcType=DECIMAL},
       </if>
+      <if test="innerAccount != null">
+        inner_account = #{innerAccount,jdbcType=BIT},
+      </if>
       <if test="addTime != null">
         add_time = #{addTime,jdbcType=TIMESTAMP},
       </if>
@@ -565,6 +579,7 @@
       `status` = #{status,jdbcType=TINYINT},
       available_amount = #{availableAmount,jdbcType=DECIMAL},
       points = #{points,jdbcType=DECIMAL},
+      inner_account = #{innerAccount,jdbcType=BIT},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT}

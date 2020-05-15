@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,7 +55,9 @@ public class WxCartController {
     @Autowired
     private LitemallShopService litemallShopService;
     @Autowired
-    private LitemallGoodsTaxService litemallGoodsTaxService;
+    private LitemallTaxService litemallTaxService;
+    @Autowired
+    private LitemallShopRegionService litemallShopRegionService;
 
 
     /**
@@ -155,7 +158,7 @@ public class WxCartController {
             List<String> specifications = new ArrayList<>();
             if(null != specIds && specIds.length > 0 ){
                 cart.setSpecificationIds(specIds);
-                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
+                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
                     sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
@@ -240,7 +243,7 @@ public class WxCartController {
             List<String> specifications = new ArrayList<>();
             if(null != specIds && specIds.length > 0 ){
                 cart.setSpecificationIds(specIds);
-                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.findByIds(specIds);
+                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
                     sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
@@ -348,8 +351,8 @@ public class WxCartController {
             return ResponseUtil.badArgument();
         }
 
-        List<Integer> productIds = JacksonUtil.parseIntegerList(body, "productIds");
-        if (productIds == null) {
+        List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
+        if (cartIds == null) {
             return ResponseUtil.badArgument();
         }
 
@@ -359,7 +362,7 @@ public class WxCartController {
         }
         Boolean isChecked = (checkValue == 1);
 
-        cartService.updateCheck(userId, productIds, isChecked);
+        cartService.updateCheck(userId, cartIds, isChecked);
         return index(userId);
     }
 
@@ -425,7 +428,7 @@ public class WxCartController {
      * 购物车下单
      *
      * @param userId    用户ID
-     * @param cartId    购物车商品ID：
+     * @param cartIds    购物车商品ID：
      *                  如果购物车商品ID是空，则下单当前用户所有购物车商品；
      *                  如果购物车商品ID非空，则只下单当前购物车商品。
      * @param addressId 收货地址ID：
@@ -436,7 +439,7 @@ public class WxCartController {
      */
     @GetMapping("checkout")
     @LogAnno
-    public Object checkout(@LoginUser Integer userId, Integer cartId, Integer addressId, Integer couponId, Integer grouponRulesId) {
+    public Object checkout(@LoginUser Integer userId, @RequestParam("cartIds[]") ArrayList<Integer> cartIds, Integer addressId, Integer couponId, HttpServletRequest request) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -465,24 +468,16 @@ public class WxCartController {
 
 
         // 商品价格
-        List<CartVo> checkedGoodsList = null;
-        if (cartId == null || cartId.equals(0)) {
-            List<LitemallCart> litemallCarts = cartService.queryByUidAndChecked(userId);
-            for(LitemallCart cart : litemallCarts){
-                CartVo vo = new CartVo();
-                BeanUtils.copyProperties(cart, vo);
-                vo.setTaxes(litemallGoodsTaxService.findByGoodsId(cart.getGoodsId()));
-                checkedGoodsList.add(vo);
-            }
+        List<CartVo> checkedGoodsList = new ArrayList<>();
+        List<LitemallCart> litemallCarts = new ArrayList<>();
+        if (cartIds == null || cartIds.size() == 0 ) {
+            litemallCarts = cartService.queryByUidAndChecked(userId);
         } else {
-            LitemallCart cart = cartService.findById(cartId);
+            litemallCarts = cartService.findByIds(cartIds);
+        }
+        for(LitemallCart cart : litemallCarts){
             CartVo vo = new CartVo();
             BeanUtils.copyProperties(cart, vo);
-            vo.setTaxes(litemallGoodsTaxService.findByGoodsId(cart.getGoodsId()));
-            if (cart == null) {
-                return ResponseUtil.badArgumentValue();
-            }
-            checkedGoodsList = new ArrayList<>(1);
             checkedGoodsList.add(vo);
         }
 
@@ -497,6 +492,7 @@ public class WxCartController {
                         return shop.getId() == cart.getShopId();
                     }).findFirst().get();
                 }, Collectors.toList()));
+
         //获取所有订单总价、税收总价
 
         BigDecimal totalPrice = new BigDecimal(0.00);
@@ -507,25 +503,44 @@ public class WxCartController {
         while(iterator.hasNext()){
             Map.Entry<LitemallShop, List<CartVo>> i = iterator.next();
             LitemallShop shop = i.getKey();
+            /**
+             * 获取门店对应的税费率
+             */
+            List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
+            List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+            /**
+             * 获取总税率/100
+             */
+            BigDecimal tax = new BigDecimal(0.00);
+            for(LitemallTax item : litemallTaxes){
+                tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+            }
+
             List<CartVo> carts = i.getValue();
+            /**
+             * 税费和总价
+             */
             BigDecimal taxPrice = new BigDecimal(0.00);
             BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
 
             for (CartVo cart : carts) {
                 checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
-                taxPrice = taxPrice.add(cart.getTaxPrice().multiply(new BigDecimal(cart.getNumber())));
 
             }
+            /**
+             * 计算 商品总税费 = 商品总价 * 税率
+             */
+            taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
 
             // 计算优惠券可用情况
             int tmpCouponLength = 0;
-            List<Integer> cartIds = carts.stream().map(CartVo::getId).collect(Collectors.toList());
+            List<Integer> cartIds1 = carts.stream().map(CartVo::getId).collect(Collectors.toList());
             BigDecimal tmpCouponPrice = new BigDecimal(0.00);
             Integer tmpCouponId = 0;
             List<LitemallCouponUser> couponUserList = couponUserService.queryAll(userId);
             for(LitemallCouponUser couponUser : couponUserList){
                 //检查优惠券是否可用
-                LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponUser.getCouponId(), cartIds);
+                LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponUser.getCouponId(), cartIds1);
                 if(coupon != null){
                     tmpCouponLength++;
                     //默认选中第一个符合条件的优惠券,并且判断是否上一个门店订单是否选中优惠券，如果有，则需要判断数量，数量不够时不能选择同一张优惠券
@@ -566,7 +581,9 @@ public class WxCartController {
             data.put("shopGoodsTotalPrice", checkedGoodsPrice);
             data.put("shopOrderTotalPrice", orderTotalPrice);
             data.put("shopActualPrice", actualPrice);
-            data.put("shopCheckedGoodsList", checkedGoodsList);
+            data.put("shopCheckedGoodsList", checkedGoodsList.stream().filter(goods->{
+                return shop.getId() == goods.getShopId();
+            }));
             data.put("shopTaxTotalPrice",taxPrice);
             data.put("shopFreightPrice", freightPrice);
             data.put("shopCouponPrice", 0.00);

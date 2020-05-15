@@ -6,12 +6,10 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
-import org.linlinjava.litemall.db.domain.LitemallCart;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
-import org.linlinjava.litemall.db.domain.LitemallGrouponRules;
 import org.linlinjava.litemall.db.service.*;
-import org.linlinjava.litemall.db.util.CouponConstant;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.vo.CouponVo;
@@ -21,12 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 优惠券服务
@@ -106,10 +100,15 @@ public class WxCouponController {
             couponVo.setName(coupon.getName());
             couponVo.setDesc(coupon.getDesc());
             couponVo.setTag(coupon.getTag());
-            couponVo.setMin(coupon.getMin().toPlainString());
-            couponVo.setDiscount(coupon.getDiscount().toPlainString());
+            couponVo.setMin(coupon.getMin());
+            couponVo.setDiscount(coupon.getDiscount());
             couponVo.setStartTime(couponUser.getStartTime());
             couponVo.setEndTime(couponUser.getEndTime());
+            couponVo.setPromotionOnly(coupon.getPromotionOnly());
+            couponVo.setDiscountRate(coupon.getDiscountRate());
+            couponVo.setDiscountType(coupon.getDiscountType());
+            couponVo.setGoodsValue(coupon.getGoodsValue());
+            couponVo.setGoodsType(coupon.getGoodsType());
 
             couponVoList.add(couponVo);
         }
@@ -122,51 +121,21 @@ public class WxCouponController {
      * 当前购物车下单商品订单可用优惠券
      *
      * @param userId
-     * @param cartId
-     * @param grouponRulesId
+     * @param cartIds
      * @return
      */
     @GetMapping("selectlist")
     @LogAnno
-    public Object selectlist(@LoginUser Integer userId, Integer cartId, Integer grouponRulesId) {
+    public Object selectlist(@LoginUser Integer userId,@RequestParam("cartIds[]") ArrayList<Integer> cartIds) {
         if (userId == null) {
             return ResponseUtil.unlogin();
-        }
-
-        // 团购优惠
-        BigDecimal grouponPrice = new BigDecimal(0.00);
-        LitemallGrouponRules grouponRules = grouponRulesService.queryById(grouponRulesId);
-        if (grouponRules != null) {
-            grouponPrice = grouponRules.getDiscount();
-        }
-
-        // 商品价格
-        List<LitemallCart> checkedGoodsList = null;
-        if (cartId == null || cartId.equals(0)) {
-            checkedGoodsList = cartService.queryByUidAndChecked(userId);
-        } else {
-            LitemallCart cart = cartService.findById(cartId);
-            if (cart == null) {
-                return ResponseUtil.badArgumentValue();
-            }
-            checkedGoodsList = new ArrayList<>(1);
-            checkedGoodsList.add(cart);
-        }
-        BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
-        for (LitemallCart cart : checkedGoodsList) {
-            //  只有当团购规格商品ID符合才进行团购优惠
-            if (grouponRules != null && grouponRules.getGoodsId().equals(cart.getGoodsId())) {
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().subtract(grouponPrice).multiply(new BigDecimal(cart.getNumber())));
-            } else {
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
-            }
         }
 
         // 计算优惠券可用情况
         List<LitemallCouponUser> couponUserList = couponUserService.queryAll(userId);
         List<LitemallCouponUser> availableCouponUserList = new ArrayList<>(couponUserList.size());
         for (LitemallCouponUser couponUser : couponUserList) {
-            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponUser.getCouponId(), checkedGoodsPrice);
+            LitemallCoupon coupon = couponVerifyService.checkCoupon(userId, couponUser.getCouponId(), cartIds);
             if (coupon == null) {
                 continue;
             }
@@ -219,22 +188,22 @@ public class WxCouponController {
         // 优惠券分发类型
         // 例如注册赠券类型的优惠券不能领取
         Short type = coupon.getType();
-        if(type.equals(CouponConstant.TYPE_REGISTER)){
+        if(type.equals(Constants.TYPE_REGISTER)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "新用户优惠券自动发送");
         }
-        else if(type.equals(CouponConstant.TYPE_CODE)){
+        else if(type.equals(Constants.TYPE_CODE)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券只能兑换");
         }
-        else if(!type.equals(CouponConstant.TYPE_COMMON)){
+        else if(!type.equals(Constants.TYPE_COMMON)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券类型不支持");
         }
 
         // 优惠券状态，已下架或者过期不能领取
         Short status = coupon.getStatus();
-        if(status.equals(CouponConstant.STATUS_OUT)){
+        if(status.equals(Constants.STATUS_OUT)){
             return ResponseUtil.fail(WxResponseCode.COUPON_EXCEED_LIMIT, "优惠券已领完");
         }
-        else if(status.equals(CouponConstant.STATUS_EXPIRED)){
+        else if(status.equals(Constants.STATUS_EXPIRED)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券已经过期");
         }
 
@@ -243,7 +212,7 @@ public class WxCouponController {
         couponUser.setCouponId(couponId);
         couponUser.setUserId(userId);
         Short timeType = coupon.getTimeType();
-        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+        if (timeType.equals(Constants.TIME_TYPE_TIME)) {
             couponUser.setStartTime(coupon.getStartTime());
             couponUser.setEndTime(coupon.getEndTime());
         }
@@ -299,22 +268,22 @@ public class WxCouponController {
         // 优惠券分发类型
         // 例如注册赠券类型的优惠券不能领取
         Short type = coupon.getType();
-        if(type.equals(CouponConstant.TYPE_REGISTER)){
+        if(type.equals(Constants.TYPE_REGISTER)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "新用户优惠券自动发送");
         }
-        else if(type.equals(CouponConstant.TYPE_COMMON)){
+        else if(type.equals(Constants.TYPE_COMMON)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券只能领取，不能兑换");
         }
-        else if(!type.equals(CouponConstant.TYPE_CODE)){
+        else if(!type.equals(Constants.TYPE_CODE)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券类型不支持");
         }
 
         // 优惠券状态，已下架或者过期不能领取
         Short status = coupon.getStatus();
-        if(status.equals(CouponConstant.STATUS_OUT)){
+        if(status.equals(Constants.STATUS_OUT)){
             return ResponseUtil.fail(WxResponseCode.COUPON_EXCEED_LIMIT, "优惠券已兑换");
         }
-        else if(status.equals(CouponConstant.STATUS_EXPIRED)){
+        else if(status.equals(Constants.STATUS_EXPIRED)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券已经过期");
         }
 
@@ -323,7 +292,7 @@ public class WxCouponController {
         couponUser.setCouponId(couponId);
         couponUser.setUserId(userId);
         Short timeType = coupon.getTimeType();
-        if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
+        if (timeType.equals(Constants.TIME_TYPE_TIME)) {
             couponUser.setStartTime(coupon.getStartTime());
             couponUser.setEndTime(coupon.getEndTime());
         }

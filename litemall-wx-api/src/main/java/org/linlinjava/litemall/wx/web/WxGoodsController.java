@@ -4,7 +4,6 @@ import com.github.pagehelper.PageInfo;
 import com.mysql.jdbc.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
@@ -79,7 +78,11 @@ public class WxGoodsController {
 	@Autowired
 	private LitemallBrowseRecordService browseRecordService;
 	@Autowired
-	private LitemallGoodsTaxService litemallGoodsTaxService;
+	private LitemallTaxService litemallTaxService;
+	@Autowired
+	private LitemallShopService litemallShopService;
+	@Autowired
+	private LitemallShopRegionService litemallShopRegionService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -112,49 +115,12 @@ public class WxGoodsController {
 		// 商品规格对应的数量和价格
 		Callable<List> productListCallable = () -> productService.queryByGid(id);
 
-		// 商品问题，这里是一些通用问题
-		Callable<List> issueCallable = () -> goodsIssueService.querySelective("", 1, 4, "", "");
 
+		LitemallShop shop = litemallShopService.findById(info.getShopId());
+		List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
 
-		// 商品问题，这里是一些通用问题
-		Callable<List> taxCallable = () -> litemallGoodsTaxService.findByGoodsId(id);
-
-		// 商品品牌商
-		Callable<LitemallBrand> brandCallable = ()->{
-			Integer brandId = info.getBrandId();
-			LitemallBrand brand;
-			if (brandId == 0) {
-				brand = new LitemallBrand();
-			} else {
-				brand = brandService.findById(info.getBrandId());
-			}
-			return brand;
-		};
-
-		// 评论
-		Callable<Map> commentsCallable = () -> {
-			List<LitemallComment> comments = commentService.queryGoodsByGid(id, 0, 2);
-			List<Map<String, Object>> commentsVo = new ArrayList<>(comments.size());
-			long commentCount = PageInfo.of(comments).getTotal();
-			for (LitemallComment comment : comments) {
-				Map<String, Object> c = new HashMap<>();
-				c.put("id", comment.getId());
-				c.put("addTime", comment.getAddTime());
-				c.put("content", comment.getContent());
-				LitemallUser user = userService.findById(comment.getUserId());
-				c.put("nickname", user == null ? "" : user.getNickname());
-				c.put("avatar", user == null ? "" : user.getAvatar());
-				c.put("picList", comment.getPicUrls());
-				commentsVo.add(c);
-			}
-			Map<String, Object> commentList = new HashMap<>();
-			commentList.put("count", commentCount);
-			commentList.put("data", commentsVo);
-			return commentList;
-		};
-
-		//团购信息
-		Callable<List> grouponRulesCallable = () ->rulesService.queryByGoodsId(id);
+		// 商品税费
+		Callable<List> taxCallable = () -> litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
 
 		// 用户收藏
 		int userHasCollect = 0;
@@ -185,19 +151,11 @@ public class WxGoodsController {
 		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
 		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
 		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
-		FutureTask<List> issueCallableTask = new FutureTask<>(issueCallable);
-		FutureTask<Map> commentsCallableTsk = new FutureTask<>(commentsCallable);
-		FutureTask<LitemallBrand> brandCallableTask = new FutureTask<>(brandCallable);
-        FutureTask<List> grouponRulesCallableTask = new FutureTask<>(grouponRulesCallable);
 		FutureTask<List> taxCallableTask = new FutureTask<>(taxCallable);
 
 		executorService.submit(goodsAttributeListTask);
 		executorService.submit(objectCallableTask);
 		executorService.submit(productListCallableTask);
-		executorService.submit(issueCallableTask);
-		executorService.submit(commentsCallableTsk);
-		executorService.submit(brandCallableTask);
-		executorService.submit(grouponRulesCallableTask);
 		executorService.submit(taxCallableTask);
 
 		Map<String, Object> data = new HashMap<>();
@@ -205,16 +163,10 @@ public class WxGoodsController {
 		try {
 			data.put("info", info);
 			data.put("userHasCollect", userHasCollect);
-//			data.put("issue", issueCallableTask.get());
-//			data.put("comment", commentsCallableTsk.get());
 			data.put("specificationList", objectCallableTask.get());
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
 			data.put("taxes", taxCallableTask.get());
-//			data.put("brand", brandCallableTask.get());
-//			data.put("groupon", grouponRulesCallableTask.get());
-			//SystemConfig.isAutoCreateShareImage()
-//			data.put("share", SystemConfig.isAutoCreateShareImage());
 
 		}
 		catch (Exception e) {
@@ -309,7 +261,7 @@ public class WxGoodsController {
 			vo.setPicUri(goods.getPicUrl());
 			vo.setCategoryId(goods.getCategoryId());
 			//税详情
-			vo.setTaxes(litemallGoodsTaxService.findByGoodsId(goods.getId()));
+//			vo.setTaxes(litemallTaxService.findByGoodsId(goods.getId()));
 
 			// 用户收藏
 			int userHasCollect = 0;

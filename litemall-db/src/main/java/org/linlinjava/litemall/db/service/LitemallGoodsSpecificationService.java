@@ -24,7 +24,7 @@ public class LitemallGoodsSpecificationService {
         return goodsSpecificationMapper.selectByPrimaryKey(id);
     }
 
-    public List<LitemallGoodsSpecification> findByIds(Integer[] ids) {
+    public List<LitemallGoodsSpecification> queryByIds(Integer[] ids) {
         LitemallGoodsSpecificationExample example = new LitemallGoodsSpecificationExample();
         example.or().andIdIn(Arrays.asList(ids)).andDeletedEqualTo(false);
         return goodsSpecificationMapper.selectByExampleSelective(example);

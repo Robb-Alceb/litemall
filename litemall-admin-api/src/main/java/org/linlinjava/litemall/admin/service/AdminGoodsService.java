@@ -63,7 +63,7 @@ public class AdminGoodsService {
     @Autowired
     private LitemallCartService cartService;
     @Autowired
-    private LitemallGoodsTaxService goodsTaxService;
+    private LitemallTaxService taxService;
 
     /**
      * 商品列表
@@ -189,7 +189,6 @@ public class AdminGoodsService {
         LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
         LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
-        LitemallGoodsTax[] goodsTaxes = goodsAllinone.getGoodsTaxes();
 
         Integer id = goods.getId();
         LitemallGoods litemallGoods = goodsService.findById(id);
@@ -205,17 +204,7 @@ public class AdminGoodsService {
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
         goods.setShareUrl(url);
 
-        //总税率
-        BigDecimal totalTax = new BigDecimal(0.00);
-        if(null != goodsTaxes){
-            for (LitemallGoodsTax tax : goodsTaxes) {
-                if(tax.getEnable()) {
-                    totalTax = totalTax.add(tax.getValue());
-                }
-                tax.setGoodsId(goods.getId());
-                goodsTaxService.add(tax);
-            }
-        }
+
         // 商品基本信息表litemall_goods
         if (goodsService.updateById(goods) == 0) {
             throw new RuntimeException("更新数据失败");
@@ -227,7 +216,6 @@ public class AdminGoodsService {
 //        productService.deleteByGid(gid);
         goodsLadderPriceService.deleteByGoodsId(gid);
         goodsMaxMinusPriceService.deleteByGoodsId(gid);
-        goodsTaxService.delete(gid);
 
         if(goods.getPriceType() != 1){
             vipGoodsService.deleteByGoodsId(goods.getId());
@@ -248,7 +236,7 @@ public class AdminGoodsService {
         // 商品货品表litemall_product
         for (LitemallGoodsProduct product : products) {
             //总税率
-            product.setTax(totalTax);
+//            product.setTax(totalTax);
             product.setGoodsId(goods.getId());
             productService.updateByGoodsId(product);
         }
@@ -328,7 +316,6 @@ public class AdminGoodsService {
         LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
         LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
-        LitemallGoodsTax[] goodsTaxes = goodsAllinone.getGoodsTaxes();
 
         String name = goods.getName();
         Integer shopId = goods.getShopId();
@@ -342,17 +329,6 @@ public class AdminGoodsService {
         //将生成的分享图片地址写入数据库
         String url = qCodeService.createGoodShareImage(goods.getId().toString(), goods.getPicUrl(), goods.getName());
 
-        //总税率
-        BigDecimal totalTax = new BigDecimal(0.00);
-        if(null != goodsTaxes){
-            for (LitemallGoodsTax tax : goodsTaxes) {
-                if(tax.getEnable()){
-                    totalTax = totalTax.add(tax.getValue());
-                }
-                tax.setGoodsId(goods.getId());
-                goodsTaxService.add(tax);
-            }
-        }
 
         if (!StringUtils.isEmpty(url)) {
             goods.setShareUrl(url);
@@ -481,7 +457,6 @@ public class AdminGoodsService {
         LitemallVipGoodsPrice vipGoodsPrice = vipGoodsService.queryByGoodsId(id);
         List<LitemallGoodsLadderPrice> ladderPrices = goodsLadderPriceService.queryByGoodsId(id);
         List<LitemallGoodsMaxMinusPrice> maxMinusPrices = goodsMaxMinusPriceService.queryByGoodsId(id);
-        List<LitemallGoodsTax> goodsTaxes = goodsTaxService.findByGoodsId(id);
 
         Integer categoryId = goods.getCategoryId();
         LitemallCategory category = categoryService.findById(categoryId);
@@ -501,7 +476,6 @@ public class AdminGoodsService {
         data.put("vipGoodsPrice", vipGoodsPrice);
         data.put("ladderPrices", ladderPrices);
         data.put("maxMinusPrices", maxMinusPrices);
-        data.put("goodsTaxes", goodsTaxes);
 
         return ResponseUtil.ok(data);
     }

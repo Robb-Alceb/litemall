@@ -120,8 +120,9 @@ public class AdminAdminController {
         litemallAdminService.add(admin);
         logHelper.logAuthSucceed("添加管理员", username);
 
-        //给管理员生成一个user，用于ipad下单
+        //给管理员生成一个user，用于pos下单
         LitemallUser user = BeanConvert.toUser(admin);
+        user.setInnerAccount(true);
         litemallUserService.add(user);
         return ResponseUtil.ok(admin);
     }
@@ -229,6 +230,8 @@ public class AdminAdminController {
 
 
         litemallAdminService.deleteById(anotherAdminId);
+        //逻辑删除pos收银账号
+        litemallUserService.deleteByUserName(currentAdmin.getUsername());
         logHelper.logAuthSucceed("删除管理员", admin.getUsername());
         return ResponseUtil.ok();
     }

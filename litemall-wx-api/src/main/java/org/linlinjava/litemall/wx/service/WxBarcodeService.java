@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ：stephen
@@ -49,7 +51,10 @@ public class WxBarcodeService {
         StringBuilder builder = new StringBuilder();
         builder.append(userId).append(delimiter).append(milliSecond).append(delimiter).append(type);
 
-        return ResponseUtil.ok(EncryptUtil.getInstance().DESencode(builder.toString(), barcodeKey));
+        Map<String, Object> rtn = new HashMap<>();
+        rtn.put("expire",Constants.BARCODE_EXPIRE_SECOND);
+        rtn.put("barcode",EncryptUtil.getInstance().DESencode(builder.toString(), barcodeKey));
+        return ResponseUtil.ok(rtn);
     }
 
     /**
@@ -66,6 +71,9 @@ public class WxBarcodeService {
         StringBuilder builder = new StringBuilder();
         builder.append(userId).append(delimiter).append(milliSecond).append(delimiter).append(type).append(delimiter).append(cardId);
 
-        return ResponseUtil.ok(EncryptUtil.getInstance().DESencode(builder.toString(), barcodeKey));
+        Map<String, Object> rtn = new HashMap<>();
+        rtn.put("expire",Constants.BARCODE_EXPIRE_SECOND);
+        rtn.put("barcode",EncryptUtil.getInstance().DESencode(builder.toString(), barcodeKey));
+        return ResponseUtil.ok(rtn);
     }
 }

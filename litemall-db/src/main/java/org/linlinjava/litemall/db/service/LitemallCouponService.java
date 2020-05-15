@@ -2,11 +2,11 @@ package org.linlinjava.litemall.db.service;
 
 import com.alibaba.druid.util.StringUtils;
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.dao.LitemallCouponMapper;
 import org.linlinjava.litemall.db.dao.LitemallCouponUserMapper;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.domain.LitemallCoupon.Column;
-import org.linlinjava.litemall.db.util.CouponConstant;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -50,7 +50,7 @@ public class LitemallCouponService {
      * @return
      */
     public List<LitemallCoupon> queryList(LitemallCouponExample.Criteria criteria, int offset, int limit, String sort, String order) {
-        criteria.andTypeEqualTo(CouponConstant.TYPE_COMMON).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andDeletedEqualTo(false);
+        criteria.andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_COMMON).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
         criteria.example().setOrderByClause(sort + " " + order);
         PageHelper.startPage(offset, limit);
         return couponMapper.selectByExampleSelective(criteria.example(), result);
@@ -80,7 +80,22 @@ public class LitemallCouponService {
 
     public LitemallCoupon findByCode(String code) {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andCodeEqualTo(code).andTypeEqualTo(CouponConstant.TYPE_CODE).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andDeletedEqualTo(false);
+        example.or().andCodeEqualTo(code).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_CODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
+        List<LitemallCoupon> couponList =  couponMapper.selectByExample(example);
+        if(couponList.size() > 1){
+            throw new RuntimeException("");
+        }
+        else if(couponList.size() == 0){
+            return null;
+        }
+        else {
+            return couponList.get(0);
+        }
+    }
+
+    public LitemallCoupon findByBarCode(String barCode) {
+        LitemallCouponExample example = new LitemallCouponExample();
+        example.or().andBarCodeEqualTo(barCode).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_BARCODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
         List<LitemallCoupon> couponList =  couponMapper.selectByExample(example);
         if(couponList.size() > 1){
             throw new RuntimeException("");
@@ -100,7 +115,7 @@ public class LitemallCouponService {
      */
     public List<LitemallCoupon> queryRegister() {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andTypeEqualTo(CouponConstant.TYPE_REGISTER).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andDeletedEqualTo(false);
+        example.or().andTypeEqualTo(Constants.TYPE_REGISTER).andStatusEqualTo(Constants.STATUS_NORMAL).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
 
@@ -168,6 +183,20 @@ public class LitemallCouponService {
         return code;
     }
 
+
+    /**
+     * 生成优惠券码
+     *
+     * @return 可使用优惠券码
+     */
+    public String generateCouponCode() {
+        String code = getRandomNum(8);
+        while(findByCode(code) != null){
+            code = getRandomNum(8);
+        }
+        return code;
+    }
+
     /**
      * 查询过期的优惠券:
      * 注意：如果timeType=0, 即基于领取时间有效期的优惠券，则优惠券不会过期
@@ -176,7 +205,7 @@ public class LitemallCouponService {
      */
     public List<LitemallCoupon> queryExpired() {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andStatusEqualTo(CouponConstant.STATUS_NORMAL).andTimeTypeEqualTo(CouponConstant.TIME_TYPE_TIME).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
+        example.or().andStatusEqualTo(Constants.STATUS_NORMAL).andTimeTypeEqualTo(Constants.TIME_TYPE_TIME).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
 

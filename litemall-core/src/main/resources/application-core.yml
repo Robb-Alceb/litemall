@@ -56,8 +56,8 @@ litemall:
         templateId: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     jpush:
       enable: true
-      secret: cb73f3661cede39b98d4fca9
-      appKey: 40d54b646164c70ef2b677e3
+      secret: 2ab32f908461f85f4768a6e0
+      appKey: 745a33482afc15780c161628
       #推送的apns环境，false表示开发，true表示生产；对android和自定义消息无意义
       apnsProduction: false
 
@@ -104,9 +104,9 @@ litemall:
       storagePath: storage
       # 这个地方应该是wx模块的WxStorageController的fetch方法对应的地址
 #      address: http://localhost:8080/wx/storage/fetch/
-      address: http://192.168.0.100:8080/wx/storage/fetch/
+#      address: http://192.168.0.100:8080/wx/storage/fetch/
 #      address: http://3.17.10.54/app/wx/storage/fetch/
-#      address: http://test.lumierecafe.com/app/wx/storage/fetch/
+      address: http://test.lumierecafe.com/app/wx/storage/fetch/
     # 阿里云对象存储配置信息
     aliyun:
       endpoint: oss-cn-shenzhen.aliyuncs.com

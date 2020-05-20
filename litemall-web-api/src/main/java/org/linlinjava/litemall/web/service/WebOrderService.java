@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.accessibility.AccessibleRelationSet;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -239,6 +240,10 @@ public class WebOrderService {
             return error;
         }
 
+        /**
+         * 订单税费项
+         */
+        List<LitemallOrderTax> orderTaxes = new ArrayList<>();
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
         if (cartId == null || cartId.equals(0)) {
@@ -259,6 +264,12 @@ public class WebOrderService {
          * 商品价格
          */
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+
         /**
          * 税费
          */
@@ -293,26 +304,36 @@ public class WebOrderService {
             }
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
+            /**
+             * 获取商品选用税费
+             */
+            BigDecimal tax = new BigDecimal(0.00);
+            List<Integer> taxTypes = new ArrayList<>(Arrays.asList(goodsProduct.getTaxTypes()));
+
+            for(LitemallTax item : litemallTaxes){
+                boolean anyMatch = taxTypes.stream().anyMatch(type -> {
+                    return type == item.getType().intValue();
+                });
+                if(anyMatch){
+                    //计算税价
+                    tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+                    /**
+                     * 记录订单税费项
+                     */
+                    LitemallOrderTax orderTax = new LitemallOrderTax();
+                    orderTax.setCode(item.getCode());
+                    orderTax.setName(item.getName());
+                    orderTax.setType(item.getType());
+                    orderTax.setValue(item.getValue());
+                    orderTaxes.add(orderTax);
+                }
+            }
+            //税费 = 商品价格 * 商品数量 * 税率
+            taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber()))));
 
 //            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
         }
-        /**
-         * 获取门店对应的税费率
-         */
-        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
-        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
-        /**
-         * 获取总税率/100
-         */
-        BigDecimal tax = new BigDecimal(0.00);
-        for(LitemallTax item : litemallTaxes){
-            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
-        }
 
-        /**
-         * 计算 商品总税费 = 商品总价 * 税率
-         */
-        taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkedGoodsPrice));
 
         checkedGoodsPrice = checkedGoodsPrice.add(taxGoodsPrice).subtract(discountPrice);
 
@@ -375,14 +396,9 @@ public class WebOrderService {
         }
 
         // 添加订单税费表项
-        for(LitemallTax item : litemallTaxes){
-            LitemallOrderTax orderTax = new LitemallOrderTax();
-            orderTax.setCode(item.getCode());
-            orderTax.setName(item.getName());
-            orderTax.setOrderId(order.getId());
-            orderTax.setType(item.getType());
-            orderTax.setValue(item.getValue());
-            litemallOrderTaxService.add(orderTax);
+        for(LitemallOrderTax item : orderTaxes){
+            item.setOrderId(order.getId());
+            litemallOrderTaxService.add(item);
         }
 
         // 删除购物车里面的商品信息
@@ -486,7 +502,6 @@ public class WebOrderService {
      */
     @Transactional
     public Object orderDirectly(Integer shopId, Integer userId, CartDto cartDto) {
-//        Integer shopId = cart.getShopId();
         Object error = validShop(shopId);
         if( error != null){
             return error;
@@ -517,10 +532,38 @@ public class WebOrderService {
         for(LitemallGoodsSpecification sp : specifications){
             checkedGoodsPrice = checkedGoodsPrice.add(sp.getPrice());
         }
+
         /**
-         * 税费(税率/100*总价*数量)
+         * 获取门店对应的税费率
          */
-        BigDecimal taxGoodsPrice = product.getTax().divide(new BigDecimal(100.00)).multiply(checkedGoodsPrice).multiply(new BigDecimal(number));
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+
+        List<LitemallOrderTax> orderTaxes = new ArrayList<>();
+        BigDecimal tax = new BigDecimal(0.00);
+        List<Integer> taxTypes = new ArrayList<>(Arrays.asList(product.getTaxTypes()));
+        for(LitemallTax item : litemallTaxes){
+            boolean anyMatch = taxTypes.stream().anyMatch(type -> {
+                return type == item.getType().intValue();
+            });
+            if(anyMatch){
+                //计算税率
+                tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+                /**
+                 * 记录订单税费项
+                 */
+                LitemallOrderTax orderTax = new LitemallOrderTax();
+                orderTax.setCode(item.getCode());
+                orderTax.setName(item.getName());
+                orderTax.setType(item.getType());
+                orderTax.setValue(item.getValue());
+                orderTaxes.add(orderTax);
+            }
+        }
+        BigDecimal taxGoodsPrice = new BigDecimal(0.00);
+        //税费 = 商品价格 * 商品数量 * 税率
+        taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkedGoodsPrice.multiply(new BigDecimal(number))));
+
         BigDecimal actualPrice = checkedGoodsPrice.add(taxGoodsPrice);
 
         LitemallOrder order = new LitemallOrder();
@@ -562,7 +605,7 @@ public class WebOrderService {
         }).collect(Collectors.toList());
         orderGoods.setSpecifications(specificationStrs.toArray(new String[]{}));
         orderGoods.setAddTime(LocalDateTime.now());
-        orderGoods.setTaxPrice(product.getTax());
+//        orderGoods.setTaxPrice(product.getTax());
 
         orderGoodsService.add(orderGoods);
 

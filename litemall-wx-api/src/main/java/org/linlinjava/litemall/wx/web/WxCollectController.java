@@ -79,7 +79,6 @@ public class WxCollectController {
             List<LitemallGoodsProduct> litemallGoodsProducts = goodsProductService.queryByGid(goods.getId());
             if(litemallGoodsProducts.size() > 0){
                 c.put("price", litemallGoodsProducts.get(0).getSellPrice());
-                c.put("tax", litemallGoodsProducts.get(0).getTax());
             }
 
             collects.add(c);

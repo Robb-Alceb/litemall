@@ -43,17 +43,19 @@ public class GoodsWarningJob {
         logger.info("系统开启任务检查商品数量预警");
 
         List<Integer> goodsIds = litemallGoodsProductService.queryWarning();
-        List<LitemallGoods> goodsList = litemallGoodsService.findByIds(goodsIds);
-        goodsList.forEach(goods -> {
-            List<LitemallAdmin> admins = litemallAdminService.findByShopId(goods.getShopId());
-            for (LitemallAdmin admin : admins) {
-                if(Arrays.asList(admin.getRoleIds()).indexOf(Constants.SHOPKEEPER_ROLE_ID) >= 0){
-                    logger.info("商品数量预警发送邮件:"+goods.getName());
-                    String content = goods.getName() + "数量即将不足";
-                    notifyService.notifyMail("商品数量预警",content, admin.getEmail());
+        if(goodsIds.size() > 0){
+            List<LitemallGoods> goodsList = litemallGoodsService.findByIds(goodsIds);
+            goodsList.forEach(goods -> {
+                List<LitemallAdmin> admins = litemallAdminService.findByShopId(goods.getShopId());
+                for (LitemallAdmin admin : admins) {
+                    if(Arrays.asList(admin.getRoleIds()).indexOf(Constants.SHOPKEEPER_ROLE_ID) >= 0){
+                        logger.info("商品数量预警发送邮件:"+goods.getName());
+                        String content = goods.getName() + "数量即将不足";
+                        notifyService.notifyMail("商品数量预警",content, admin.getEmail());
+                    }
                 }
-            }
-        });
+            });
+        }
 
     }
 

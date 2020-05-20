@@ -224,19 +224,75 @@ public class LitemallGoodsProductExample {
      * @mbg.generated
      */
     protected abstract static class GeneratedCriteria {
+        protected List<Criterion> specificationIdsCriteria;
+
+        protected List<Criterion> taxTypesCriteria;
+
+        protected List<Criterion> allCriteria;
+
         protected List<Criterion> criteria;
 
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
+            specificationIdsCriteria = new ArrayList<Criterion>();
+            taxTypesCriteria = new ArrayList<Criterion>();
+        }
+
+        public List<Criterion> getSpecificationIdsCriteria() {
+            return specificationIdsCriteria;
+        }
+
+        protected void addSpecificationIdsCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            specificationIdsCriteria.add(new Criterion(condition, value, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addSpecificationIdsCriterion(String condition, Integer[] value1, Integer[] value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            specificationIdsCriteria.add(new Criterion(condition, value1, value2, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        public List<Criterion> getTaxTypesCriteria() {
+            return taxTypesCriteria;
+        }
+
+        protected void addTaxTypesCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            taxTypesCriteria.add(new Criterion(condition, value, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addTaxTypesCriterion(String condition, Integer[] value1, Integer[] value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            taxTypesCriteria.add(new Criterion(condition, value1, value2, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return criteria.size() > 0
+                || specificationIdsCriteria.size() > 0
+                || taxTypesCriteria.size() > 0;
         }
 
         public List<Criterion> getAllCriteria() {
-            return criteria;
+            if (allCriteria == null) {
+                allCriteria = new ArrayList<Criterion>();
+                allCriteria.addAll(criteria);
+                allCriteria.addAll(specificationIdsCriteria);
+                allCriteria.addAll(taxTypesCriteria);
+            }
+            return allCriteria;
         }
 
         public List<Criterion> getCriteria() {
@@ -248,6 +304,7 @@ public class LitemallGoodsProductExample {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value, String property) {
@@ -255,6 +312,7 @@ public class LitemallGoodsProductExample {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value1, Object value2, String property) {
@@ -262,6 +320,7 @@ public class LitemallGoodsProductExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+            allCriteria = null;
         }
 
         public Criteria andIdIsNull() {
@@ -768,34 +827,18 @@ public class LitemallGoodsProductExample {
             return (Criteria) this;
         }
 
-        public Criteria andTaxIsNull() {
-            addCriterion("tax is null");
+        public Criteria andSpecificationIdsIsNull() {
+            addCriterion("specification_ids is null");
             return (Criteria) this;
         }
 
-        public Criteria andTaxIsNotNull() {
-            addCriterion("tax is not null");
+        public Criteria andSpecificationIdsIsNotNull() {
+            addCriterion("specification_ids is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTaxEqualTo(BigDecimal value) {
-            addCriterion("tax =", value, "tax");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_goods_product
-         *
-         * @mbg.generated
-         */
-        public Criteria andTaxEqualToColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax = ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andTaxNotEqualTo(BigDecimal value) {
-            addCriterion("tax <>", value, "tax");
+        public Criteria andSpecificationIdsEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids =", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -805,29 +848,13 @@ public class LitemallGoodsProductExample {
          *
          * @mbg.generated
          */
-        public Criteria andTaxNotEqualToColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax <> ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids = ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTaxGreaterThan(BigDecimal value) {
-            addCriterion("tax >", value, "tax");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_goods_product
-         *
-         * @mbg.generated
-         */
-        public Criteria andTaxGreaterThanColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax > ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andTaxGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("tax >=", value, "tax");
+        public Criteria andSpecificationIdsNotEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <>", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -837,29 +864,13 @@ public class LitemallGoodsProductExample {
          *
          * @mbg.generated
          */
-        public Criteria andTaxGreaterThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax >= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsNotEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids <> ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTaxLessThan(BigDecimal value) {
-            addCriterion("tax <", value, "tax");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_goods_product
-         *
-         * @mbg.generated
-         */
-        public Criteria andTaxLessThanColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax < ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andTaxLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("tax <=", value, "tax");
+        public Criteria andSpecificationIdsGreaterThan(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids >", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -869,28 +880,222 @@ public class LitemallGoodsProductExample {
          *
          * @mbg.generated
          */
-        public Criteria andTaxLessThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
-            addCriterion(new StringBuilder("tax <= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsGreaterThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids > ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTaxIn(List<BigDecimal> values) {
-            addCriterion("tax in", values, "tax");
+        public Criteria andSpecificationIdsGreaterThanOrEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids >=", value, "specificationIds");
             return (Criteria) this;
         }
 
-        public Criteria andTaxNotIn(List<BigDecimal> values) {
-            addCriterion("tax not in", values, "tax");
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andSpecificationIdsGreaterThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids >= ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTaxBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("tax between", value1, value2, "tax");
+        public Criteria andSpecificationIdsLessThan(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <", value, "specificationIds");
             return (Criteria) this;
         }
 
-        public Criteria andTaxNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("tax not between", value1, value2, "tax");
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andSpecificationIdsLessThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids < ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsLessThanOrEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <=", value, "specificationIds");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andSpecificationIdsLessThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("specification_ids <= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsLike(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids like", value, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotLike(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids not like", value, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsIn(List<Integer[]> values) {
+            addSpecificationIdsCriterion("specification_ids in", values, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotIn(List<Integer[]> values) {
+            addSpecificationIdsCriterion("specification_ids not in", values, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsBetween(Integer[] value1, Integer[] value2) {
+            addSpecificationIdsCriterion("specification_ids between", value1, value2, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotBetween(Integer[] value1, Integer[] value2) {
+            addSpecificationIdsCriterion("specification_ids not between", value1, value2, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesIsNull() {
+            addCriterion("tax_types is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesIsNotNull() {
+            addCriterion("tax_types is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesEqualTo(Integer[] value) {
+            addTaxTypesCriterion("tax_types =", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types = ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesNotEqualTo(Integer[] value) {
+            addTaxTypesCriterion("tax_types <>", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesNotEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types <> ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesGreaterThan(Integer[] value) {
+            addTaxTypesCriterion("tax_types >", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesGreaterThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types > ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesGreaterThanOrEqualTo(Integer[] value) {
+            addTaxTypesCriterion("tax_types >=", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesGreaterThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types >= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesLessThan(Integer[] value) {
+            addTaxTypesCriterion("tax_types <", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesLessThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types < ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesLessThanOrEqualTo(Integer[] value) {
+            addTaxTypesCriterion("tax_types <=", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andTaxTypesLessThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("tax_types <= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesLike(Integer[] value) {
+            addTaxTypesCriterion("tax_types like", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesNotLike(Integer[] value) {
+            addTaxTypesCriterion("tax_types not like", value, "taxTypes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesIn(List<Integer[]> values) {
+            addTaxTypesCriterion("tax_types in", values, "taxTypes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesNotIn(List<Integer[]> values) {
+            addTaxTypesCriterion("tax_types not in", values, "taxTypes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesBetween(Integer[] value1, Integer[] value2) {
+            addTaxTypesCriterion("tax_types between", value1, value2, "taxTypes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaxTypesNotBetween(Integer[] value1, Integer[] value2) {
+            addTaxTypesCriterion("tax_types not between", value1, value2, "taxTypes");
             return (Criteria) this;
         }
 
@@ -1279,6 +1484,142 @@ public class LitemallGoodsProductExample {
 
         public Criteria andUrlNotBetween(String value1, String value2) {
             addCriterion("url not between", value1, value2, "url");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitIsNull() {
+            addCriterion("unit is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitIsNotNull() {
+            addCriterion("unit is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitEqualTo(String value) {
+            addCriterion("unit =", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit = ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitNotEqualTo(String value) {
+            addCriterion("unit <>", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitNotEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit <> ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitGreaterThan(String value) {
+            addCriterion("unit >", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitGreaterThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit > ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitGreaterThanOrEqualTo(String value) {
+            addCriterion("unit >=", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitGreaterThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit >= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitLessThan(String value) {
+            addCriterion("unit <", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitLessThanColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit < ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitLessThanOrEqualTo(String value) {
+            addCriterion("unit <=", value, "unit");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_goods_product
+         *
+         * @mbg.generated
+         */
+        public Criteria andUnitLessThanOrEqualToColumn(LitemallGoodsProduct.Column column) {
+            addCriterion(new StringBuilder("unit <= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitLike(String value) {
+            addCriterion("unit like", value, "unit");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitNotLike(String value) {
+            addCriterion("unit not like", value, "unit");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitIn(List<String> values) {
+            addCriterion("unit in", values, "unit");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitNotIn(List<String> values) {
+            addCriterion("unit not in", values, "unit");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitBetween(String value1, String value2) {
+            addCriterion("unit between", value1, value2, "unit");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnitNotBetween(String value1, String value2) {
+            addCriterion("unit not between", value1, value2, "unit");
             return (Criteria) this;
         }
 

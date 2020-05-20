@@ -173,6 +173,8 @@ public class WxGiftCardService {
         try {
             return cardPaypalService.executePayment(paymentId, payerId);
         }catch (Exception e){
+            //支付异常，退款
+            cardPaypalService.refund(paymentId, payerId);
             return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, "支付失败");
         }
     }
@@ -211,8 +213,9 @@ public class WxGiftCardService {
         if(card == null){
             return ResponseUtil.fail(WxResponseCode.CARD_INVALID, "礼物卡不存在");
         }
+        //已经分享
         if(litemallGiftCardShareService.findByCardNumber(dto.getCardNumber()) != null){
-            return ResponseUtil.fail(WxResponseCode.CARD_INVALID, "礼物卡已经分享");
+            return ResponseUtil.ok(litemallGiftCardShareService.findByCardNumber(dto.getCardNumber()));
         }
         LitemallGiftCardShare share = new LitemallGiftCardShare();
         share.setCardNumber(dto.getCardNumber());
@@ -469,5 +472,20 @@ public class WxGiftCardService {
     public Object bill(Integer userId, String cardNumber, Integer page, Integer limit, String sort, String order) {
         List<Byte> types = new ArrayList<>(Arrays.asList(new Byte[]{Constants.LOG_GIFTCARD_RECHARGE,Constants.LOG_GIFTCARD_CONSUME}));
         return ResponseUtil.okList(litemallGiftCardUserLogService.querySelective(types,userId, cardNumber, page, limit, sort, order));
+    }
+
+    /**
+     * 修改分享祝福语
+     * @param dto
+     * @param userId
+     * @return
+     */
+    public Object updateShare(CardShareDto dto, Integer userId) {
+        LitemallGiftCardShare share = new LitemallGiftCardShare();
+        share.setBlessing(dto.getBlessing());
+        share.setId(dto.getId());
+        share.setUserId(userId);
+        litemallGiftCardShareService.update(share);
+        return ResponseUtil.ok();
     }
 }

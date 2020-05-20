@@ -16,6 +16,7 @@ import org.linlinjava.litemall.wx.dto.CardShareDto;
 import org.linlinjava.litemall.wx.service.WxGiftCardService;
 import org.linlinjava.litemall.wx.util.URLUtils;
 import org.linlinjava.litemall.wx.util.WxResponseCode;
+import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -149,6 +150,22 @@ public class GiftCardController {
             return ResponseUtil.unlogin();
         }
         return giftCardService.share(dto, userId);
+    }
+    /**
+     * 修改分享
+     * @param dto
+     * @return
+     */
+    @PutMapping("share/update")
+    @LogAnno
+    public Object updateShare(@LoginUser Integer userId, @RequestBody CardShareDto dto){
+        if(userId == null){
+            return ResponseUtil.unlogin();
+        }
+        if(dto.getId() == null){
+            return ResponseUtil.fail(WxResponseEnum.IS_NULL_CARD_SHARE);
+        }
+        return giftCardService.updateShare(dto, userId);
     }
     /**
      * 取消分享

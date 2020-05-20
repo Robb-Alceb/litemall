@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.admin.service;
 
+import org.linlinjava.litemall.admin.beans.dto.UserDto;
 import org.linlinjava.litemall.admin.util.RandomUtils;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +10,7 @@ import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallAddressService;
 import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -64,6 +66,13 @@ public class AdminUserInfoService {
         LitemallUser update = new LitemallUser();
         update.setId(user.getId());
         update.setPoints(user.getPoints().add(new BigDecimal(integral)));
+        litemallUserService.updateById(update);
+        return ResponseUtil.ok();
+    }
+
+    public Object update(UserDto dto) {
+        LitemallUser update = new LitemallUser();
+        BeanUtils.copyProperties(dto, update);
         litemallUserService.updateById(update);
         return ResponseUtil.ok();
     }

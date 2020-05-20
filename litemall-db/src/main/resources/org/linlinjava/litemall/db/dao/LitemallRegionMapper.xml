@@ -11,7 +11,7 @@
     <result column="name_cn" jdbcType="VARCHAR" property="nameCn" />
     <result column="name_en" jdbcType="VARCHAR" property="nameEn" />
     <result column="type" jdbcType="TINYINT" property="type" />
-    <result column="code" jdbcType="INTEGER" property="code" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -189,7 +189,7 @@
     insert into litemall_region (pid, name_cn, name_en, 
       `type`, code)
     values (#{pid,jdbcType=INTEGER}, #{nameCn,jdbcType=VARCHAR}, #{nameEn,jdbcType=VARCHAR}, 
-      #{type,jdbcType=TINYINT}, #{code,jdbcType=INTEGER})
+      #{type,jdbcType=TINYINT}, #{code,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallRegion">
     <!--
@@ -231,7 +231,7 @@
         #{type,jdbcType=TINYINT},
       </if>
       <if test="code != null">
-        #{code,jdbcType=INTEGER},
+        #{code,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -268,7 +268,7 @@
         `type` = #{record.type,jdbcType=TINYINT},
       </if>
       <if test="record.code != null">
-        code = #{record.code,jdbcType=INTEGER},
+        code = #{record.code,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -286,7 +286,7 @@
       name_cn = #{record.nameCn,jdbcType=VARCHAR},
       name_en = #{record.nameEn,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=TINYINT},
-      code = #{record.code,jdbcType=INTEGER}
+      code = #{record.code,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -311,7 +311,7 @@
         `type` = #{type,jdbcType=TINYINT},
       </if>
       <if test="code != null">
-        code = #{code,jdbcType=INTEGER},
+        code = #{code,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -326,7 +326,7 @@
       name_cn = #{nameCn,jdbcType=VARCHAR},
       name_en = #{nameEn,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=TINYINT},
-      code = #{code,jdbcType=INTEGER}
+      code = #{code,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectOneByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallRegionExample" resultMap="BaseResultMap">

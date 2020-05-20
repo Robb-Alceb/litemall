@@ -209,7 +209,6 @@ public class WebCatalogController {
             vo.setIsNew(goods.getIsNew());
             vo.setPicUri(goods.getPicUrl());
             if (null != litemallGoodsProducts && litemallGoodsProducts.size() > 0) {
-                vo.setTax(litemallGoodsProducts.get(0).getTax());
                 vo.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
             }
             return vo;

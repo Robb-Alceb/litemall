@@ -46,7 +46,7 @@ public class PushServiceImpl implements PushService{
         String msgStr = JSON.toJSONString(msg);
         log.info("pushMsgToAll msg :" + msgStr);
         NettyConfig.getChannelGroup().writeAndFlush(new TextWebSocketFrame(msgStr));
-        notifyService.sendToAll("", "", msgStr, "");
+//        notifyService.sendToAll("", "", msgStr, "");
         return true;
     }
 
@@ -66,7 +66,7 @@ public class PushServiceImpl implements PushService{
     public boolean pushMsgToAll(String msg){
         log.info("pushMsgToAll msg :" + msg);
         NettyConfig.getChannelGroup().writeAndFlush(new TextWebSocketFrame(msg));
-        notifyService.sendToAll("", "", msg, "");
+//        notifyService.sendToAll("", "", msg, "");
         return true;
     }
 }

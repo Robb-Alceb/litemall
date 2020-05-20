@@ -182,4 +182,10 @@ public class LitemallUserService {
         example.or().andUsernameEqualTo(username).andInnerAccountEqualTo(true).andDeletedEqualTo(false);
         litemallUserMapper.logicalDeleteByExample(example);
     }
+
+    public LitemallUser findByAdmin(String username, boolean innerAccount) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andUsernameEqualTo(username).andInnerAccountEqualTo(innerAccount).andDeletedEqualTo(false);
+        return litemallUserMapper.selectOneByExample(example);
+    }
 }

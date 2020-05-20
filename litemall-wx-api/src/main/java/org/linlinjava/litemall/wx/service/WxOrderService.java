@@ -28,7 +28,6 @@ import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.util.IpUtil;
-import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.linlinjava.litemall.wx.util.LocationUtils;
 import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -281,6 +279,7 @@ public class WxOrderService {
         if (body == null) {
             return ResponseUtil.badArgument();
         }
+        List<LitemallOrderTax> orderTaxes = new ArrayList<>();
         List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
         Integer addressId = JacksonUtil.parseInteger(body, "addressId");
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
@@ -361,6 +360,14 @@ public class WxOrderService {
          * 商品价格
          */
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+
+
         /**
          * 税费
          */
@@ -410,7 +417,6 @@ public class WxOrderService {
                     }else if(info.getUserLevel() == Constants.USER_LEVEL_DIAMOND){
                         discountPrice = discountPrice.add(litemallVipGoodsPrice.getDiamondVipPrice());
                     }
-//                    taxGoodsPrice.subtract(discountPrice.multiply(new BigDecimal(checkGoods.getNumber())));
                     //阶梯价格，找到数量最符合的那一条
                 }else if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_LADDER){
                     List<LitemallGoodsLadderPrice> litemallGoodsLadderPrices = litemallGoodsLadderPriceService.queryByGoodsId(goodsId);
@@ -421,6 +427,7 @@ public class WxOrderService {
                             break;
                         }
                     }
+                    //满减价格
                 }else if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_MAXMINU){
                     List<LitemallGoodsMaxMinusPrice> litemallGoodsMaxMinusPrices = litemallGoodsMaxMinusPriceService.queryByGoodsId(goodsId);
                     litemallGoodsMaxMinusPrices.stream().sorted(Comparator.comparing(LitemallGoodsMaxMinusPrice::getMinusPrice).reversed());
@@ -433,27 +440,38 @@ public class WxOrderService {
                 }
             }
 
-            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+//            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+
+            /**
+             * 获取商品选用税费
+             */
+            BigDecimal tax = new BigDecimal(0.00);
+            List<Integer> taxTypes = new ArrayList<>(Arrays.asList(goodsProduct.getTaxTypes()));
+
+            for(LitemallTax item : litemallTaxes){
+                boolean anyMatch = taxTypes.stream().anyMatch(type -> {
+                    return type == item.getType().intValue();
+                });
+                if(anyMatch){
+                    //计算税价
+                    tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+                    /**
+                     * 记录订单税费项
+                     */
+                    LitemallOrderTax orderTax = new LitemallOrderTax();
+                    orderTax.setCode(item.getCode());
+                    orderTax.setName(item.getName());
+                    orderTax.setType(item.getType());
+                    orderTax.setValue(item.getValue());
+                    orderTaxes.add(orderTax);
+                }
+            }
+            //税费 = 商品价格 * 商品数量 * 税率
+            taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber()))));
         }
 
 
-        /**
-         * 获取门店对应的税费率
-         */
-        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
-        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
-        /**
-         * 获取总税率/100
-         */
-        BigDecimal tax = new BigDecimal(0.00);
-        for(LitemallTax item : litemallTaxes){
-            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
-        }
 
-        /**
-         * 计算 商品总税费 = 商品总价 * 税率
-         */
-        taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkedGoodsPrice));
 
         /**
          * 优惠券优惠价格不计入税费及其他优惠
@@ -562,14 +580,9 @@ public class WxOrderService {
             orderGoodsService.add(orderGoods);
         }
         // 添加订单税费表项
-        for(LitemallTax item : litemallTaxes){
-            LitemallOrderTax orderTax = new LitemallOrderTax();
-            orderTax.setCode(item.getCode());
-            orderTax.setName(item.getName());
-            orderTax.setOrderId(order.getId());
-            orderTax.setType(item.getType());
-            orderTax.setValue(item.getValue());
-            litemallOrderTaxService.add(orderTax);
+        for(LitemallOrderTax item : orderTaxes){
+            item.setOrderId(orderId);
+            litemallOrderTaxService.add(item);
         }
 
         // 删除购物车里面的商品信息

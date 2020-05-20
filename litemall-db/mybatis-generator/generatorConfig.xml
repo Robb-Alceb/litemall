@@ -43,7 +43,7 @@
 
         <!--数据库连接信息-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://192.168.0.12:3306/litemall?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;verifyServerCertificate=false&amp;useSSL=false"
+                        connectionURL="jdbc:mysql://192.168.0.78:3306/litemall?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC&amp;verifyServerCertificate=false&amp;useSSL=false"
                         userId="litemall"
                         password="Litemall_123"/>
 
@@ -345,7 +345,24 @@
 
         </table>-->
 
-        <table tableName="litemall_order_tax">
+<!--        <table tableName="litemall_order_tax">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>-->
+<!--
+        <table tableName="litemall_gift_card_share">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+
+        </table>-->
+
+<!--        <table tableName="litemall_goods_product">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <columnOverride column="specification_ids" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+            <columnOverride column="tax_types" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+        </table>-->
+
+        <table tableName="litemall_region">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

@@ -6,6 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.dto.UserDto;
 import org.linlinjava.litemall.admin.service.AdminUserInfoService;
 import org.linlinjava.litemall.admin.service.UserService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -96,12 +98,13 @@ public class AdminUserController {
     @RequiresPermissionsDesc(menu = {"用户管理", "账户明细"}, button = "查询")
     @GetMapping("/rechargeConsumptionList")
     @LogAnno
-    public Object rechargeConsumptionList(String mobile, String username,
-                       @RequestParam(defaultValue = "1") Integer page,
-                       @RequestParam(defaultValue = "10") Integer limit,
-                       @Sort @RequestParam(defaultValue = "add_time") String sort,
-                       @Order @RequestParam(defaultValue = "desc") String order) {
-        return ResponseUtil.okList(litemallRechargeService.querySelectiveList(null, username, mobile, page, limit, sort, order));
+    public Object rechargeConsumptionList(
+            Integer userId,String mobile, String username,
+                   @RequestParam(defaultValue = "1") Integer page,
+                   @RequestParam(defaultValue = "10") Integer limit,
+                   @Sort @RequestParam(defaultValue = "add_time") String sort,
+                   @Order @RequestParam(defaultValue = "desc") String order) {
+        return ResponseUtil.okList(litemallRechargeService.querySelectiveList(userId, username, mobile, page, limit, sort, order));
     }
 
     /**
@@ -185,5 +188,18 @@ public class AdminUserController {
     @LogAnno
     public Object integral(@NotNull Integer userId, Integer integral) {
         return adminUserInfoService.integral(userId, integral);
+    }
+
+    /**
+     * 修改用户信息
+     * @param dto
+     * @return
+     */
+    @RequiresPermissions("admin:user:update")
+    @RequiresPermissionsDesc(menu = {"用户管理", "修改信息"}, button = "修改信息")
+    @PutMapping("/update")
+    @LogAnno
+    public Object update(@Valid @RequestBody UserDto dto) {
+        return adminUserInfoService.update(dto);
     }
 }

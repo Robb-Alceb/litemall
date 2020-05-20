@@ -1,7 +1,9 @@
 package org.linlinjava.litemall.core.notify;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.jpush.JpushConfig;
 import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.db.domain.LitemallMsg;
 import org.linlinjava.litemall.db.service.LitemallMsgService;
@@ -23,14 +25,12 @@ public class NoticeHelper {
     private LitemallMsgService litemallMsgService;
     @Autowired
     private PushService pushService;
+    @Autowired
+    private NotifyService notifyService;
+    @Autowired
+    private JpushConfig jpushConfig;
 
-    /**
-     * 推送消息并保存到数据库
-     * @param userId
-     * @param content
-     * @param type
-     * @return
-     */
+
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void noticeUser(Byte type, String content, Integer userId) {
@@ -43,6 +43,14 @@ public class NoticeHelper {
         noticeUser(type, title, content, null, userId);
     }
 
+    /**
+     *  推送消息并保存到数据库，指定用户
+     * @param type
+     * @param title
+     * @param content
+     * @param link
+     * @param userId
+     */
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void noticeUser(Byte type, String title, String content, String link, Integer userId) {
@@ -59,6 +67,84 @@ public class NoticeHelper {
         log.info("noticeUser param is :" + msg.toString());
         //推送消息
         pushService.pushMsgToOne(String.valueOf(userId), msg);
+        //极光推送
+        notifyService.sendToRegistrationId(jpushConfig.getUserChannelMap().get(String.valueOf(userId)), content, title, content, JSON.toJSONString(msg));
+
         litemallMsgService.create(msg);
+    }
+
+    @Async
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void noticeAll(Byte type, String content, String title) {
+        noticeAll(type, content, title, null);
+
+    }
+
+    /**
+     * 推送到所有用户
+     * @param type
+     * @param content
+     * @param title
+     * @param link
+     */
+    @Async
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void noticeAll(Byte type, String content, String title, String link) {
+        //保存消息
+        LitemallMsg msg = new LitemallMsg();
+        msg.setContent(content);
+        msg.setType(type);
+        msg.setLink(link);
+        msg.setTitle(title);
+
+        log.info("noticeUser param is :" + msg.toString());
+        //推送消息
+        pushService.pushMsgToAll( msg);
+        //极光推送
+        notifyService.sendToAll(title, title, content, JSON.toJSONString(msg));
+    }
+
+    /**
+     *  推送到所有ios用户
+     * @param type
+     * @param content
+     * @param title
+     * @param link
+     */
+    public void noticeAllIos(Byte type, String content, String title, String link) {
+        //保存消息
+        LitemallMsg msg = new LitemallMsg();
+        msg.setContent(content);
+        msg.setType(type);
+        msg.setLink(link);
+        msg.setTitle(title);
+
+        log.info("noticeUser param is :" + msg.toString());
+        //推送消息
+        pushService.pushMsgToAll( msg);
+        //极光推送
+        notifyService.sendToAllIos(title, title, content, JSON.toJSONString(msg));
+    }
+
+    /**
+     *  推送到所有android用户
+     * @param type
+     * @param content
+     * @param title
+     * @param link
+     */
+    public void noticeAllAndroid(Byte type, String content, String title, String link) {
+        //保存消息
+        LitemallMsg msg = new LitemallMsg();
+        msg.setContent(content);
+        msg.setType(type);
+        msg.setLink(link);
+        msg.setTitle(title);
+
+        log.info("noticeUser param is :" + msg.toString());
+        //推送消息
+        pushService.pushMsgToAll( msg);
+        //极光推送
+        notifyService.sendToAllAndroid(title, title, content, JSON.toJSONString(msg));
     }
 }

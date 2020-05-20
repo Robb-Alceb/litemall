@@ -3,6 +3,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
+import org.linlinjava.litemall.core.util.CompareUtils;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
@@ -322,6 +323,14 @@ public class WebCartController {
         //获取所有订单总价、税收总价
         BigDecimal totalPrice = new BigDecimal(0.00);
         BigDecimal checkedGoodsPrice = new BigDecimal(0.00);
+
+        /**
+         * 获取门店对应的税费率
+         */
+        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
+        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
+
+
         for(LitemallCart cart : checkedGoodsList){
             GoodsDetailVo vo = new GoodsDetailVo();
             vo.setId(cart.getId());
@@ -345,27 +354,28 @@ public class WebCartController {
             }
             checkedGoodsPrice = checkedGoodsPrice.add(specGoodsPrice);
             list.add(vo);
+
+            /**
+             * 获取商品选用税费
+             */
+            LitemallGoodsProduct litemallGoodsProduct = productService.findById(cart.getProductId());
+            BigDecimal tax = new BigDecimal(0.00);
+            List<Integer> taxTypes = new ArrayList<>(Arrays.asList(litemallGoodsProduct.getTaxTypes()));
+            for(LitemallTax item : litemallTaxes){
+                boolean anyMatch = taxTypes.stream().anyMatch(type -> {
+                    return type == item.getType().intValue();
+                });
+                if(anyMatch){
+                    tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+                }
+            }
+            //税费 = 商品价格 * 商品数量 * 税率
+            totalPrice = totalPrice.add(tax.multiply(cart.getPrice().multiply(new BigDecimal(cart.getNumber()))));
         }
 
-        /**
-         * 获取门店对应的税费率
-         */
-        List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shopId);
-        List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
-        /**
-         * 获取总税率/100
-         */
-        BigDecimal tax = new BigDecimal(0.00);
-        for(LitemallTax item : litemallTaxes){
-            tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
-        }
-        BigDecimal taxPrice = new BigDecimal(0.00);
-        /**
-         * 计算 商品总税费 = 商品总价 * 税率
-         */
-        taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
 
-        totalPrice = totalPrice.add(checkedGoodsPrice).add(taxPrice);
+
+
 
         rtn.put("carts", list);
         rtn.put("taxes", litemallTaxes);

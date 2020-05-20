@@ -163,7 +163,7 @@ public class CardPaypalServiceImpl implements PaypalService {
             }
 
             //用户增加积分
-            List<LitemallOrderGoods> orderGoods = litemallOrderGoodsService.queryByOid(order.getId());
+/*            List<LitemallOrderGoods> orderGoods = litemallOrderGoodsService.queryByOid(order.getId());
             BigDecimal giveAwayPoints = new BigDecimal(0.00);
             for(LitemallOrderGoods item : orderGoods){
                 LitemallGoods goods = goodsService.findById(item.getId());
@@ -178,13 +178,14 @@ public class CardPaypalServiceImpl implements PaypalService {
                     userService.updateById(litemallUser);
                 }
 
-            }
+            }*/
 
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
 //            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
 
             return rtn;
         }else{
+            logger.info("gift card executePayment error : "+ rtn.toJSON());
             return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, "支付失败");
         }
     }
@@ -242,5 +243,10 @@ public class CardPaypalServiceImpl implements PaypalService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean refund(String paymentId, String payerId) {
+        LitemallGiftCardOrder order = litemallGiftCardOrderService.findByOutTradeNo(paymentId);
+        return refund(order.getId());
     }
 }

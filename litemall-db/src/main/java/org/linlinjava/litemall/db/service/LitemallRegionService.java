@@ -40,7 +40,7 @@ public class LitemallRegionService {
         return regionMapper.selectByPrimaryKey(id);
     }
 
-    public List<LitemallRegion> querySelective(String name, Integer code, Integer page, Integer size, String sort, String order) {
+    public List<LitemallRegion> querySelective(String name, String code, Integer page, Integer size, String sort, String order) {
         LitemallRegionExample example = new LitemallRegionExample();
         LitemallRegionExample.Criteria criteria = example.createCriteria();
         LitemallRegionExample.Criteria criteriaEn = example.createCriteria();

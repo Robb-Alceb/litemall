@@ -10,10 +10,12 @@
     <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
     <result column="sell_price" jdbcType="DECIMAL" property="sellPrice" />
     <result column="cost_price" jdbcType="DECIMAL" property="costPrice" />
-    <result column="tax" jdbcType="DECIMAL" property="tax" />
+    <result column="specification_ids" jdbcType="VARCHAR" property="specificationIds" typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler" />
+    <result column="tax_types" jdbcType="VARCHAR" property="taxTypes" typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler" />
     <result column="number" jdbcType="INTEGER" property="number" />
     <result column="early_warning_value" jdbcType="INTEGER" property="earlyWarningValue" />
     <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="unit" jdbcType="VARCHAR" property="unit" />
     <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -42,6 +44,44 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.specificationIdsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler} and #{criterion.secondValue,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.taxTypesCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler} and #{criterion.secondValue,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -79,6 +119,44 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.specificationIdsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler} and #{criterion.secondValue,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.taxTypesCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler} and #{criterion.secondValue,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -89,8 +167,8 @@
       WARNING - @mbg.generated
       This element is automatically generated by MyBatis Generator, do not modify.
     -->
-    id, goods_id, sell_price, cost_price, tax, `number`, early_warning_value, url, add_time, 
-    update_time, deleted
+    id, goods_id, sell_price, cost_price, specification_ids, tax_types, `number`, early_warning_value, 
+    url, unit, add_time, update_time, deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallGoodsProductExample" resultMap="BaseResultMap">
     <!--
@@ -212,12 +290,16 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into litemall_goods_product (goods_id, sell_price, cost_price, 
-      tax, `number`, early_warning_value, 
-      url, add_time, update_time, 
+      specification_ids, 
+      tax_types, 
+      `number`, early_warning_value, url, 
+      unit, add_time, update_time, 
       deleted)
     values (#{goodsId,jdbcType=INTEGER}, #{sellPrice,jdbcType=DECIMAL}, #{costPrice,jdbcType=DECIMAL}, 
-      #{tax,jdbcType=DECIMAL}, #{number,jdbcType=INTEGER}, #{earlyWarningValue,jdbcType=INTEGER}, 
-      #{url,jdbcType=VARCHAR}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}, 
+      #{taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler}, 
+      #{number,jdbcType=INTEGER}, #{earlyWarningValue,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR}, 
+      #{unit,jdbcType=VARCHAR}, #{addTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="org.linlinjava.litemall.db.domain.LitemallGoodsProduct">
@@ -239,8 +321,11 @@
       <if test="costPrice != null">
         cost_price,
       </if>
-      <if test="tax != null">
-        tax,
+      <if test="specificationIds != null">
+        specification_ids,
+      </if>
+      <if test="taxTypes != null">
+        tax_types,
       </if>
       <if test="number != null">
         `number`,
@@ -250,6 +335,9 @@
       </if>
       <if test="url != null">
         url,
+      </if>
+      <if test="unit != null">
+        unit,
       </if>
       <if test="addTime != null">
         add_time,
@@ -271,8 +359,11 @@
       <if test="costPrice != null">
         #{costPrice,jdbcType=DECIMAL},
       </if>
-      <if test="tax != null">
-        #{tax,jdbcType=DECIMAL},
+      <if test="specificationIds != null">
+        #{specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
+      </if>
+      <if test="taxTypes != null">
+        #{taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
       </if>
       <if test="number != null">
         #{number,jdbcType=INTEGER},
@@ -282,6 +373,9 @@
       </if>
       <if test="url != null">
         #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null">
+        #{unit,jdbcType=VARCHAR},
       </if>
       <if test="addTime != null">
         #{addTime,jdbcType=TIMESTAMP},
@@ -323,8 +417,11 @@
       <if test="record.costPrice != null">
         cost_price = #{record.costPrice,jdbcType=DECIMAL},
       </if>
-      <if test="record.tax != null">
-        tax = #{record.tax,jdbcType=DECIMAL},
+      <if test="record.specificationIds != null">
+        specification_ids = #{record.specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
+      </if>
+      <if test="record.taxTypes != null">
+        tax_types = #{record.taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
       </if>
       <if test="record.number != null">
         `number` = #{record.number,jdbcType=INTEGER},
@@ -334,6 +431,9 @@
       </if>
       <if test="record.url != null">
         url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.unit != null">
+        unit = #{record.unit,jdbcType=VARCHAR},
       </if>
       <if test="record.addTime != null">
         add_time = #{record.addTime,jdbcType=TIMESTAMP},
@@ -359,10 +459,12 @@
       goods_id = #{record.goodsId,jdbcType=INTEGER},
       sell_price = #{record.sellPrice,jdbcType=DECIMAL},
       cost_price = #{record.costPrice,jdbcType=DECIMAL},
-      tax = #{record.tax,jdbcType=DECIMAL},
+      specification_ids = #{record.specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
+      tax_types = #{record.taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
       `number` = #{record.number,jdbcType=INTEGER},
       early_warning_value = #{record.earlyWarningValue,jdbcType=INTEGER},
       url = #{record.url,jdbcType=VARCHAR},
+      unit = #{record.unit,jdbcType=VARCHAR},
       add_time = #{record.addTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       deleted = #{record.deleted,jdbcType=BIT}
@@ -386,8 +488,11 @@
       <if test="costPrice != null">
         cost_price = #{costPrice,jdbcType=DECIMAL},
       </if>
-      <if test="tax != null">
-        tax = #{tax,jdbcType=DECIMAL},
+      <if test="specificationIds != null">
+        specification_ids = #{specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
+      </if>
+      <if test="taxTypes != null">
+        tax_types = #{taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
       </if>
       <if test="number != null">
         `number` = #{number,jdbcType=INTEGER},
@@ -397,6 +502,9 @@
       </if>
       <if test="url != null">
         url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null">
+        unit = #{unit,jdbcType=VARCHAR},
       </if>
       <if test="addTime != null">
         add_time = #{addTime,jdbcType=TIMESTAMP},
@@ -419,10 +527,12 @@
     set goods_id = #{goodsId,jdbcType=INTEGER},
       sell_price = #{sellPrice,jdbcType=DECIMAL},
       cost_price = #{costPrice,jdbcType=DECIMAL},
-      tax = #{tax,jdbcType=DECIMAL},
+      specification_ids = #{specificationIds,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
+      tax_types = #{taxTypes,jdbcType=VARCHAR,typeHandler=org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler},
       `number` = #{number,jdbcType=INTEGER},
       early_warning_value = #{earlyWarningValue,jdbcType=INTEGER},
       url = #{url,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
       add_time = #{addTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT}

@@ -9,6 +9,7 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.AndroidNotification;
+import cn.jpush.api.push.model.notification.IosAlert;
 import cn.jpush.api.push.model.notification.IosNotification;
 import cn.jpush.api.push.model.notification.Notification;
 import org.apache.commons.logging.Log;
@@ -296,10 +297,10 @@ public class NotifyService {
 
     public PushPayload buildPushObject_android_and_ios(String notification_title, String msg_title, String msg_content, String extrasparam) {
         return PushPayload.newBuilder()
-                .setPlatform(Platform.android_ios())
+                .setPlatform(Platform.all())
                 .setAudience(Audience.all())
                 .setNotification(Notification.newBuilder()
-                        .setAlert(notification_title)
+//                        .setAlert(notification_title)
                         .addPlatformNotification(AndroidNotification.newBuilder()
                                 .setAlert(notification_title)
                                 .setTitle(notification_title)
@@ -309,7 +310,7 @@ public class NotifyService {
                         )
                         .addPlatformNotification(IosNotification.newBuilder()
                                 //传一个IosAlert对象，指定apns title、title、subtitle等
-                                .setAlert(notification_title)
+                                .setAlert(IosAlert.newBuilder().setTitleAndBody(notification_title, "", msg_content).build())
                                 //直接传alert
                                 //此项是指定此推送的badge自动加1
                                 .incrBadge(1)
@@ -319,7 +320,7 @@ public class NotifyService {
                                 //此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
                                 .addExtra("iosNotification extras key",extrasparam)
                                 //此项说明此推送是一个background推送，想了解background看：http://docs.jpush.io/client/ios_tutorials/#ios-7-background-remote-notification
-                                // .setContentAvailable(true)
+//                                 .setContentAvailable(true)
 
                                 .build()
                         )
@@ -371,7 +372,7 @@ public class NotifyService {
                         //指定当前推送的iOS通知
                         .addPlatformNotification(IosNotification.newBuilder()
                                 //传一个IosAlert对象，指定apns title、title、subtitle等
-                                .setAlert(notification_title)
+                                .setAlert(IosAlert.newBuilder().setTitleAndBody(notification_title, "", msg_content).build())
                                 //直接传alert
                                 //此项是指定此推送的badge自动加1
                                 .incrBadge(1)
@@ -465,7 +466,7 @@ public class NotifyService {
                         //指定当前推送的android通知
                         .addPlatformNotification(IosNotification.newBuilder()
                                 //传一个IosAlert对象，指定apns title、title、subtitle等
-                                .setAlert(notification_title)
+                                .setAlert(IosAlert.newBuilder().setTitleAndBody(notification_title, "", msg_content).build())
                                 //直接传alert
                                 //此项是指定此推送的badge自动加1
                                 .incrBadge(1)

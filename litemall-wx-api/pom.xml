@@ -79,6 +79,13 @@
             <artifactId>poi-scratchpad</artifactId>
             <version>3.17</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.jackrabbit/jackrabbit-standalone -->
+<!--        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-standalone</artifactId>
+            <version>1.6.5</version>
+            <scope>test</scope>
+        </dependency>-->
 
     </dependencies>
 

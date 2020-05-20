@@ -232,7 +232,6 @@ public class WebGoodsController {
 			vo.setPicUri(goods.getPicUrl());
 
 			if(litemallGoodsProducts.size() > 0){
-				vo.setTax(litemallGoodsProducts.get(0).getTax());
 				vo.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
 			}
 			return vo;

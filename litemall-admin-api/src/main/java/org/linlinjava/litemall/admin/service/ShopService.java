@@ -117,8 +117,19 @@ public class ShopService {
             };
         }
         if(!StringUtils.isEmpty(shop.getLitemallShop().getStreetAddress())){
-            if(litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(),null) > 0){
-                return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+            LitemallShop litemallShop = litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(), null);
+            if(litemallShop != null){
+                //判断区域是否一致
+                List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByRegionIds(shop.getRegionIds());
+                if(shopRegions.size() > 0){
+                    //区域按门店分组，长度相同则代表存在相同门店
+                    boolean anyMatch = shopRegions.stream().collect(Collectors.groupingBy(LitemallShopRegion::getShopId)).entrySet().stream().anyMatch((entry) -> {
+                        return entry.getKey() == litemallShop.getId() && entry.getValue().size() == shop.getRegionIds().size();
+                    });
+                    if(anyMatch){
+                        return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+                    }
+                }
             };
         }
 
@@ -168,8 +179,20 @@ public class ShopService {
             };
         }
         if(!StringUtils.isEmpty(shop.getLitemallShop().getStreetAddress())){
-            if(litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(),shop.getLitemallShop().getId()) > 0){
-                return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+            LitemallShop litemallShop = litemallShopService.countByAddress(shop.getLitemallShop().getStreetAddress(), shop.getLitemallShop().getId());
+            if(litemallShop != null){
+                //判断区域是否一致
+                List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByRegionIds(shop.getRegionIds());
+                if(shopRegions.size() > 0){
+                    //区域按门店分组，长度相同则代表存在相同门店
+                    boolean anyMatch = shopRegions.stream().collect(Collectors.groupingBy(LitemallShopRegion::getShopId)).entrySet().stream().anyMatch((entry) -> {
+                        //这里需要判断是否是待修改的门店
+                        return entry.getKey() != shop.getLitemallShop().getId() && (litemallShop.getId() == entry.getKey() && entry.getValue().size() == shop.getRegionIds().size());
+                    });
+                    if(anyMatch){
+                        return ResponseUtil.fail(AdminResponseEnum.SHOP_ADDRESS_EXIST);
+                    }
+                }
             };
         }
 

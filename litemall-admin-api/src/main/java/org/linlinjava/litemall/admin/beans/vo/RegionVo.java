@@ -10,7 +10,7 @@ public class RegionVo {
     private String nameCn;
     private String nameEn;
     private Byte type;
-    private Integer code;
+    private String code;
 
     private List<RegionVo> children;
 

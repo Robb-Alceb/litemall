@@ -113,17 +113,22 @@ public class LitemallShopService {
 
     public int countByName(String name, Integer id) {
         LitemallShopExample example = new LitemallShopExample();
-        example.or().andNameEqualTo(name.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
+        if(id != null){
+            example.or().andNameEqualTo(name.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
+        }else{
+            example.or().andNameEqualTo(name.trim()).andDeletedEqualTo(false);
+        }
+
         return (int)litemallShopMapper.countByExample(example);
     }
 
-    public int countByAddress(String streetAddress, Integer id) {
+    public LitemallShop countByAddress(String streetAddress, Integer id) {
         LitemallShopExample example = new LitemallShopExample();
         if(id != null){
-            example.or().andNameEqualTo(streetAddress.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
+            example.or().andStreetAddressEqualTo(streetAddress.trim()).andIdNotEqualTo(id).andDeletedEqualTo(false);
         }else{
-            example.or().andNameEqualTo(streetAddress.trim()).andDeletedEqualTo(false);
+            example.or().andStreetAddressEqualTo(streetAddress.trim()).andDeletedEqualTo(false);
         }
-        return (int)litemallShopMapper.countByExample(example);
+        return litemallShopMapper.selectOneByExample(example);
     }
 }

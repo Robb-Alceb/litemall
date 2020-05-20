@@ -1,5 +1,7 @@
 package org.linlinjava.litemall.admin.service;
 
+import org.linlinjava.litemall.core.notify.NoticeHelper;
+import org.linlinjava.litemall.core.notify.netty.PushServiceImpl;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallFeedback;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class FeedbackService {
     @Autowired
     private LitemallFeedbackService litemallFeedbackService;
+    @Autowired
+    private NoticeHelper noticeHelper;
 
     /**
      * 回复用户反馈
@@ -30,6 +34,7 @@ public class FeedbackService {
         updateData.setId(feedback.getId());
         updateData.setStatus(Constants.FEEDBACK_STATUS_REPLY);
         updateData.setReply(feedback.getReply());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_SYSTEM, feedback.getReply(), feedback.getUserId());
         litemallFeedbackService.updateById(updateData);
         return ResponseUtil.ok();
     }

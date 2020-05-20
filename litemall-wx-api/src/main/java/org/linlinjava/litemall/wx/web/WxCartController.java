@@ -11,6 +11,7 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
+import org.linlinjava.litemall.core.util.CompareUtils;
 import org.linlinjava.litemall.wx.vo.CartVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +169,7 @@ public class WxCartController {
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setSpecificationIds(specIds);
             cart.setUserId(userId);
-            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
+//            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
             cart.setChecked(true);
             cartService.add(cart);
         } else {
@@ -184,91 +185,6 @@ public class WxCartController {
         }
 
         return goodscount(userId);
-    }
-
-    /**
-     * 立即购买
-     * <p>
-     * 和add方法的区别在于：
-     * 1. 如果购物车内已经存在购物车货品，前者的逻辑是数量添加，这里的逻辑是数量覆盖
-     * 2. 添加成功以后，前者的逻辑是返回当前购物车商品数量，这里的逻辑是返回对应购物车项的ID
-     *
-     * @param userId 用户ID
-     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
-     * @return 立即购买操作结果
-     */
-    @PostMapping("fastadd")
-    @LogAnno
-    public Object fastadd(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
-        if (userId == null) {
-            return ResponseUtil.unlogin();
-        }
-        if (cart == null) {
-            return ResponseUtil.badArgument();
-        }
-
-        Integer shopId = cart.getShopId();
-        Integer productId = cart.getProductId();
-        Integer number = cart.getNumber().intValue();
-        Integer goodsId = cart.getGoodsId();
-        Integer[] specIds = cart.getSpecificationIds();
-        if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
-            return ResponseUtil.badArgument();
-        }
-        if(number <= 0){
-            return ResponseUtil.badArgument();
-        }
-
-        //判断商品是否可以购买
-        LitemallGoods goods = goodsService.findById(goodsId);
-        if (goods == null || !goods.getIsOnSale()) {
-            return ResponseUtil.fail(GOODS_UNSHELVE, "商品已下架");
-        }
-
-        LitemallGoodsProduct product = productService.findById(productId);
-        //判断购物车中是否存在此规格商品
-        LitemallCart existCart = cartService.queryExist(goodsId, productId, userId, specIds);
-        if (existCart == null) {
-            //取得规格的信息,判断规格库存
-            if (product == null || number > product.getNumber()) {
-                return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
-            }
-
-            cart.setId(null);
-            cart.setShopId(shopId);
-            cart.setGoodsSn(goods.getGoodsSn());
-            cart.setGoodsName((goods.getName()));
-            cart.setPicUrl(goods.getPicUrl());
-            BigDecimal sellPrice = product.getSellPrice();
-            List<String> specifications = new ArrayList<>();
-            if(null != specIds && specIds.length > 0 ){
-                cart.setSpecificationIds(specIds);
-                List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
-                for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-                    sellPrice = sellPrice.add(item.getPrice());
-                    specifications.add(item.getValue());
-                }
-            }
-            cart.setPrice(sellPrice);
-            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
-            cart.setSpecifications(specifications.toArray(new String[]{}));
-            cart.setSpecificationIds(specIds);
-            cart.setUserId(userId);
-            cart.setChecked(true);
-            cartService.add(cart);
-        } else {
-            //取得规格的信息,判断规格库存
-            int num = number;
-            if (num > product.getNumber()) {
-                return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
-            }
-            existCart.setNumber((short) num);
-            if (cartService.updateById(existCart) == 0) {
-                return ResponseUtil.updatedDataFailed();
-            }
-        }
-
-        return ResponseUtil.ok(existCart != null ? existCart.getId() : cart.getId());
     }
 
     /**
@@ -511,10 +427,11 @@ public class WxCartController {
             /**
              * 获取总税率/100
              */
-            BigDecimal tax = new BigDecimal(0.00);
+/*            BigDecimal tax = new BigDecimal(0.00);
             for(LitemallTax item : litemallTaxes){
                 tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
-            }
+            }*/
+
 
             List<CartVo> carts = i.getValue();
             /**
@@ -525,12 +442,27 @@ public class WxCartController {
 
             for (CartVo cart : carts) {
                 checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
-
+                /**
+                 * 获取商品选用税费
+                 */
+                LitemallGoodsProduct litemallGoodsProduct = productService.findById(cart.getProductId());
+                BigDecimal tax = new BigDecimal(0.00);
+                List<Integer> taxTypes = new ArrayList<>(Arrays.asList(litemallGoodsProduct.getTaxTypes()));
+                for(LitemallTax item : litemallTaxes){
+                    boolean anyMatch = taxTypes.stream().anyMatch(type -> {
+                        return type == item.getType().intValue();
+                    });
+                    if(anyMatch){
+                        tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+                    }
+                }
+                //税费 = 商品价格 * 商品数量 * 税率
+                taxPrice = taxPrice.add(tax.multiply(cart.getPrice().multiply(new BigDecimal(cart.getNumber()))));
             }
             /**
              * 计算 商品总税费 = 商品总价 * 税率
              */
-            taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
+//            taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
 
             // 计算优惠券可用情况
             int tmpCouponLength = 0;

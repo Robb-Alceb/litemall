@@ -208,7 +208,9 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             BigDecimal giveAwayPoints = new BigDecimal(0.00);
             for(LitemallOrderGoods item : orderGoods){
                 LitemallGoods goods = goodsService.findById(item.getId());
-                giveAwayPoints = giveAwayPoints.add(goods.getGiveAwayPoints().multiply(new BigDecimal(item.getNumber())));
+                if(goods.getGiveAwayPoints() != null){
+                    giveAwayPoints = giveAwayPoints.add(goods.getGiveAwayPoints().multiply(new BigDecimal(item.getNumber())));
+                }
             }
             if(giveAwayPoints.compareTo(new BigDecimal(0.00)) > 0){
                 LitemallUser user = userService.findById(order.getUserId());

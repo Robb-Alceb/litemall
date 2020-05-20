@@ -11,8 +11,10 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class CardShareDto {
+    private Integer id;
     @NotNull
     private String cardNumber;
     private String activeTime;
     private String code;
+    private String blessing;
 }

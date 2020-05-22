@@ -14,6 +14,8 @@ import cn.jpush.api.push.model.notification.IosNotification;
 import cn.jpush.api.push.model.notification.Notification;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.db.beans.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.Async;
@@ -40,8 +42,11 @@ public class NotifyService {
 
     private JpushSender jpushSender;
 
+    @Autowired
+    private AwsNotifyService awsNotifyService;
+
     public boolean isMailEnable() {
-        return mailSender != null;
+        return mailSender != null || awsNotifyService != null;
     }
 
     public boolean isSmsEnable() {
@@ -49,7 +54,7 @@ public class NotifyService {
     }
 
     public boolean isWxEnable() {
-        return wxTemplateSender != null;
+        return wxTemplateSender != null || awsNotifyService != null;
     }
 
     public boolean isJpushEnable() {
@@ -79,6 +84,9 @@ public class NotifyService {
      */
     @Async
     public void notifySmsTemplate(String phoneNumber, NotifyType notifyType, String[] params) {
+        if(awsNotifyService != null){
+            awsNotifyService.sendSmsTemplate(phoneNumber, notifyType.getType(), params, Constants.AWS_MESSAGE_TYPE_TRANSACTIONAL);
+        }
         if (smsSender == null) {
             return;
         }
@@ -167,6 +175,9 @@ public class NotifyService {
      */
     @Async
     public void notifyMail(String subject, String content, String sendTo) {
+        if(awsNotifyService != null){
+            awsNotifyService.noticeMail(subject, content, content, sendTo);
+        }
         if (mailSender == null)
             return;
 
@@ -176,6 +187,13 @@ public class NotifyService {
         message.setSubject(subject);
         message.setText(content);
         mailSender.send(message);
+    }
+
+    @Async
+    public void notifyMailTemplate(String subject, NotifyType notifyType, String sendTo, String[] params) {
+        if(awsNotifyService != null){
+            awsNotifyService.noticeMailTemplate(subject, notifyType.getType(), sendTo, params);
+        }
     }
 
     /**

@@ -38,24 +38,24 @@ public class LitemallGiftCardShareService {
     public LitemallGiftCardShare findByLink(String link) {
         LitemallGiftCardShareExample example = new LitemallGiftCardShareExample();
         example.or().andLinkEqualTo(link).andDeletedEqualTo(false);
-        return litemallGiftCardShareMapper.selectOneByExample(example);
+        return litemallGiftCardShareMapper.selectOneByExampleWithBLOBs(example);
     }
 
     public LitemallGiftCardShare findByCodeAndLink(String link, String code) {
         LitemallGiftCardShareExample example = new LitemallGiftCardShareExample();
         example.or().andLinkEqualTo(link).andCodeEqualTo(code).andDeletedEqualTo(false);
-        return litemallGiftCardShareMapper.selectOneByExample(example);
+        return litemallGiftCardShareMapper.selectOneByExampleWithBLOBs(example);
     }
 
     public List<LitemallGiftCardShare> findByUserId(Integer userId) {
         LitemallGiftCardShareExample example = new LitemallGiftCardShareExample();
         example.or().andUserIdEqualTo(userId);
-        return litemallGiftCardShareMapper.selectByExample(example);
+        return litemallGiftCardShareMapper.selectByExampleWithBLOBs(example);
     }
 
     public LitemallGiftCardShare findByCardNumber(String cardNumber) {
         LitemallGiftCardShareExample example = new LitemallGiftCardShareExample();
         example.or().andCardNumberEqualTo(cardNumber).andDeletedEqualTo(false);
-        return litemallGiftCardShareMapper.selectOneByExample(example);
+        return litemallGiftCardShareMapper.selectOneByExampleWithBLOBs(example);
     }
 }

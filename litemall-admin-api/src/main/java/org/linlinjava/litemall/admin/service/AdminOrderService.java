@@ -12,6 +12,7 @@ import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderVo;
+import org.linlinjava.litemall.core.notify.AwsNotifyService;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
@@ -74,6 +75,8 @@ public class AdminOrderService {
     private LitemallSystemConfigService systemConfigService;
     @Autowired
     private NoticeHelper noticeHelper;
+    @Autowired
+    private AwsNotifyService awsNotifyService;
 
     /**
      * 订单列表
@@ -214,6 +217,8 @@ public class AdminOrderService {
         notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
                 new String[]{order.getOrderSn().substring(8, 14)});
 
+//        awsNotifyService.sendSms(order.getMobile(), "您申请的订单退款 [" +order.getOrderSn()+ "] 已成功，请耐心等待到账。", org.linlinjava.litemall.db.beans.Constants.AWS_MESSAGE_TYPE_PROMOTIONAL);
+
         logHelper.logOrderSucceed("退款", "订单编号 " + orderId);
         //消息推送和保存
         noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, "订单编号 "+order.getOrderSn()+"退款", order.getUserId());
@@ -259,7 +264,8 @@ public class AdminOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 发货会发送通知短信给用户:          *
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+//        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+//        notifyService.notifyMailTemplate("发货", NotifyType.SHIP, order.get);
 
         logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
         //消息推送和保存

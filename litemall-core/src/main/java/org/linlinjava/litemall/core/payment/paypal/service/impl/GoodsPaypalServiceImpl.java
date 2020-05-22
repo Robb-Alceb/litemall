@@ -5,6 +5,7 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.linlinjava.litemall.core.notify.AwsNotifyService;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.netty.PushService;
@@ -30,6 +31,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -60,6 +62,10 @@ public class GoodsPaypalServiceImpl implements PaypalService {
     private LitemallUserService userService;
     @Autowired
     private LitemallGoodsService goodsService;
+    @Autowired
+    private AwsNotifyService awsNotifyService;
+    @Autowired
+    private LitemallAdminService litemallAdminService;
 
 
     public Object getPayment(Integer userId, Integer orderId, String successUrl, String cancelUrl){
@@ -227,6 +233,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             //TODO 发送邮件和短信通知，这里采用异步发送
             // 订单支付成功以后，会发送短信给用户，以及发送邮件给管理员
             notifyService.notifyMail("新订单通知", order.toString());
+            awsNotifyService.noticeMail("新订单通知", order.toString(), order.toString(),getSendTo(order.getShopId()));
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
 //            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
             noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功", order.getUserId());
@@ -295,6 +302,15 @@ public class GoodsPaypalServiceImpl implements PaypalService {
         }
     }
 
-
+    private String getSendTo(Integer shopId){
+        List<LitemallAdmin> admins = litemallAdminService.findByShopId(shopId);
+        LitemallAdmin rtn = admins.stream().filter(admin -> {
+            return Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID);
+        }).findFirst().get();
+        if(rtn != null){
+            return StringUtils.isEmpty(rtn.getEmail())?"":rtn.getEmail();
+        }
+        return "";
+    }
 
 }

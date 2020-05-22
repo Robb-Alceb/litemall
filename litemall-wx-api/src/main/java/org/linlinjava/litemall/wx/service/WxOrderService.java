@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.express.ExpressService;
 import org.linlinjava.litemall.core.express.dao.ExpressInfo;
+import org.linlinjava.litemall.core.notify.AwsNotifyService;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
 import org.linlinjava.litemall.core.notify.NotifyType;
@@ -131,6 +132,10 @@ public class WxOrderService {
     private LitemallShopRegionService litemallShopRegionService;
     @Autowired
     private LitemallOrderTaxService litemallOrderTaxService;
+    @Autowired
+    private AwsNotifyService awsNotifyService;
+    @Autowired
+    private LitemallAdminService litemallAdminService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -960,6 +965,7 @@ public class WxOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 有用户申请退款，邮件通知运营人员
         notifyService.notifyMail("退款申请", order.toString());
+        awsNotifyService.noticeMail("退款申请", order.toString(), order.toString(),getSendTo(order.getShopId()));
 
         return ResponseUtil.ok();
     }
@@ -1151,4 +1157,19 @@ public class WxOrderService {
         return ResponseUtil.ok();
     }
 
+    /**
+     * TODO 这里现在获取的是门店店长的email，后续如有其他负责人则修改
+     * @param shopId
+     * @return
+     */
+    private String getSendTo(Integer shopId){
+        List<LitemallAdmin> admins = litemallAdminService.findByShopId(shopId);
+        LitemallAdmin rtn = admins.stream().filter(admin -> {
+            return Arrays.asList(admin.getRoleIds()).contains(Constants.SHOPKEEPER_ROLE_ID);
+        }).findFirst().get();
+        if(rtn != null){
+            return StringUtils.isEmpty(rtn.getEmail())?"":rtn.getEmail();
+        }
+        return "";
+    }
 }

@@ -219,4 +219,11 @@ public class Constants {
      */
     public static final Byte ORDER_SOURCE_APP = 1;
     public static final Byte ORDER_SOURCE_POS = 2;
+
+
+    /**
+     * aws信息类型
+     */
+    public static final String AWS_MESSAGE_TYPE_TRANSACTIONAL = "TRANSACTIONAL";    //敏感的、 验证码、密码等
+    public static final String AWS_MESSAGE_TYPE_PROMOTIONAL = "PROMOTIONAL";        //推广的、不重要的、订单通知、活动等
 }

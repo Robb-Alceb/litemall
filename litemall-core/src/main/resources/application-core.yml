@@ -140,3 +140,25 @@ litemall:
     callback:
       success: http://3.17.10.54/app/wx/paypal/success
       cancel: http://3.17.10.54/app/wx/paypal/calcel
+  i18n:
+    enable: true
+    classes:
+        "org.linlinjava.litemall.db.domain.LitemallShop": name,streetAddress
+        org.linlinjava.litemall.db.domain.LitemallGoods: name,streetAddress
+
+  aws:
+    enable: true
+    appId: 188c7f6b950a4ab49c8760cdb7e5a781
+    region: us-west-2
+    accessKey: AKIAW2VXHSVCJYXUONED
+    secretKey: 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
+    originationNumber: Lumiere
+    email:
+      enable: true
+      template:
+        captcha: 欢迎注册Lumiere。你的注册码为%s,有效时间一分钟。
+        ship: 您的订单已经发货，编号%s，送货人%s ，请注意查收。
+    sms:
+      enable: true
+      template:
+        captcha: 欢迎注册Lumiere。你的注册码为%s,有效时间一分钟。

@@ -48,6 +48,7 @@ public class ResponseUtil {
         Map<String, Object> obj = new HashMap<String, Object>();
         obj.put("errno", 0);
         obj.put("errmsg", "成功");
+        obj.put("data", "ok");
         return obj;
     }
 

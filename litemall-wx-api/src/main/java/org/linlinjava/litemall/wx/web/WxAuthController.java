@@ -225,9 +225,9 @@ public class WxAuthController {
      * @param body 邮件地址 { email }
      * @return
      */
-    @PostMapping("regCaptcha")
-    @LogAnno
-    public Object registerCaptcha(@RequestBody String body) {
+//    @PostMapping("regCaptcha")
+//    @LogAnno
+   /*public Object registerCaptcha(@RequestBody String body) {
         String username = JacksonUtil.parseString(body, "username");
         String type = JacksonUtil.parseString(body, "type");
         String email = JacksonUtil.parseString(body, "email");
@@ -277,8 +277,56 @@ public class WxAuthController {
 
 
         return ResponseUtil.ok();
-    }
+    }*/
+    /**
+     * 请求注册验证码
+     *
+     * TODO
+     * 这里需要一定机制防止短信验证码被滥用
+     *
+     * @param body 手机号码 { mobile }
+     * @param body 邮件地址 { email }
+     * @return
+     */
+    @PostMapping("regCaptcha")
+    @LogAnno
+    public Object registerCaptcha(@RequestBody String body) {
+        String username = JacksonUtil.parseString(body, "username");
+        if(StringUtils.isEmpty(username)){
+            return ResponseUtil.badArgument();
+        }
+        if(RegexUtil.isMobileExact(username)){
 
+            if (!RegexUtil.isMobileExact(username)) {
+                return ResponseUtil.badArgumentValue();
+            }
+
+            if (!notifyService.isSmsEnable()) {
+                return ResponseUtil.fail(AUTH_CAPTCHA_UNSUPPORT, "后台验证码服务不支持");
+            }
+            String code = CharUtil.getRandomNum(6);
+            notifyService.notifySmsTemplate(username, NotifyType.CAPTCHA, new String[]{code});
+
+            boolean successful = CaptchaCodeManager.addToCache(username, code);
+            if (!successful) {
+                return ResponseUtil.fail(AUTH_CAPTCHA_FREQUENCY, "验证码未超时1分钟，不能发送");
+            }
+        }else if(RegexUtil.isEmailExact(username)){
+            if (!notifyService.isMailEnable()) {
+                return ResponseUtil.fail(AUTH_CAPTCHA_UNSUPPORT, "邮件发送后台验证码服务不支持");
+            }
+            String code = CharUtil.getRandomNum(6);
+//            String tmplate = "欢迎注册Lumiere。你的注册码为%s,有效时间一分钟";
+            notifyService.notifyMailTemplate("注册码通知", NotifyType.CAPTCHA, username, new String[]{code});
+
+            boolean successful = CaptchaCodeManager.addToCache(username, code);
+            if (!successful) {
+                return ResponseUtil.fail(AUTH_CAPTCHA_FREQUENCY, "验证码未超时1分钟，不能发送");
+            }
+        }
+
+        return ResponseUtil.ok();
+    }
     /**
      * 账号注册
      *

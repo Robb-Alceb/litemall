@@ -226,6 +226,7 @@ public class WxGiftCardService {
         }
         share.setLink(GeneratorUtil.linkGenerator());
         share.setUserId(userId);
+        share.setBlessing(dto.getBlessing());
         litemallGiftCardShareService.add(share);
         log(share.getCardNumber(), Constants.LOG_GIFTCARD_SHARE, "分享礼物卡",userId);
 
@@ -486,6 +487,6 @@ public class WxGiftCardService {
         share.setId(dto.getId());
         share.setUserId(userId);
         litemallGiftCardShareService.update(share);
-        return ResponseUtil.ok();
+        return ResponseUtil.ok(dto);
     }
 }

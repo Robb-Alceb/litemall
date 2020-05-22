@@ -9,6 +9,7 @@ public enum AdminResponseEnum {
     GIFTCARD_NOT_EXIST(100002,"礼物卡不存在"),
     TAX_EXIST(100003,"税费已存在"),
     TAX_NOT_EXIST(100004,"税费不存在"),
+    I18N_EXIST(100005,"该语言已存在"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

@@ -611,7 +611,7 @@ public class AdminGoodsService {
         }
         LitemallGoodsProduct updateData = new LitemallGoodsProduct();
         updateData.setGoodsId(goods.getId());
-        updateData.setId(storeDto.getId());
+//        updateData.setId(storeDto.getId());
         updateData.setNumber(storeDto.getNumber());
         productService.updateByGoodsId(updateData);
         return ResponseUtil.ok();

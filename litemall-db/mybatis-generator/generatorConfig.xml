@@ -362,7 +362,11 @@
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
         </table>-->
 
-        <table tableName="litemall_region">
+<!--        <table tableName="litemall_region">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>-->
+
+        <table tableName="litemall_i18n">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>

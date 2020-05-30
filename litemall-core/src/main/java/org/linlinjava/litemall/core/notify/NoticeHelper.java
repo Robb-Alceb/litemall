@@ -34,7 +34,7 @@ public class NoticeHelper {
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void noticeUser(Byte type, String content, Integer userId) {
-        noticeUser(type, null, content, null, userId);
+        noticeUser(type, "", content, null, userId);
     }
 
     @Async
@@ -68,7 +68,7 @@ public class NoticeHelper {
         //推送消息
         pushService.pushMsgToOne(String.valueOf(userId), msg);
         //极光推送
-        notifyService.sendToRegistrationId(jpushConfig.getUserChannelMap().get(String.valueOf(userId)), content, title, content, JSON.toJSONString(msg));
+        notifyService.sendToRegistrationId(jpushConfig.getUserChannelMap().get(String.valueOf(userId)), title, title, content, JSON.toJSONString(msg));
 
         litemallMsgService.create(msg);
     }

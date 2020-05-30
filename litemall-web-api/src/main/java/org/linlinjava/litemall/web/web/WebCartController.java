@@ -143,14 +143,14 @@ public class WebCartController {
             cart.setPicUrl(goods.getPicUrl());
             BigDecimal sellPrice = product.getSellPrice();
             List<String> specifications = new ArrayList<>();
-/*            if(null != specIds && specIds.length > 0 ){
+            if(null != specIds && specIds.length > 0 ){
                 cart.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-                    sellPrice = sellPrice.add(item.getPrice());
+//                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
-            }*/
+            }
             cart.setPrice(sellPrice);
             cart.setSpecifications(specifications.toArray(new String[]{}));
             cart.setSpecificationIds(specIds);
@@ -375,7 +375,7 @@ public class WebCartController {
 
 
 
-
+        totalPrice = totalPrice.add(checkedGoodsPrice);
 
         rtn.put("carts", list);
         rtn.put("taxes", litemallTaxes);

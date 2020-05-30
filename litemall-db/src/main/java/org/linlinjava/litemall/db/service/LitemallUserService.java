@@ -64,6 +64,7 @@ public class LitemallUserService {
             criteria.andMobileEqualTo(mobile);
         }
         criteria.andDeletedEqualTo(false);
+        criteria.andInnerAccountEqualTo(false);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
@@ -187,5 +188,12 @@ public class LitemallUserService {
         LitemallUserExample example = new LitemallUserExample();
         example.or().andUsernameEqualTo(username).andInnerAccountEqualTo(innerAccount).andDeletedEqualTo(false);
         return litemallUserMapper.selectOneByExample(example);
+    }
+
+
+    public List<LitemallUser> queryBySessionKey(String sessionKey) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andSessionKeyEqualTo(sessionKey).andDeletedEqualTo(false);
+        return litemallUserMapper.selectByExample(example);
     }
 }

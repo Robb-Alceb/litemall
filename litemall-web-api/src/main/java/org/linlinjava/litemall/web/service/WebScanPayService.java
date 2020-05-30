@@ -3,6 +3,7 @@ package org.linlinjava.litemall.web.service;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
 import org.linlinjava.litemall.core.payment.PaymentResponseCode;
+import org.linlinjava.litemall.core.util.EncryptUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -42,34 +44,56 @@ public class WebScanPayService {
     private LitemallGiftCardUserLogService litemallGiftCardUserLogService;
     @Autowired
     private LitemallRechargeConsumptionService litemallRechargeConsumptionService;
+    @Value("${barcode.key}")
+    private String barcodeKey;
+    @Value("${barcode.delimiter}")
+    private String delimiter;
 
     @Transactional
     public Object pay(ScanDto dto) {
-        /**
-         * TODO 解密二维码，获取数据
-         */
-        Integer type = 1;
-        Integer userId = 1;
-        Integer cardId = 1;
-        long timestamp = 11111111l;
 
-        //判断二维码有效期
-        LocalDateTime dateTime = LocalDateTime.ofEpochSecond(timestamp,0, ZoneOffset.ofHours(zoneOffset));
-        dateTime = dateTime.plusSeconds(Constants.BARCODE_EXPIRE_SECOND);
-        if(dateTime.compareTo(LocalDateTime.now()) == -1){
-            return ResponseUtil.fail(WebResponseEnum.BARCODE_EXPIRE);
-        }
-        LitemallUser user = litemallUserService.findById(userId);
-        if(user == null){
-            return ResponseUtil.fail(WebResponseEnum.BARCODE_ERROR);
-        }
+        try {
+            String str = EncryptUtil.getInstance().DESdecode(dto.getBarcode(), barcodeKey);
 
-        if(type == Constants.BARCODE_PAY_CARD && cardId != null){
-            return cardPay(dto.getOrderId(), cardId, userId);
-        }else if(type == Constants.BARCODE_PAY_BALANCE){
-            return balancePay(dto.getOrderId(), userId);
+            if(StringUtils.isEmpty(str)){
+                return ResponseUtil.fail(WebResponseEnum.SCAN_PAY_ERROR);
+            }
+            String[] params = str.split(delimiter);
+            if(params.length < 3){
+                return ResponseUtil.fail(WebResponseEnum.BARCODE_ERROR);
+            }
+            /**
+             * 解密二维码，获取数据
+             */
+            long timestamp = Long.parseLong(params[1]);
+            Integer type = Integer.parseInt(params[2]);
+            Integer userId = Integer.parseInt(params[0]);
+            Integer cardId = 0;
+            if(params.length == 4 && type == Constants.BARCODE_PAY_CARD){
+                cardId = Integer.parseInt(params[3]);
+            }
+
+            //判断二维码有效期
+            LocalDateTime dateTime = LocalDateTime.ofEpochSecond(timestamp/1000,0, ZoneOffset.ofHours(zoneOffset));
+            dateTime = dateTime.plusSeconds(Constants.BARCODE_EXPIRE_SECOND);
+            if(dateTime.compareTo(LocalDateTime.now()) != -1){
+                return ResponseUtil.fail(WebResponseEnum.BARCODE_EXPIRE);
+            }
+            LitemallUser user = litemallUserService.findById(userId);
+            if(user == null){
+                return ResponseUtil.fail(WebResponseEnum.BARCODE_ERROR);
+            }
+
+            if(type == Constants.BARCODE_PAY_CARD && cardId != null){
+                return cardPay(dto.getOrderId(), cardId, userId);
+            }else if(type == Constants.BARCODE_PAY_BALANCE){
+                return balancePay(dto.getOrderId(), userId);
+            }
+            return ResponseUtil.fail(WebResponseEnum.SCAN_PAY_ERROR);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return ResponseUtil.fail(WebResponseEnum.SCAN_PAY_ERROR);
         }
-        return ResponseUtil.fail(WebResponseEnum.SCAN_PAY_ERROR);
     }
 
 
@@ -246,6 +270,7 @@ public class WebScanPayService {
     @Transactional
     public LitemallRechargeConsumption saveLog(LitemallOrder order, LitemallUser user, Byte type){
         LitemallRechargeConsumption log = new LitemallRechargeConsumption();
+        log.setOrderId(order.getId());
         log.setAmount(order.getActualPrice());
         log.setAddUserId(user.getId());
         log.setUserId(user.getId());

@@ -48,6 +48,8 @@ public class Constants {
      */
     public static final Byte PAY_TYPE_PAYPAL = 2;    //PayPal支付
     public static final Byte PAY_TYPE_GIFT_CARD = 3;    //礼物卡支付
+    public static final Byte PAY_TYPE_BALANCE = 4;    //余额支付
+    public static final Byte PAY_TYPE_CASH = 5;    //现金支付
 
 
     /**
@@ -159,6 +161,8 @@ public class Constants {
     public static final Byte MSG_TYPE_ORDER = 2;  //订单消息
     public static final Byte MSG_TYPE_PROMOTION = 3;  //推广消息
     public static final Byte MSG_TYPE_OTHER = 4;  //其他消息
+    public static final Byte MSG_TYPE_FEEDBACK = 5;  //反馈消息
+
 
     /**
      * 优惠券折扣类型
@@ -226,4 +230,10 @@ public class Constants {
      */
     public static final String AWS_MESSAGE_TYPE_TRANSACTIONAL = "TRANSACTIONAL";    //敏感的、 验证码、密码等
     public static final String AWS_MESSAGE_TYPE_PROMOTIONAL = "PROMOTIONAL";        //推广的、不重要的、订单通知、活动等
+
+
+    /**
+     * 极光推送title
+     */
+    public static final String JPUSH_TITLE_FEEDBACK = "收到一条反馈回复";        //用户反馈
 }

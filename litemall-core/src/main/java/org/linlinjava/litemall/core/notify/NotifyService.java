@@ -46,11 +46,11 @@ public class NotifyService {
     private AwsNotifyService awsNotifyService;
 
     public boolean isMailEnable() {
-        return mailSender != null || awsNotifyService != null;
+        return mailSender != null || (awsNotifyService != null && awsNotifyService.getProperties().getEmail().isEnable());
     }
 
     public boolean isSmsEnable() {
-        return smsSender != null;
+        return smsSender != null  || (awsNotifyService != null && awsNotifyService.getProperties().getSms().isEnable());
     }
 
     public boolean isWxEnable() {

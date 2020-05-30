@@ -13,13 +13,11 @@ import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author ：stephen
@@ -39,11 +37,23 @@ public class JpushController {
     @Autowired
     private JpushSender jpushSender;
 
-    @PostMapping("/report")
-    public Object report(@LoginUser Integer userId,@NotNull String registrationId){
+    @PostMapping("/report/{registrationId}")
+    public Object report(@LoginUser Integer userId,@PathVariable String registrationId){
         if(userId == null){
             return ResponseUtil.unlogin();
         }
+        //清空之前绑定的sessionKey
+        List<LitemallUser> litemallUsers = litemallUserService.queryBySessionKey(registrationId);
+        for(LitemallUser user : litemallUsers){
+            if(user.getId() != userId){
+                LitemallUser update = new LitemallUser();
+                update.setId(userId);
+                update.setSessionKey("");
+                litemallUserService.updateById(update);
+                jpushConfig.getUserChannelMap().remove(String.valueOf(user.getId()));
+            }
+        }
+        //设置sessionKey
         jpushConfig.getUserChannelMap().put(String.valueOf(userId), registrationId);
         LitemallUser user = new LitemallUser();
         user.setId(userId);

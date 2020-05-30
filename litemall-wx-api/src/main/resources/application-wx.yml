@@ -11,7 +11,8 @@ webSocket:
     path: /webSocket
 
 zone:
-  offset: 0
+  offset: 8
 
 barcode:
   key: Yliyun_123
+  delimiter: "#"

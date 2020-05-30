@@ -243,6 +243,7 @@ public class WxOrderService {
         orderVo.put("handleOption", OrderUtil.build(order));
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expNo", order.getShipSn());
+        orderVo.put("payType", order.getPayType());
 
         List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(order.getId());
 
@@ -633,7 +634,7 @@ public class WxOrderService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", orderId);
-        noticeHelper.noticeUser( Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功",order.getUserId());
+//        noticeHelper.noticeUser( Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功",order.getUserId());
         return ResponseUtil.ok(data);
     }
 
@@ -943,7 +944,7 @@ public class WxOrderService {
             return ResponseUtil.badArgument();
         }
 
-        LitemallOrder order = orderService.findById(orderId);
+        LitemallOrder order = orderService.findByUserAndId(userId, orderId);
         if (order == null) {
             return ResponseUtil.badArgument();
         }
@@ -964,7 +965,7 @@ public class WxOrderService {
 
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 有用户申请退款，邮件通知运营人员
-        notifyService.notifyMail("退款申请", order.toString());
+//        notifyService.notifyMail("退款申请", order.toString());
         awsNotifyService.noticeMail("退款申请", order.toString(), order.toString(),getSendTo(order.getShopId()));
 
         return ResponseUtil.ok();

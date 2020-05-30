@@ -193,12 +193,11 @@ public class AdminAdminController {
         //修改admin信息时，同时修改user信息
         LitemallAdmin info = litemallAdminService.findAdmin(admin.getId());
         LitemallUser litemallUser = litemallUserService.findByAdmin(info.getUsername(), true);
-        if(litemallUser == null){
-            return ResponseUtil.updatedDataFailed();
+        if(litemallUser != null){
+            LitemallUser user = BeanConvert.toUser(admin);
+            user.setId(litemallUser.getId());
+            litemallUserService.updateById(user);
         }
-        LitemallUser user = BeanConvert.toUser(admin);
-        user.setId(litemallUser.getId());
-        litemallUserService.updateById(user);
         return ResponseUtil.ok(admin);
     }
 

@@ -80,6 +80,11 @@ public class WebOrderService {
     private LitemallShopRegionService litemallShopRegionService;
     @Autowired
     private LitemallOrderTaxService litemallOrderTaxService;
+    @Autowired
+    private LitemallOrderCashService litemallOrderCashService;
+    @Autowired
+    private LitemallUserService litemallUserService;
+
 
     /**
      * 订单列表
@@ -185,6 +190,7 @@ public class WebOrderService {
         orderVo.put("handleOption", OrderUtil.build(order));
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expNo", order.getShipSn());
+        orderVo.put("payType", order.getPayType());
 
 
 
@@ -198,10 +204,13 @@ public class WebOrderService {
         }
         List<LitemallOrderTax> litemallOrderTaxes = litemallOrderTaxService.queryByOrderId(order.getId());
 
+        List<LitemallOrderCash> orderCashes = litemallOrderCashService.queryByOrderId(orderId);
+
         Map<String, Object> result = new HashMap<>();
         result.put("orderInfo", orderVo);
         result.put("orderGoods", vos);
         result.put("orderTaxes", litemallOrderTaxes);
+        result.put("orderCash", orderCashes);
 
         // 订单状态为已发货且物流信息不为空
         //"YTO", "800669400640887922"
@@ -442,9 +451,12 @@ public class WebOrderService {
         return ResponseUtil.ok(map);
     }
 
+    @Transactional
     public Object pay(Integer userId, String body) {
         Integer orderId = JacksonUtil.parseInteger(body, "orderId");
-        if(orderId == null){
+        Double cash = JacksonUtil.parseDouble(body, "cash");
+        Double change = JacksonUtil.parseDouble(body, "change");
+        if(orderId == null || cash == null || change == null){
             return ResponseUtil.badArgument();
         }
         LitemallOrder order = orderService.findByUserAndId(userId, orderId);
@@ -465,7 +477,19 @@ public class WebOrderService {
         updater.setOrderStatus(OrderUtil.STATUS_PAY);
         updater.setUpdateTime(order.getUpdateTime());
         updater.setOrderType(ORDER_TYPE_CASH);
-        orderService.updateWithOptimisticLocker(updater);
+        updater.setPayType(Constants.PAY_TYPE_CASH);
+        if(orderService.updateWithOptimisticLocker(updater) == 0){
+            return ResponseUtil.updatedDateExpired();
+        };
+        //添加订单所收现金表单项
+        LitemallOrderCash orderCash = new LitemallOrderCash();
+        orderCash.setCash(new BigDecimal(cash));
+        orderCash.setOrderPrice(order.getActualPrice());
+        orderCash.setChange(new BigDecimal(change));
+        orderCash.setOrderId(orderId);
+        orderCash.setAddUserId(userId);
+        orderCash.setAddUserName(litemallUserService.findById(userId).getUsername());
+        litemallOrderCashService.add(orderCash);
         return ResponseUtil.ok();
     }
 

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -29,7 +30,8 @@ public class WxBarcodeService {
     private int zoneOffset;
     @Value("${barcode.key}")
     private String barcodeKey;
-    private static final String delimiter = "|";
+    @Value("${barcode.delimiter}")
+    private String delimiter;
 
     @Autowired
     private LitemallUserService litemallUserService;
@@ -38,7 +40,7 @@ public class WxBarcodeService {
 
 
     /**
-     * 生成用户二维码
+     * 生成用户二维码,加密处理，格式为userId+时间戳—+类型
      * @param userId
      * @return
      */
@@ -58,7 +60,7 @@ public class WxBarcodeService {
     }
 
     /**
-     * 生成礼物卡二维码
+     * 生成礼物卡二维码,加密处理，格式为userId+时间戳—+类型+cardId
      * @param userId
      * @return
      */

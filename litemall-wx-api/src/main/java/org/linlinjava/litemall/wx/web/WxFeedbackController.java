@@ -5,6 +5,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.core.validator.Order;
+import org.linlinjava.litemall.core.validator.Sort;
 import org.linlinjava.litemall.db.domain.LitemallFeedback;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallFeedbackService;
@@ -13,10 +15,7 @@ import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 意见反馈服务
@@ -52,13 +51,13 @@ public class WxFeedbackController {
         }
 
         // 测试手机号码是否正确
-        String mobile = feedback.getMobile();
+/*        String mobile = feedback.getMobile();
         if (StringUtils.isEmpty(mobile)) {
             return ResponseUtil.badArgument();
         }
         if (!RegexUtil.isMobileExact(mobile)) {
             return ResponseUtil.badArgument();
-        }
+        }*/
         return null;
     }
 
@@ -92,4 +91,17 @@ public class WxFeedbackController {
         return ResponseUtil.ok();
     }
 
+    @GetMapping("list")
+    @LogAnno
+    public Object list(@LoginUser Integer userId,
+                       String username,
+                       @RequestParam(defaultValue = "1") Integer page,
+                       @RequestParam(defaultValue = "10") Integer limit,
+                       @Sort @RequestParam(defaultValue = "add_time") String sort,
+                       @Order @RequestParam(defaultValue = "desc") String order) {
+        if(userId == null){
+            return ResponseUtil.unlogin();
+        }
+        return ResponseUtil.okList(feedbackService.querySelective(userId, username, page, limit, sort, order));
+    }
 }

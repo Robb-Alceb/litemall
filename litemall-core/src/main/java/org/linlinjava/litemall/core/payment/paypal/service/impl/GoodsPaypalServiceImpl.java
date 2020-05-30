@@ -236,7 +236,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
             awsNotifyService.noticeMail("新订单通知", order.toString(), order.toString(),getSendTo(order.getShopId()));
             // 这里微信的短信平台对参数长度有限制，所以将订单号只截取后6位
 //            notifyService.notifySmsTemplateSync(order.getMobile(), NotifyType.PAY_SUCCEED, new String[]{order.getOrderSn().substring(8, 14)});
-            noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功", order.getUserId());
+//            noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功", order.getUserId());
             return rtn;
         }else{
             return ResponseUtil.fail(PaymentResponseCode.PAYMENT_FAIL, "支付失败");

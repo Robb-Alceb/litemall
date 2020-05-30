@@ -160,9 +160,9 @@ public class AdminOrderService {
         }*/
 
         // 如果订单不是退款状态，则不能退款
-        if (!order.getOrderStatus().equals(OrderUtil.STATUS_REFUND)) {
+/*        if (!order.getOrderStatus().equals(OrderUtil.STATUS_REFUND)) {
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能退款");
-        }
+        }*/
 
 /*        // 微信退款
         WxPayRefundRequest wxPayRefundRequest = new WxPayRefundRequest();
@@ -214,14 +214,14 @@ public class AdminOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 退款成功通知用户, 例如“您申请的订单退款 [ 单号:{1} ] 已成功，请耐心等待到账。”
         // 注意订单号只发后6位
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
-                new String[]{order.getOrderSn().substring(8, 14)});
+//        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.REFUND,
+//                new String[]{order.getOrderSn().substring(8, 14)});
 
 //        awsNotifyService.sendSms(order.getMobile(), "您申请的订单退款 [" +order.getOrderSn()+ "] 已成功，请耐心等待到账。", org.linlinjava.litemall.db.beans.Constants.AWS_MESSAGE_TYPE_PROMOTIONAL);
 
         logHelper.logOrderSucceed("退款", "订单编号 " + orderId);
         //消息推送和保存
-        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, "订单编号 "+order.getOrderSn()+"退款", order.getUserId());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER,"退款", "订单编号 "+order.getOrderSn()+"退款", order.getUserId());
         return ResponseUtil.ok();
     }
 

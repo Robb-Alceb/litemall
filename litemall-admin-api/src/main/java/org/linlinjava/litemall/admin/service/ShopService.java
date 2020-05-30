@@ -59,18 +59,19 @@ public class ShopService {
             sp = status.shortValue();
         }
         List<Integer> shopIds = null;
+        List<LitemallShop> shops = null;
+
         if(regionId != null ){
             List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByRegionId(regionId);
-
             shopIds = shopRegions.stream().map(LitemallShopRegion::getShopId).collect(Collectors.toList());
-        }
-        List<LitemallShop> shops = null;
-        if(shopIds == null){
-            shops = litemallShopService.querySelective(shopId, name, address, sp,
+            if(shopIds == null || shopIds.size() == 0){
+                return ResponseUtil.okList(new ArrayList());
+            }
+            shops = litemallShopService.querySelective(shopIds, name, address, sp,
                     DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
                     page, limit, sort, order);
         }else{
-            shops = litemallShopService.querySelective(shopIds, name, address, sp,
+            shops = litemallShopService.querySelective(shopId, name, address, sp,
                     DateUtil.stringToDate(addTimeFrom), DateUtil.stringToDate(addTimeTo),
                     page, limit, sort, order);
         }

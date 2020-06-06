@@ -72,7 +72,7 @@ public class AdminAdminOrderService {
             return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
         }
         //查询货品信息
-        LitemallMerchandise merchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
+        LitemallMerchandise merchandise = merchandiseService.findById(adminOrderVo.getMerchandiseId());
         //新增订单
         LitemallAdminOrder adminOrder = saveAdminOrder(adminOrderVo, merchandise);
         //新增订单货品
@@ -177,7 +177,7 @@ public class AdminAdminOrderService {
         //货品数量返回
         LitemallMerchandise m = new LitemallMerchandise();
         m.setId(adminOrderVo.getMerchandiseId());
-        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
+        LitemallMerchandise litemallMerchandise = merchandiseService.findById(adminOrderVo.getMerchandiseId());
         m.setNumber(litemallMerchandise.getNumber() + adminOrderVo.getNumber());
         merchandiseService.updateById(m);
     }
@@ -196,14 +196,14 @@ public class AdminAdminOrderService {
         List<LitemallAdminOrderMerchandise> litemallAdminOrderMerchandises = adminOrderMerchandiseService.querybyAdminOrderId(adminOrderVo.getAdminOrderId());
         for (LitemallAdminOrderMerchandise item : litemallAdminOrderMerchandises) {
             Integer merchandiseId = item.getMerchandiseId();
-            LitemallMerchandise litemallMerchandise = merchandiseService.queryById(merchandiseId);
+            LitemallMerchandise litemallMerchandise = merchandiseService.findById(merchandiseId);
             if(litemallMerchandise == null){
                 return ResponseUtil.updatedDataFailed();
             }
             /**
              * 给门店添加库存,存在则改变数量，不存在则新增
              */
-            LitemallShopMerchandise shopMerchandise1 = shopMerchandiseService.queryBySn(litemallMerchandise.getMerchandiseSn(), order.getShopId());
+            LitemallShopMerchandise shopMerchandise1 = shopMerchandiseService.queryByMerId(litemallMerchandise.getId(), order.getShopId());
             if(shopMerchandise1 != null){
                 shopMerchandise1.setNumber(shopMerchandise1.getNumber() + adminOrderVo.getNumber());
                 shopMerchandiseService.updateById(shopMerchandise1);
@@ -211,12 +211,9 @@ public class AdminAdminOrderService {
                 LitemallShopMerchandise shopMerchandise = new LitemallShopMerchandise();
                 LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
                 shopMerchandise.setAddUserId(admin.getId());
-                shopMerchandise.setAdminId(admin.getId());
                 shopMerchandise.setMerchandiseId(merchandiseId);
-                shopMerchandise.setMerchandiseName(litemallMerchandise.getName());
-                shopMerchandise.setMerchandiseSn(litemallMerchandise.getMerchandiseSn());
                 shopMerchandise.setNumber(item.getNumber());
-                shopMerchandise.setRetailPrice(litemallMerchandise.getSellingPrice());
+                shopMerchandise.setSellPrice(litemallMerchandise.getSellingPrice());
                 shopMerchandise.setShopId(order.getShopId());
                 shopMerchandise.setUpdateUserId(admin.getId());
                 shopMerchandiseService.create(shopMerchandise);
@@ -257,7 +254,7 @@ public class AdminAdminOrderService {
 
     private void saveMerchandiseLog(AdminOrderVo adminOrderVo, String content) {
         //获取货品信息
-        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(adminOrderVo.getMerchandiseId());
+        LitemallMerchandise litemallMerchandise = merchandiseService.findById(adminOrderVo.getMerchandiseId());
         LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
         LitemallMerchandiseLog merchandiseLog = new LitemallMerchandiseLog();
         merchandiseLog.setAddUserId(admin.getId());

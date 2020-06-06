@@ -55,7 +55,7 @@ public class LitemallMerchandiseService {
         litemallMerchandiseMapper.insertSelective(litemallMerchandise);
     }
 
-    public LitemallMerchandise queryById(Integer merchandiseId){
+    public LitemallMerchandise findById(Integer merchandiseId){
         return litemallMerchandiseMapper.selectByPrimaryKeyWithLogicalDelete(merchandiseId, false);
     }
 
@@ -69,5 +69,11 @@ public class LitemallMerchandiseService {
         LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
         merchandiseExample.or().andDeletedEqualTo(false);
         return (int)litemallMerchandiseMapper.countByExample(merchandiseExample);
+    }
+
+    public LitemallMerchandise queryBySn(String merchandiseSn) {
+        LitemallMerchandiseExample merchandiseExample = new LitemallMerchandiseExample();
+        merchandiseExample.or().andMerchandiseSnEqualTo(merchandiseSn).andDeletedEqualTo(false);
+        return litemallMerchandiseMapper.selectOneByExampleSelective(merchandiseExample);
     }
 }

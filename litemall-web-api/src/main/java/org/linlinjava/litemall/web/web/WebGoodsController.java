@@ -10,7 +10,9 @@ import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.vo.AccessoryVo;
 import org.linlinjava.litemall.web.vo.GoodsVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,25 +43,7 @@ public class WebGoodsController {
 	private LitemallGoodsProductService productService;
 
 	@Autowired
-	private LitemallIssueService goodsIssueService;
-
-	@Autowired
 	private LitemallGoodsAttributeService goodsAttributeService;
-
-	@Autowired
-	private LitemallBrandService brandService;
-
-	@Autowired
-	private LitemallCommentService commentService;
-
-	@Autowired
-	private LitemallUserService userService;
-
-	@Autowired
-	private LitemallCollectService collectService;
-
-	@Autowired
-	private LitemallFootprintService footprintService;
 
 	@Autowired
 	private LitemallCategoryService categoryService;
@@ -70,8 +54,14 @@ public class WebGoodsController {
 	@Autowired
 	private LitemallGoodsSpecificationService goodsSpecificationService;
 
+
 	@Autowired
-	private LitemallGrouponRulesService rulesService;
+	private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+	@Autowired
+	private LitemallShopMerchandiseService litemallShopMerchandiseService;
+	@Autowired
+	private LitemallMerchandiseService litemallMerchandiseService;
+
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -293,6 +283,35 @@ public class WebGoodsController {
 	public Object count(@LoginShop @NotNull Integer shopId) {
 		Integer goodsCount = goodsService.queryOnSaleByShop(shopId);
 		return ResponseUtil.ok(goodsCount);
+	}
+
+	/**
+	 * 获取商品辅料
+	 * @param goodsId
+	 * @return
+	 */
+	@GetMapping("accessory")
+	@LogAnno
+	public Object accessory(Integer goodsId){
+		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
+		LitemallGoods goods = goodsService.findById(goodsId);
+
+		List<AccessoryVo> collect = accessories.stream().map(accessory -> {
+			AccessoryVo vo = new AccessoryVo();
+			BeanUtils.copyProperties(accessory, vo);
+			LitemallMerchandise mer = litemallMerchandiseService.findById(accessory.getMerchandiseId());
+			if (mer != null) {
+				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), goods.getShopId());
+				vo.setUnit(mer.getUnit());
+				if (shopMerchandise != null) {
+					vo.setNumber(shopMerchandise.getNumber());
+				} else {
+					vo.setNumber(0);
+				}
+			}
+			return vo;
+		}).collect(Collectors.toList());
+		return ResponseUtil.ok(collect);
 	}
 
 }

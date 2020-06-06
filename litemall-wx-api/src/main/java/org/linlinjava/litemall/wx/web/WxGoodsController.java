@@ -76,6 +76,8 @@ public class WxGoodsController {
 	private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
 	@Autowired
 	private LitemallShopMerchandiseService litemallShopMerchandiseService;
+	@Autowired
+	private LitemallMerchandiseService litemallMerchandiseService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -359,14 +361,23 @@ public class WxGoodsController {
 	@LogAnno
 	public Object accessory(Integer goodsId){
 		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
+		LitemallGoods goods = goodsService.findById(goodsId);
 
-
-/*		accessories.stream().map(accessory->{
+		List<AccessoryVo> collect = accessories.stream().map(accessory -> {
 			AccessoryVo vo = new AccessoryVo();
-			BeanUtils.copyProperties(accessories, vo);
-			LitemallShopMerchandise mer = litemallShopMerchandiseService.findById(accessory.getMerchandiseId());
-			vo.setUnit(mer.get);
-		})*/
-		return ResponseUtil.ok();
+			BeanUtils.copyProperties(accessory, vo);
+			LitemallMerchandise mer = litemallMerchandiseService.findById(accessory.getMerchandiseId());
+			if (mer != null) {
+				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), goods.getShopId());
+				vo.setUnit(mer.getUnit());
+				if (shopMerchandise != null) {
+					vo.setNumber(shopMerchandise.getNumber());
+				} else {
+					vo.setNumber(0);
+				}
+			}
+			return vo;
+		}).collect(Collectors.toList());
+		return ResponseUtil.ok(collect);
 	}
 }

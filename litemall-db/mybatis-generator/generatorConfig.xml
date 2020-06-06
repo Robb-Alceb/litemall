@@ -372,7 +372,7 @@
 <!--        <table tableName="litemall_order_cash">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
-        <table tableName="litemall_cart">
+<!--        <table tableName="litemall_cart">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="specification_ids" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
@@ -386,6 +386,10 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
         <table tableName="litemall_cart_goods_accessory">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>-->
+
+        <table tableName="litemall_shop_merchandise">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
 

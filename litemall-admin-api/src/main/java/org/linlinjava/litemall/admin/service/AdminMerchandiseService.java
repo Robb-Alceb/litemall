@@ -38,20 +38,23 @@ public class AdminMerchandiseService {
      */
     public Object list(String name, String merchandiseSn, Integer shopId,
                        Integer page, Integer limit, String sort, String order) {
+        List<LitemallMerchandise> litemallMerchandises = merchandiseService.querySelective(name, merchandiseSn, page, limit, sort, order);
         if(shopId!=null){
+            List<LitemallShopMerchandise> litemallShopMerchandises = shopMerchandiseService.queryByMerIds(shopId, litemallMerchandises.stream().map(LitemallMerchandise::getId).collect(Collectors.toList()));
             //查询门店库存,货品信息来自总部，价格和数量来自自己
-            List<LitemallShopMerchandise> litemallShopMerchandises = shopMerchandiseService.querySelective(name, merchandiseSn, shopId,
-                    page, limit, sort, order);
-            List<LitemallMerchandise> collect = litemallShopMerchandises.stream().map(merchandise -> {
-                LitemallMerchandise litemallMerchandise = merchandiseService.queryById(merchandise.getMerchandiseId());
-                litemallMerchandise.setNumber(merchandise.getNumber());
-                litemallMerchandise.setSellingPrice(merchandise.getRetailPrice());
-                return litemallMerchandise;
+            List<LitemallMerchandise> collect = litemallMerchandises.stream().map(merchandise -> {
+                LitemallShopMerchandise shopMerchandise = shopMerchandiseService.queryByMerId(merchandise.getId(), shopId);
+                if(shopMerchandise != null){
+                    merchandise.setNumber(shopMerchandise.getNumber());
+                    merchandise.setSellingPrice(shopMerchandise.getSellPrice());
+                }else{
+                    merchandise.setNumber(0);
+                }
+                return merchandise;
             }).collect(Collectors.toList());
             return ResponseUtil.okList(collect);
         }else{
-            //查询所有货品
-            return ResponseUtil.okList(merchandiseService.querySelective(name, merchandiseSn, page, limit, sort, order));
+            return ResponseUtil.okList(litemallMerchandises);
         }
     }
 
@@ -101,7 +104,7 @@ public class AdminMerchandiseService {
         if(null != shopId){
             return ResponseUtil.ok(shopMerchandiseService.queryById(id, shopId));
         }
-        return ResponseUtil.ok(merchandiseService.queryById(id));
+        return ResponseUtil.ok(merchandiseService.findById(id));
     }
 
     /**
@@ -144,9 +147,6 @@ public class AdminMerchandiseService {
 
     }
 
-    public Object shopAll(Integer shopId){
-        return ResponseUtil.ok(shopMerchandiseService.queryAllByShopId(shopId));
-    }
 
     /**
      * TODO 此处没有使用乐观锁判断数据更新，可能存在库存问题
@@ -156,7 +156,7 @@ public class AdminMerchandiseService {
      */
     @Transactional
     public Object addNumber(MerchandiseVo vo) {
-        LitemallMerchandise litemallMerchandise = merchandiseService.queryById(vo.getId());
+        LitemallMerchandise litemallMerchandise = merchandiseService.findById(vo.getId());
 
         LitemallMerchandise updateData = new LitemallMerchandise();
         updateData.setId(vo.getId());
@@ -174,9 +174,12 @@ public class AdminMerchandiseService {
      * @return
      */
     public Object count(Integer shopId, String merchandiseSn) {
-        LitemallShopMerchandise litemallShopMerchandise = shopMerchandiseService.queryBySn(merchandiseSn, shopId);
-        if(null != litemallShopMerchandise && null != litemallShopMerchandise.getNumber()){
-            return ResponseUtil.ok(litemallShopMerchandise.getNumber());
+        LitemallMerchandise mer = merchandiseService.queryBySn(merchandiseSn);
+        if(mer != null){
+            LitemallShopMerchandise litemallShopMerchandise = shopMerchandiseService.queryByMerId(mer.getId(), shopId);
+            if(null != litemallShopMerchandise && null != litemallShopMerchandise.getNumber()){
+                return ResponseUtil.ok(litemallShopMerchandise.getNumber());
+            }
         }
         return ResponseUtil.ok(0);
     }

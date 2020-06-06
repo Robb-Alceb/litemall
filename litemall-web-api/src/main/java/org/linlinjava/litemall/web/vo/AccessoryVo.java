@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.wx.vo;
+package org.linlinjava.litemall.web.vo;
 
 import lombok.Data;
 

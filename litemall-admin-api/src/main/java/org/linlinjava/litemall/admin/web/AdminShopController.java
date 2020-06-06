@@ -150,11 +150,11 @@ public class AdminShopController {
      */
 //    @RequiresPermissions("admin:shop:merchandiseNumber")
 //    @RequiresPermissionsDesc(menu = {"门店管理", "门店管理"}, button = "门店库存数量")
-    @GetMapping("/merchandiseNumber")
+/*    @GetMapping("/merchandiseNumber")
     @LogAnno
     public Object all(@LoginAdminShopId Integer id, String merchandiseSn) {
         return ResponseUtil.ok(shopMerchandiseService.queryBySn(merchandiseSn, id));
-    }
+    }*/
 
 
     /**

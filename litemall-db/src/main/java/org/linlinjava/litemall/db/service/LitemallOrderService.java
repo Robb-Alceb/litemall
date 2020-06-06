@@ -54,6 +54,20 @@ public class LitemallOrderService {
         return (int) litemallOrderMapper.countByExample(example);
     }
 
+    public int countByShop(Integer shopId, List<Short> status, Boolean today) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        if(today != null && today){
+            LocalDateTime startTime = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+            example.or().andShopIdEqualTo(shopId).andOrderStatusIn(status).andUpdateTimeBetween(startTime, endTime).andDeletedEqualTo(false);
+
+        }else{
+            example.or().andShopIdEqualTo(shopId).andOrderStatusIn(status).andDeletedEqualTo(false);
+
+        }
+        return (int) litemallOrderMapper.countByExample(example);
+    }
+
     public LitemallOrder findById(Integer orderId) {
         return litemallOrderMapper.selectByPrimaryKey(orderId);
     }
@@ -121,6 +135,29 @@ public class LitemallOrderService {
 
         if(userId != null){
             criteria.andUserIdEqualTo(userId);
+        }
+        if (orderStatus != null) {
+            criteria.andOrderStatusIn(orderStatus);
+        }
+        if(today != null && today){
+            criteria.andUpdateTimeBetween(LocalDateTime.of(LocalDate.now(), LocalTime.MIN), LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
+        }
+        criteria.andDeletedEqualTo(false);
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+
+        PageHelper.startPage(page, limit);
+        return litemallOrderMapper.selectByExample(example);
+    }
+
+    public List<LitemallOrder> queryShopOrderByOrderStatus(Integer shopId, Boolean today, List<Short> orderStatus, Integer page, Integer limit, String sort, String order) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        example.setOrderByClause(LitemallOrder.Column.addTime.desc());
+        LitemallOrderExample.Criteria criteria = example.or();
+
+        if(shopId != null){
+            criteria.andShopIdEqualTo(shopId);
         }
         if (orderStatus != null) {
             criteria.andOrderStatusIn(orderStatus);
@@ -356,5 +393,10 @@ public class LitemallOrderService {
         criteria.andUpdateTimeBetween(start, end);
         criteria.andDeletedEqualTo(false);
         return litemallOrderMapper.selectByExample(example);
+    }
+
+    public int updateById(LitemallOrder order) {
+        order.setUpdateTime(LocalDateTime.now());
+        return litemallOrderMapper.updateByPrimaryKeySelective(order);
     }
 }

@@ -1,0 +1,6 @@
+#netty消息配置
+webWebSocket:
+  netty:
+    active: true
+    port: 58081
+    path: /webSocket

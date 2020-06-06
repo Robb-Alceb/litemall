@@ -34,7 +34,7 @@ public class FeedbackService {
         updateData.setId(feedback.getId());
         updateData.setStatus(Constants.FEEDBACK_STATUS_REPLY);
         updateData.setReply(feedback.getReply());
-        noticeHelper.noticeUser(Constants.MSG_TYPE_FEEDBACK, Constants.JPUSH_TITLE_FEEDBACK, feedback.getContent(), feedback.getUserId());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_FEEDBACK, Constants.JPUSH_TITLE_FEEDBACK, feedback.getReply(), feedback.getUserId());
         litemallFeedbackService.updateById(updateData);
         return ResponseUtil.ok();
     }

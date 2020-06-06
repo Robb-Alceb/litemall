@@ -1,10 +1,12 @@
 package org.linlinjava.litemall.web.service;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.express.ExpressService;
 import org.linlinjava.litemall.core.express.dao.ExpressInfo;
+import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
@@ -28,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.linlinjava.litemall.db.beans.Constants.ORDER_TYPE_CASH;
 import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 
 /**
@@ -84,6 +85,12 @@ public class WebOrderService {
     private LitemallOrderCashService litemallOrderCashService;
     @Autowired
     private LitemallUserService litemallUserService;
+    @Autowired
+    private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+    @Autowired
+    private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
+    @Autowired
+    private LitemallOrderGoodsAccessoryService litemallOrderGoodsAccessoryService;
 
 
     /**
@@ -100,7 +107,7 @@ public class WebOrderService {
      * @param limit     分页大小
      * @return 订单列表
      */
-    public Object list(Boolean isAll, Integer userId,Boolean today, Integer showType, Integer page, Integer limit, String sort, String order) {
+    public Object list(Integer shopId, Boolean isAll, Integer userId,Boolean today, Integer showType, Integer page, Integer limit, String sort, String order) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
@@ -108,7 +115,7 @@ public class WebOrderService {
         List<Short> orderStatus = OrderUtil.orderStatus(showType);
         List<LitemallOrder> orderList;
         if(isAll != null && isAll){
-            orderList = orderService.queryTodayByOrderStatus(null, today, orderStatus, page, limit, sort, order);
+            orderList = orderService.queryShopOrderByOrderStatus(shopId, today, orderStatus, page, limit, sort, order);
         }else{
             orderList = orderService.queryTodayByOrderStatus(userId, today, orderStatus, page, limit, sort, order);
         }
@@ -125,6 +132,8 @@ public class WebOrderService {
             orderVo.put("handleOption", OrderUtil.build(o));
             orderVo.put("orderSource", o.getOrderSource());
             orderVo.put("orderType", o.getOrderType());
+            orderVo.put("updateTime", o.getUpdateTime());
+            orderVo.put("payType", o.getPayType());
 
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
             if (groupon != null) {
@@ -253,6 +262,8 @@ public class WebOrderService {
          * 订单税费项
          */
         List<LitemallOrderTax> orderTaxes = new ArrayList<>();
+        //辅料
+        List<LitemallOrderGoodsAccessory> orderGoodsAccessories = new ArrayList<>();
         // 货品价格
         List<LitemallCart> checkedGoodsList = null;
         if (cartId == null || cartId.equals(0)) {
@@ -303,6 +314,28 @@ public class WebOrderService {
                     LitemallGoodsSpecification specificationServiceById = goodsSpecificationService.findById(sid);
                     if(specificationServiceById != null){
                         specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+                    }
+                }
+            }
+
+            //  辅料价格
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.findByCartId(checkGoods.getId());
+            BigDecimal acceGoodsPrice = new BigDecimal(0.00);
+            if(accessories != null){
+                for(LitemallCartGoodsAccessory item : accessories){
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    if(accessory != null){
+                        acceGoodsPrice = acceGoodsPrice.add(accessory.getPrice());
+
+                        /**
+                         * 记录订单辅料项
+                         */
+                        LitemallOrderGoodsAccessory orderGoodsAccessory = new LitemallOrderGoodsAccessory();
+                        orderGoodsAccessory.setGoodsId(goodsId);
+                        orderGoodsAccessory.setAccessoryId(accessory.getId());
+                        orderGoodsAccessory.setNumber(item.getNumber());
+                        orderGoodsAccessory.setPrice(accessory.getPrice());
+                        orderGoodsAccessories.add(orderGoodsAccessory);
                     }
                 }
             }
@@ -409,6 +442,11 @@ public class WebOrderService {
             item.setOrderId(order.getId());
             litemallOrderTaxService.add(item);
         }
+        // 添加辅料表项
+        for(LitemallOrderGoodsAccessory item: orderGoodsAccessories){
+            item.setOrderId(orderId);
+            litemallOrderGoodsAccessoryService.add(item);
+        }
 
         // 删除购物车里面的商品信息
         if(cartId != null){
@@ -435,19 +473,21 @@ public class WebOrderService {
         return ResponseUtil.ok();
     }
 
-    public Object countorder(Integer userId){
-        List<Short> status = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE, OrderUtil.STATUS_PAY, OrderUtil.STATUS_CONFIRM}));
-        return ResponseUtil.ok(orderService.count(userId, status, true));
+    public Object countorder(Integer shopId){
+        List<Short> status = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE, OrderUtil.STATUS_PAY, OrderUtil.STATUS_SHIP, OrderUtil.STATUS_CONFIRM}));
+        return ResponseUtil.ok(orderService.countByShop(shopId, status, true));
     }
 
-    public Object countByStatus(Integer userId){
+    public Object countByStatus(Integer userId, Integer shopId){
         Map<Object, Object> map = new HashMap<>();
         List<Short> createStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CREATE}));
         List<Short> payStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_PAY}));
+        List<Short> shipStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_SHIP}));
         List<Short> confirmStatus = new ArrayList<>(Arrays.asList(new Short[]{OrderUtil.STATUS_CONFIRM}));
         map.put("1", orderService.count(userId, createStatus, true));
-        map.put("2", orderService.count(null, payStatus, true));
-        map.put("4", orderService.count(userId, confirmStatus, true));
+        map.put("2", orderService.countByShop(shopId, payStatus, true));
+        map.put("3", orderService.countByShop(shopId, shipStatus, true));
+        map.put("4", orderService.countByShop(shopId, confirmStatus, true));
         return ResponseUtil.ok(map);
     }
 
@@ -476,7 +516,6 @@ public class WebOrderService {
         updater.setId(order.getId());
         updater.setOrderStatus(OrderUtil.STATUS_PAY);
         updater.setUpdateTime(order.getUpdateTime());
-        updater.setOrderType(ORDER_TYPE_CASH);
         updater.setPayType(Constants.PAY_TYPE_CASH);
         if(orderService.updateWithOptimisticLocker(updater) == 0){
             return ResponseUtil.updatedDateExpired();
@@ -498,23 +537,26 @@ public class WebOrderService {
         if(orderId == null){
             return ResponseUtil.badArgument();
         }
-        LitemallOrder order = orderService.findByUserAndId(userId, orderId);
+        LitemallOrder order = orderService.findById(orderId);
         if(order == null){
             return ResponseUtil.fail(ORDER_UNKNOWN, "订单不存在");
         }
-        //检测订单是否是门店订单
-        if(!order.getShopOrder()){
-            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能完成");
-        }
-        // 检测是否能够支付
+        // 检测是否已支付
         if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY)) {
             return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能完成");
         }
         LitemallOrder updater = new LitemallOrder();
         updater.setId(order.getId());
-        updater.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+        updater.setOrderStatus(OrderUtil.STATUS_SHIP);
         updater.setUpdateTime(order.getUpdateTime());
         orderService.updateWithOptimisticLocker(updater);
+
+
+        /**
+         * TODO 这里可能需要对接视频或音频，提醒客户取餐
+         */
+
+
         return ResponseUtil.ok();
     }
 
@@ -700,5 +742,23 @@ public class WebOrderService {
         map.put("totalAmount",totalAmount);
         map.put("inputAmount",inputAmount);
         return ResponseUtil.ok(map);
+    }
+
+    public Object takedone(Integer userId, String body) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+
+        LitemallOrder order = orderService.findById(orderId);
+        OrderHandleOption handleOption = OrderUtil.build(order);
+        if (!handleOption.isConfirm()) {
+            return ResponseUtil.fail(ORDER_INVALID_OPERATION, "订单不能完成");
+        }
+
+        LitemallOrder updater = new LitemallOrder();
+        updater.setId(order.getId());
+        updater.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+        updater.setUpdateTime(order.getUpdateTime());
+        orderService.updateWithOptimisticLocker(updater);
+
+        return ResponseUtil.ok();
     }
 }

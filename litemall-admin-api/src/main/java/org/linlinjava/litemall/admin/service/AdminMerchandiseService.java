@@ -144,6 +144,10 @@ public class AdminMerchandiseService {
 
     }
 
+    public Object shopAll(Integer shopId){
+        return ResponseUtil.ok(shopMerchandiseService.queryAllByShopId(shopId));
+    }
+
     /**
      * TODO 此处没有使用乐观锁判断数据更新，可能存在库存问题
      *

@@ -4,7 +4,7 @@ card:
     success: http://192.168.0.100:8080/wx/card/pay/success
     cancel: http://192.168.0.100:8080/wx/card/pay/cancel
 #netty消息配置
-webSocket:
+wxWebSocket:
   netty:
     active: false
     port: 58080

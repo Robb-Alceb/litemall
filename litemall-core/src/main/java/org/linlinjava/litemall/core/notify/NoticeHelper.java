@@ -7,11 +7,15 @@ import org.linlinjava.litemall.core.notify.jpush.JpushConfig;
 import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.db.domain.LitemallMsg;
 import org.linlinjava.litemall.db.service.LitemallMsgService;
+import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ：stephen
@@ -33,14 +37,23 @@ public class NoticeHelper {
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void noticeShop(Byte type, String content, Integer shopId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", type);
+        map.put("content", content);
+        pushService.pushMsgToShop(map, shopId);
+    }
+
+    @Async
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void noticeUser(Byte type, String content, Integer userId) {
-        noticeUser(type, "", content, null, userId);
+        noticeUser(type, "", content, null, userId, true);
     }
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void noticeUser(Byte type, String title, String content, Integer userId) {
-        noticeUser(type, title, content, null, userId);
+        noticeUser(type, title, content, null, userId, true);
     }
 
     /**
@@ -53,7 +66,7 @@ public class NoticeHelper {
      */
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeUser(Byte type, String title, String content, String link, Integer userId) {
+    public void noticeUser(Byte type, String title, String content, String link, Integer userId, boolean isSave) {
 
 
         //保存消息
@@ -70,7 +83,9 @@ public class NoticeHelper {
         //极光推送
         notifyService.sendToRegistrationId(jpushConfig.getUserChannelMap().get(String.valueOf(userId)), title, title, content, JSON.toJSONString(msg));
 
-        litemallMsgService.create(msg);
+        if(isSave){
+            litemallMsgService.create(msg);
+        }
     }
 
     @Async

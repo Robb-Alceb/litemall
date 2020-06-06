@@ -10,6 +10,7 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,7 +24,7 @@ public class PushServiceImpl implements PushService{
     @Autowired
     private NotifyService notifyService;
     /**
-     * TODO 返回值为true表明不能保证发送成功。其实是有问题的，后续改造
+     * TODO 返回值为true其实不能保证发送成功
      * @param userId
      * @param msg
      * @return
@@ -48,6 +49,25 @@ public class PushServiceImpl implements PushService{
         NettyConfig.getChannelGroup().writeAndFlush(new TextWebSocketFrame(msgStr));
 //        notifyService.sendToAll("", "", msgStr, "");
         return true;
+    }
+
+    @Override
+    public boolean pushMsgToShop(String msg, Integer shopId) {
+        log.info("pushMsgToShop msg :" + msg);
+        ConcurrentHashMap<String, List<Channel>> shopChannelMap = NettyConfig.getShopChannelMap();
+        List<Channel> channels = shopChannelMap.get(shopId.toString());
+        if(channels != null){
+            for(Channel channel: channels){
+                channel.writeAndFlush(new TextWebSocketFrame(msg));
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean pushMsgToShop(Object msg, Integer shopId) {
+        String msgStr = JSON.toJSONString(msg);
+        return pushMsgToShop(msgStr, shopId);
     }
 
     @Override

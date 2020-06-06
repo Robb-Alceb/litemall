@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.admin.config;
 
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -9,7 +10,6 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.linlinjava.litemall.admin.shiro.AdminAuthorizingRealm;
 import org.linlinjava.litemall.admin.shiro.AdminWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;

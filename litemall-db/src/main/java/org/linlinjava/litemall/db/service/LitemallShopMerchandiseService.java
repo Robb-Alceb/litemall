@@ -75,4 +75,14 @@ public class LitemallShopMerchandiseService {
         merchandise.or().andDeletedEqualTo(false).andShopIdEqualTo(shopId);
         return (int)litemallShopMerchandiseMapper.countByExample(merchandise);
     }
+
+    public List<LitemallShopMerchandise> queryAllByShopId(Integer shopId) {
+        LitemallShopMerchandiseExample example = new LitemallShopMerchandiseExample();
+        example.or().andShopIdEqualTo(shopId);
+        return litemallShopMerchandiseMapper.selectByExample(example);
+    }
+
+    public LitemallShopMerchandise findById(Integer id) {
+        return litemallShopMerchandiseMapper.selectByPrimaryKey(id);
+    }
 }

@@ -36,15 +36,16 @@ public class WebOrderController {
      */
     @GetMapping("list")
     @LogAnno
-    public Object list(@LoginUser Integer userId,
+    public Object list(@LoginShop Integer shopId,
+                       @LoginUser Integer userId,
                        @RequestParam(name = "isAll", defaultValue = "0")Boolean isAll,
                        @RequestParam(defaultValue = "1") Boolean today,
                        @RequestParam(defaultValue = "0") Integer showType,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
-                       @Sort @RequestParam(defaultValue = "add_time") String sort,
+                       @Sort(accepts = {"update_time", "add_time", "id"}) @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return orderService.list(isAll, userId, today, showType, page, limit, sort, order);
+        return orderService.list(shopId, isAll, userId, today, showType, page, limit, sort, order);
     }
 
     /**
@@ -107,11 +108,11 @@ public class WebOrderController {
      */
     @GetMapping("countorder")
     @LogAnno
-    public Object countorder(@LoginUser Integer userId){
+    public Object countorder(@LoginUser Integer userId, @LoginShop Integer shopId){
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        return orderService.countorder(null);
+        return orderService.countorder(shopId);
     }
 
     /**
@@ -121,11 +122,26 @@ public class WebOrderController {
      */
     @GetMapping("countbystatus")
     @LogAnno
-    public Object countByStatus(@LoginUser Integer userId){
+    public Object countByStatus(@LoginUser Integer userId, @LoginShop Integer shopId){
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        return orderService.countByStatus(userId);
+        return orderService.countByStatus(userId, shopId);
+    }
+
+
+    /**
+     * 取餐完成
+     * @param userId
+     * @return
+     */
+    @PostMapping("takedone")
+    @LogAnno
+    public Object takedone(@LoginUser Integer userId, @RequestBody String body){
+        if (userId == null) {
+            return ResponseUtil.unlogin();
+        }
+        return orderService.takedone(userId, body);
     }
 
     /**

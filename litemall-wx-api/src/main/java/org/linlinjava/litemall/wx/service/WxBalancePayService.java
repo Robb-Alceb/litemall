@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.wx.service;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
@@ -77,7 +78,7 @@ public class WxBalancePayService {
         }
         LitemallRechargeConsumption litemallRechargeConsumption = saveLog(order, user, Constants.LOG_GIFTCARD_CONSUME);
 
-        order.setPayType(Constants.PAY_TYPE_GIFT_CARD);
+        order.setPayType(Constants.PAY_TYPE_BALANCE);
         order.setCurrency(DefaultCurType.USD.getType());
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);
@@ -112,6 +113,8 @@ public class WxBalancePayService {
 
         //发送订单支付成功通知
         noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn()+"订单支付成功", userId);
+        //发送已支付订单到pos系统，门店开始制作商品
+        noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
         //发送礼物卡消费通知
         noticeHelper.noticeUser( Constants.MSG_TYPE_OTHER, "您的账户余额消费：$"+order.getActualPrice(), userId);
 

@@ -147,6 +147,7 @@ public class WebAuthController {
         data.put("gender", user.getGender());
         data.put("mobile", user.getMobile());
         data.put("email", user.getEmail());
+        data.put("id", user.getId());
 
         return ResponseUtil.ok(data);
     }

@@ -131,6 +131,23 @@ public class AdminMerchandiseController {
     }
 
     /**
+     * 查询所在门店所有库存（管理员则获取系统的）
+     *
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:shopall")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "门店所有库存")
+    @GetMapping("/shopall")
+    @LogAnno
+    public Object shopall(@LoginAdminShopId Integer shopId) {
+        if(shopId != null){
+            return adminMerchandiseService.shopAll(shopId);
+        }else{
+            return adminMerchandiseService.all();
+        }
+    }
+
+    /**
      * 补充库存
      * @param vo
      * @return

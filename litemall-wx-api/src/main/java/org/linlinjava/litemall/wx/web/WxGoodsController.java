@@ -11,7 +11,9 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
+import org.linlinjava.litemall.wx.vo.AccessoryVo;
 import org.linlinjava.litemall.wx.vo.GoodsVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,20 +45,9 @@ public class WxGoodsController {
 	@Autowired
 	private LitemallGoodsProductService productService;
 
-	@Autowired
-	private LitemallIssueService goodsIssueService;
 
 	@Autowired
 	private LitemallGoodsAttributeService goodsAttributeService;
-
-	@Autowired
-	private LitemallBrandService brandService;
-
-	@Autowired
-	private LitemallCommentService commentService;
-
-	@Autowired
-	private LitemallUserService userService;
 
 	@Autowired
 	private LitemallCollectService collectService;
@@ -74,8 +65,6 @@ public class WxGoodsController {
 	private LitemallGoodsSpecificationService goodsSpecificationService;
 
 	@Autowired
-	private LitemallGrouponRulesService rulesService;
-	@Autowired
 	private LitemallBrowseRecordService browseRecordService;
 	@Autowired
 	private LitemallTaxService litemallTaxService;
@@ -83,6 +72,10 @@ public class WxGoodsController {
 	private LitemallShopService litemallShopService;
 	@Autowired
 	private LitemallShopRegionService litemallShopRegionService;
+	@Autowired
+	private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+	@Autowired
+	private LitemallShopMerchandiseService litemallShopMerchandiseService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -115,6 +108,8 @@ public class WxGoodsController {
 		// 商品规格对应的数量和价格
 		Callable<List> productListCallable = () -> productService.queryByGid(id);
 
+		// 商品辅料对应的数量和价格
+//		Callable<List> accessoryListCallable = () -> litemallGoodsAccessoryService.queryByGoodsId(id);
 
 		LitemallShop shop = litemallShopService.findById(info.getShopId());
 		List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
@@ -152,11 +147,13 @@ public class WxGoodsController {
 		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
 		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
 		FutureTask<List> taxCallableTask = new FutureTask<>(taxCallable);
+//		FutureTask<List> accessoryCallableTask = new FutureTask<>(accessoryListCallable);
 
 		executorService.submit(goodsAttributeListTask);
 		executorService.submit(objectCallableTask);
 		executorService.submit(productListCallableTask);
 		executorService.submit(taxCallableTask);
+//		executorService.submit(accessoryCallableTask);
 
 		Map<String, Object> data = new HashMap<>();
 
@@ -167,6 +164,7 @@ public class WxGoodsController {
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
 			data.put("taxes", taxCallableTask.get());
+//			data.put("accessories", accessoryCallableTask.get());
 
 		}
 		catch (Exception e) {
@@ -261,7 +259,7 @@ public class WxGoodsController {
 			vo.setPicUri(goods.getPicUrl());
 			vo.setCategoryId(goods.getCategoryId());
 			//税详情
-//			vo.setTaxes(litemallTaxService.findByGoodsId(goods.getId()));
+//			vo.setTaxes(litemallTaxService.queryByGoodsId(goods.getId()));
 
 			// 用户收藏
 			int userHasCollect = 0;
@@ -352,4 +350,23 @@ public class WxGoodsController {
 		return ResponseUtil.ok(goodsCount);
 	}
 
+	/**
+	 * 获取商品辅料
+	 * @param goodsId
+	 * @return
+	 */
+	@GetMapping("accessory")
+	@LogAnno
+	public Object accessory(Integer goodsId){
+		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
+
+
+/*		accessories.stream().map(accessory->{
+			AccessoryVo vo = new AccessoryVo();
+			BeanUtils.copyProperties(accessories, vo);
+			LitemallShopMerchandise mer = litemallShopMerchandiseService.findById(accessory.getMerchandiseId());
+			vo.setUnit(mer.get);
+		})*/
+		return ResponseUtil.ok();
+	}
 }

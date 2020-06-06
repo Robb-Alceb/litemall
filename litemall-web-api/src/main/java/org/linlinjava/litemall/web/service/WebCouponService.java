@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import static org.linlinjava.litemall.db.beans.Constants.ORDER_TYPE_CASH;
 
 
 /**

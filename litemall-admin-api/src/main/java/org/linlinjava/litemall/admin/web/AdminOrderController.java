@@ -206,4 +206,17 @@ public class AdminOrderController {
         return adminOrderService.queryOrderIsCompletionById(orderId);
     }
 
+    /**
+     * 修改订单收货信息
+     *
+     * @param body 订单信息，{ orderId：xxx }
+     * @return 订单操作结果
+     */
+    @RequiresPermissions("admin:order:consignee")
+    @RequiresPermissionsDesc(menu = {"商场管理", "订单管理"}, button = "订单修改收货信息")
+    @PutMapping("/consignee")
+    @LogAnno
+    public Object consignee(@RequestBody String body, @LoginAdminShopId Integer shopId) {
+        return adminOrderService.consignee(body, shopId);
+    }
 }

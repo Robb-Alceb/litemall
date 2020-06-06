@@ -26,4 +26,16 @@ public interface PushService {
      * @param msg
      */
     boolean pushMsgToAll(Object msg);
+
+    /**
+     * 推送给指定门店的所有用户
+     * @param msg
+     */
+    boolean pushMsgToShop(String msg, Integer shopId);
+
+    /**
+     * 推送给指定门店的所有用户
+     * @param msg
+     */
+    boolean pushMsgToShop(Object msg, Integer shopId);
 }

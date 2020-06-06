@@ -12,6 +12,7 @@ import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
+import org.linlinjava.litemall.web.dto.CartDto;
 import org.linlinjava.litemall.web.vo.GoodsDetailVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,6 @@ import static org.linlinjava.litemall.web.util.WebResponseCode.*;
 @RequestMapping("/web/cart")
 @Validated
 public class WebCartController {
-    private final Log logger = LogFactory.getLog(WebCartController.class);
 
     @Autowired
     private LitemallCartService cartService;
@@ -51,6 +51,10 @@ public class WebCartController {
     private LitemallShopRegionService litemallShopRegionService;
     @Autowired
     private LitemallTaxService litemallTaxService;
+    @Autowired
+    private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+    @Autowired
+    private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
 
     /**
      * 用户购物车信息
@@ -98,22 +102,22 @@ public class WebCartController {
      * 否则添加新的购物车货品项。
      *
      * @param userId 用户ID
-     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
+     * @param cartDto   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
     @LogAnno
-    public Object add(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody LitemallCart cart) {
+    public Object add(@LoginShop Integer shopId, @LoginUser Integer userId, @RequestBody CartDto cartDto) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        if (cart == null) {
+        if (cartDto == null) {
             return ResponseUtil.badArgument();
         }
-        Integer productId = cart.getProductId();
-        Integer number = cart.getNumber().intValue();
-        Integer goodsId = cart.getGoodsId();
-        Integer[] specIds = cart.getSpecificationIds();
+        Integer productId = cartDto.getProductId();
+        Integer number = cartDto.getNumber().intValue();
+        Integer goodsId = cartDto.getGoodsId();
+        Integer[] specIds = cartDto.getSpecificationIds();
         if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
             return ResponseUtil.badArgument();
         }
@@ -136,28 +140,46 @@ public class WebCartController {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
 
-            cart.setId(null);
-            cart.setShopId(shopId);
-            cart.setGoodsSn(goods.getGoodsSn());
-            cart.setGoodsName((goods.getName()));
-            cart.setPicUrl(goods.getPicUrl());
+            cartDto.setShopId(shopId);
+            cartDto.setGoodsSn(goods.getGoodsSn());
+            cartDto.setGoodsName((goods.getName()));
+
             BigDecimal sellPrice = product.getSellPrice();
             List<String> specifications = new ArrayList<>();
             if(null != specIds && specIds.length > 0 ){
-                cart.setSpecificationIds(specIds);
+                cartDto.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
-//                    sellPrice = sellPrice.add(item.getPrice());
+                    sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }
-            cart.setPrice(sellPrice);
-            cart.setSpecifications(specifications.toArray(new String[]{}));
-            cart.setSpecificationIds(specIds);
-            cart.setUserId(userId);
-//            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
-            cart.setChecked(true);
+            //辅料价格
+            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+                List<String> accesstories = new ArrayList<>();
+                List<LitemallGoodsAccessory> litemallGoodsSpecifications = litemallGoodsAccessoryService.queryByIds(cartDto.getCartGoodsAccessoryList().stream().map(LitemallCartGoodsAccessory::getAccessoryId).collect(Collectors.toList()).toArray(new Integer[]{}));
+                for(LitemallGoodsAccessory item : litemallGoodsSpecifications){
+                    sellPrice = sellPrice.add(item.getPrice());
+                    accesstories.add(item.getName());
+                }
+
+            }
+            cartDto.setPrice(sellPrice);
+            cartDto.setSpecifications(specifications.toArray(new String[]{}));
+            cartDto.setSpecificationIds(specIds);
+            cartDto.setUserId(userId);
+
+            LitemallCart cart = new LitemallCart();
+            BeanUtils.copyProperties(cartDto, cart);
+
             cartService.add(cart);
+            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()) {
+                    item.setCartId(cart.getId());
+                    litemallCartGoodsAccessoryService.add(item);
+                }
+
+            }
         } else {
             //取得规格的信息,判断规格库存
             int num = existCart.getNumber() + number;

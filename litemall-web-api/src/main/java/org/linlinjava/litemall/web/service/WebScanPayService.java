@@ -1,9 +1,11 @@
 package org.linlinjava.litemall.web.service;
 
+import com.alibaba.fastjson.JSON;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
 import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.util.EncryptUtil;
+import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
@@ -135,7 +137,7 @@ public class WebScanPayService {
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);
         order.setPayId(String.valueOf(log.getId()));        //将消费日志id作为支付id
-        order.setTransationId(String.valueOf(log.getId())); //将消费日志id作为transation id
+        order.setTransationId(String.valueOf(cardId));      //用户礼物卡id作为transation id
 
         //更新订单
         if (litemallOrderService.updateWithOptimisticLocker(order) == 0) {
@@ -169,6 +171,8 @@ public class WebScanPayService {
 //        notifyService.notifyMail("新订单", order.toString());
         //发送订单支付成功通知
         noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn()+"订单支付成功", userId);
+        //发送已支付订单到pos系统，门店开始制作商品
+        noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
         //发送礼物卡消费通知
         noticeHelper.noticeUser( Constants.MSG_TYPE_OTHER, "您的卡"+card.getCardNumber()+"消费：$"+order.getActualPrice(), userId);
 
@@ -204,12 +208,12 @@ public class WebScanPayService {
         }
         LitemallRechargeConsumption litemallRechargeConsumption = saveLog(order, user, Constants.LOG_GIFTCARD_CONSUME);
 
-        order.setPayType(Constants.PAY_TYPE_GIFT_CARD);
+        order.setPayType(Constants.PAY_TYPE_BALANCE);
         order.setCurrency(DefaultCurType.USD.getType());
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);
         order.setPayId(String.valueOf(litemallRechargeConsumption.getId()));        //将消费日志id作为支付id
-        order.setTransationId(String.valueOf(litemallRechargeConsumption.getId())); //将消费日志id作为transation id
+        order.setTransationId(String.valueOf(userId));                              //用户id作为transation id
 
         //更新订单
         if (litemallOrderService.updateWithOptimisticLocker(order) == 0) {
@@ -239,6 +243,8 @@ public class WebScanPayService {
 
         //发送订单支付成功通知
         noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn()+"订单支付成功", userId);
+        //发送已支付订单到pos系统，门店开始制作商品
+        noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
         //发送礼物卡消费通知
         noticeHelper.noticeUser( Constants.MSG_TYPE_OTHER, "您的账户余额消费：$"+order.getActualPrice(), userId);
         return ResponseUtil.ok();

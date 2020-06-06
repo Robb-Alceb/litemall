@@ -1,4 +1,4 @@
-package org.linlinjava.litemall.wx.netty;
+package org.linlinjava.litemall.web.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -21,19 +21,20 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
+
 /**
  * @author ：stephen
  * @date ：Created in 2020/4/8 13:51
  * @description：TODO
  */
 @Component
-public class NettyServer {
-    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
+public class WebNettyServer {
+    private static final Logger log = LoggerFactory.getLogger(WebNettyServer.class);
 
     /**
      * 配置是否启用netty消息
      */
-    @Value("${webSocket.netty.active}")
+    @Value("${webWebSocket.netty.active}")
     private Boolean active;
 
     /**
@@ -44,13 +45,13 @@ public class NettyServer {
     /**
      * 端口号
      */
-    @Value("${webSocket.netty.port}")
+    @Value("${webWebSocket.netty.port}")
     private int port;
 
     /**
      * webSocket路径
      */
-    @Value("${webSocket.netty.path}")
+    @Value("${webWebSocket.netty.path}")
     private String webSocketPath;
 
     @Autowired

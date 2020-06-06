@@ -1,5 +1,6 @@
 package org.linlinjava.litemall.wx.web;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,6 +13,7 @@ import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.core.util.CompareUtils;
+import org.linlinjava.litemall.wx.dto.CartDto;
 import org.linlinjava.litemall.wx.vo.CartVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +35,6 @@ import static org.linlinjava.litemall.wx.util.WxResponseCode.GOODS_UNSHELVE;
 @RequestMapping("/wx/cart")
 @Validated
 public class WxCartController {
-    private final Log logger = LogFactory.getLog(WxCartController.class);
-
     @Autowired
     private LitemallCartService cartService;
     @Autowired
@@ -43,10 +43,6 @@ public class WxCartController {
     private LitemallGoodsProductService productService;
     @Autowired
     private LitemallAddressService addressService;
-    @Autowired
-    private LitemallGrouponRulesService grouponRulesService;
-    @Autowired
-    private LitemallCouponService couponService;
     @Autowired
     private LitemallCouponUserService couponUserService;
     @Autowired
@@ -59,6 +55,10 @@ public class WxCartController {
     private LitemallTaxService litemallTaxService;
     @Autowired
     private LitemallShopRegionService litemallShopRegionService;
+    @Autowired
+    private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+    @Autowired
+    private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
 
 
     /**
@@ -111,23 +111,23 @@ public class WxCartController {
      * 否则添加新的购物车货品项。
      *
      * @param userId 用户ID
-     * @param cart   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
+     * @param cartDto   购物车商品信息， { goodsId: xxx, productId: xxx, number: xxx }
      * @return 加入购物车操作结果
      */
     @PostMapping("add")
     @LogAnno
-    public Object add(@LoginUser Integer userId, @RequestBody LitemallCart cart) {
+    public Object add(@LoginUser Integer userId, @RequestBody CartDto cartDto) {
         if (userId == null) {
             return ResponseUtil.unlogin();
         }
-        if (cart == null) {
+        if (cartDto == null) {
             return ResponseUtil.badArgument();
         }
-        Integer shopId = cart.getShopId();
-        Integer productId = cart.getProductId();
-        Integer number = cart.getNumber().intValue();
-        Integer goodsId = cart.getGoodsId();
-        Integer[] specIds = cart.getSpecificationIds();
+        Integer shopId = cartDto.getShopId();
+        Integer productId = cartDto.getProductId();
+        Integer number = cartDto.getNumber().intValue();
+        Integer goodsId = cartDto.getGoodsId();
+        Integer[] specIds = cartDto.getSpecificationIds();
         if (!ObjectUtils.allNotNull(productId, number, goodsId, shopId)) {
             return ResponseUtil.badArgument();
         }
@@ -144,34 +144,61 @@ public class WxCartController {
         LitemallGoodsProduct product = productService.findById(productId);
         //判断购物车中是否存在此规格商品
         LitemallCart existCart = cartService.queryExist(goodsId, productId, userId, specIds);
+        if(existCart != null && cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+            for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()){
+                if(!litemallCartGoodsAccessoryService.exist(existCart.getId(), item.getAccessoryId(), item.getNumber())){
+                    existCart = null;
+                    break;
+                }
+            }
+        }
         if (existCart == null) {
             //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
                 return ResponseUtil.fail(GOODS_NO_STOCK, "库存不足");
             }
 
-            cart.setId(null);
-            cart.setShopId(shopId);
-            cart.setGoodsSn(goods.getGoodsSn());
-            cart.setGoodsName((goods.getName()));
-            cart.setPicUrl(goods.getPicUrl());
+            cartDto.setId(null);
+            cartDto.setShopId(shopId);
+            cartDto.setGoodsSn(goods.getGoodsSn());
+            cartDto.setGoodsName((goods.getName()));
+            cartDto.setPicUrl(goods.getPicUrl());
             BigDecimal sellPrice = product.getSellPrice();
             List<String> specifications = new ArrayList<>();
+            //规格价格
             if(null != specIds && specIds.length > 0 ){
-                cart.setSpecificationIds(specIds);
+                cartDto.setSpecificationIds(specIds);
                 List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(specIds);
                 for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
                     sellPrice = sellPrice.add(item.getPrice());
                     specifications.add(item.getValue());
                 }
             }
-            cart.setPrice(sellPrice);
-            cart.setSpecifications(specifications.toArray(new String[]{}));
-            cart.setSpecificationIds(specIds);
-            cart.setUserId(userId);
-//            cart.setTaxPrice(product.getTax().divide(new BigDecimal(100.00)).multiply(sellPrice));
-            cart.setChecked(true);
+            //辅料价格
+            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+                List<String> accesstories = new ArrayList<>();
+                List<LitemallGoodsAccessory> litemallGoodsSpecifications = litemallGoodsAccessoryService.queryByIds(cartDto.getCartGoodsAccessoryList().stream().map(LitemallCartGoodsAccessory::getAccessoryId).collect(Collectors.toList()).toArray(new Integer[]{}));
+                for(LitemallGoodsAccessory item : litemallGoodsSpecifications){
+                    sellPrice = sellPrice.add(item.getPrice());
+                    accesstories.add(item.getName());
+                }
+            }
+            cartDto.setPrice(sellPrice);
+            cartDto.setSpecifications(specifications.toArray(new String[]{}));
+            cartDto.setSpecificationIds(specIds);
+            cartDto.setUserId(userId);
+            cartDto.setChecked(true);
+
+            LitemallCart cart = new LitemallCart();
+            BeanUtils.copyProperties(cartDto, cart);
             cartService.add(cart);
+            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()) {
+                    item.setCartId(cart.getId());
+                    litemallCartGoodsAccessoryService.add(item);
+                }
+
+            }
         } else {
             //取得规格的信息,判断规格库存
             int num = existCart.getNumber() + number;
@@ -424,13 +451,6 @@ public class WxCartController {
              */
             List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
             List<LitemallTax> litemallTaxes = litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
-            /**
-             * 获取总税率/100
-             */
-/*            BigDecimal tax = new BigDecimal(0.00);
-            for(LitemallTax item : litemallTaxes){
-                tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
-            }*/
 
 
             List<CartVo> carts = i.getValue();
@@ -459,10 +479,6 @@ public class WxCartController {
                 //税费 = 商品价格 * 商品数量 * 税率
                 taxPrice = taxPrice.add(tax.multiply(cart.getPrice().multiply(new BigDecimal(cart.getNumber()))));
             }
-            /**
-             * 计算 商品总税费 = 商品总价 * 税率
-             */
-//            taxPrice = taxPrice.add(tax.multiply(checkedGoodsPrice));
 
             // 计算优惠券可用情况
             int tmpCouponLength = 0;

@@ -109,10 +109,6 @@ public class Constants {
     public static final Byte ORDER_SEND = 2;
     public static final Byte ORDER_EAT = 3;
 
-    /**
-     *  订单支付方式
-     */
-    public static final Byte ORDER_TYPE_CASH = 11;  //现金
 
     /**
      *  地区类型
@@ -145,6 +141,7 @@ public class Constants {
     public static final Byte LOG_GIFTCARD_SHARE = 3;  //赠送
     public static final Byte LOG_GIFTCARD_PICK = 4;  //领取
     public static final Byte LOG_GIFTCARD_DESTORY = 5;  //销毁
+    public static final Byte LOG_GIFTCARD_REFUND = 6;  //退款
 
 
     /**
@@ -162,6 +159,13 @@ public class Constants {
     public static final Byte MSG_TYPE_PROMOTION = 3;  //推广消息
     public static final Byte MSG_TYPE_OTHER = 4;  //其他消息
     public static final Byte MSG_TYPE_FEEDBACK = 5;  //反馈消息
+    /**
+     * 极光推送title
+     */
+    public static final String JPUSH_TITLE_FEEDBACK = "收到一条反馈回复";        //用户反馈
+    public static final String JPUSH_TITLE_SYSTEM = "收到一条系统消息";        //用户反馈
+    public static final String JPUSH_TITLE_ORDER = "收到一条订单消息";        //用户反馈
+    public static final String JPUSH_TITLE_PROMOTION = "收到一条推广消息";        //用户反馈
 
 
     /**
@@ -232,8 +236,5 @@ public class Constants {
     public static final String AWS_MESSAGE_TYPE_PROMOTIONAL = "PROMOTIONAL";        //推广的、不重要的、订单通知、活动等
 
 
-    /**
-     * 极光推送title
-     */
-    public static final String JPUSH_TITLE_FEEDBACK = "收到一条反馈回复";        //用户反馈
+
 }

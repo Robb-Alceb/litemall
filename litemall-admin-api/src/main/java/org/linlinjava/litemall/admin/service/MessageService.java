@@ -91,7 +91,7 @@ public class MessageService {
         log.info("sendMessage start param :" + message.toString());
         if(message.getType() == Constants.MESSAGE_TYPE_SYSTEM){
             pushService.pushMsgToAll(message.getContent());
-            noticeHelper.noticeAll(Constants.MSG_TYPE_SYSTEM, message.getContent(), message.getTitle());
+            noticeHelper.noticeAll(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM);
 /*          ConcurrentHashMap<String, Channel> channelMap = NettyConfig.getUserChannelMap();
             channelMap.forEach((s, channel) -> {
                 LitemallMsg msg = new LitemallMsg();
@@ -110,7 +110,7 @@ public class MessageService {
                 }
                 List<LitemallUser> users = litemallUserService.queryByUserLevels(levels);
                 users.forEach(user -> {
-                    noticeHelper.noticeUser(Constants.MSG_TYPE_SYSTEM, message.getContent(), message.getTitle(), user.getId());
+                    noticeHelper.noticeUser(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM, user.getId());
                     pushService.pushMsgToOne(String.valueOf(user.getId()), message.getContent());
                     /*LitemallMsg msg = new LitemallMsg();
                     msg.setMessageId(message.getId());

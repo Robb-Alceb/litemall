@@ -136,6 +136,12 @@ public class WxOrderService {
     private AwsNotifyService awsNotifyService;
     @Autowired
     private LitemallAdminService litemallAdminService;
+    @Autowired
+    private LitemallGoodsAccessoryService litemallGoodsAccessoryService;
+    @Autowired
+    private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
+    @Autowired
+    private LitemallOrderGoodsAccessoryService litemallOrderGoodsAccessoryService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -285,7 +291,10 @@ public class WxOrderService {
         if (body == null) {
             return ResponseUtil.badArgument();
         }
+        //税费
         List<LitemallOrderTax> orderTaxes = new ArrayList<>();
+        //辅料
+        List<LitemallOrderGoodsAccessory> orderGoodsAccessories = new ArrayList<>();
         List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
         Integer addressId = JacksonUtil.parseInteger(body, "addressId");
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
@@ -397,19 +406,39 @@ public class WxOrderService {
                 for(Integer sid : checkGoods.getSpecificationIds()){
                     LitemallGoodsSpecification specificationServiceById = goodsSpecificationService.findById(sid);
                     if(specificationServiceById != null){
-                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
+                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice());
+                    }
+                }
+            }
+
+            //  辅料价格
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.findByCartId(checkGoods.getId());
+            BigDecimal acceGoodsPrice = new BigDecimal(0.00);
+            if(accessories != null){
+                for(LitemallCartGoodsAccessory item : accessories){
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    if(accessory != null){
+                        acceGoodsPrice = acceGoodsPrice.add(accessory.getPrice());
+                        /**
+                         * 记录订单辅料项
+                         */
+                        LitemallOrderGoodsAccessory orderGoodsAccessory = new LitemallOrderGoodsAccessory();
+                        orderGoodsAccessory.setGoodsId(goodsId);
+                        orderGoodsAccessory.setAccessoryId(accessory.getId());
+                        orderGoodsAccessory.setNumber(item.getNumber());
+                        orderGoodsAccessory.setPrice(accessory.getPrice());
+                        orderGoodsAccessories.add(orderGoodsAccessory);
                     }
                 }
             }
             logger.debug("WxOrderService [submit] specGoodsPrice is: "+specGoodsPrice.toString());
             logger.debug("WxOrderService [submit] goodsProduct is: "+goodsProduct.getSellPrice().toString());
-            if(goodsProduct.getSellPrice().add(specGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
+            if(goodsProduct.getSellPrice().add(specGoodsPrice).add(acceGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
                 return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
             }
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
-
-            if(litemallGoods != null && litemallGoods.getPriceType() != null){
+            /*if(litemallGoods != null && litemallGoods.getPriceType() != null){
                 //会员价格需要乘以商品数
                 if(litemallGoods.getPriceType() == Constants.GOODS_PRICE_TYPE_VIP){
                     LitemallVipGoodsPrice litemallVipGoodsPrice = litemallVipGoodsService.queryByGoodsId(goodsId);
@@ -444,7 +473,7 @@ public class WxOrderService {
                         }
                     }
                 }
-            }
+            }*/
 
 //            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice().multiply(new BigDecimal(checkGoods.getNumber())));
 
@@ -586,9 +615,14 @@ public class WxOrderService {
             orderGoodsService.add(orderGoods);
         }
         // 添加订单税费表项
-        for(LitemallOrderTax item : orderTaxes){
+        for(LitemallOrderTax item : orderTaxes) {
             item.setOrderId(orderId);
             litemallOrderTaxService.add(item);
+        }
+        // 添加辅料表项
+        for(LitemallOrderGoodsAccessory item: orderGoodsAccessories){
+            item.setOrderId(orderId);
+            litemallOrderGoodsAccessoryService.add(item);
         }
 
         // 删除购物车里面的商品信息

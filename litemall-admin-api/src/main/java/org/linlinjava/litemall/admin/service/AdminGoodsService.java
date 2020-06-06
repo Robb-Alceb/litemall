@@ -63,7 +63,7 @@ public class AdminGoodsService {
     @Autowired
     private LitemallCartService cartService;
     @Autowired
-    private LitemallTaxService taxService;
+    private LitemallGoodsAccessoryService accessoryService;
 
     /**
      * 商品列表
@@ -189,6 +189,7 @@ public class AdminGoodsService {
         LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
         LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
+        LitemallGoodsAccessory[] litemallGoodsAccessories = goodsAllinone.getAccessories();
 
         Integer id = goods.getId();
         LitemallGoods litemallGoods = goodsService.findById(id);
@@ -216,6 +217,7 @@ public class AdminGoodsService {
 //        productService.deleteByGid(gid);
         goodsLadderPriceService.deleteByGoodsId(gid);
         goodsMaxMinusPriceService.deleteByGoodsId(gid);
+        accessoryService.deleteByGoodsId(gid);
 
         if(goods.getPriceType() != 1){
             vipGoodsService.deleteByGoodsId(goods.getId());
@@ -239,6 +241,14 @@ public class AdminGoodsService {
 //            product.setTax(totalTax);
             product.setGoodsId(goods.getId());
             productService.updateByGoodsId(product);
+        }
+
+        if(litemallGoodsAccessories != null){
+            //辅料表
+            for (LitemallGoodsAccessory accessory : litemallGoodsAccessories) {
+                accessory.setGoodsId(goods.getId());
+                accessoryService.add(accessory);
+            }
         }
 
         if(null != vipGoodsPrice){
@@ -299,6 +309,7 @@ public class AdminGoodsService {
         goodsLadderPriceService.deleteByGoodsId(gid);
         goodsMaxMinusPriceService.deleteByGoodsId(gid);
         vipGoodsService.deleteByGoodsId(gid);
+        accessoryService.deleteByGoodsId(gid);
         return ResponseUtil.ok();
     }
 
@@ -316,6 +327,7 @@ public class AdminGoodsService {
         LitemallVipGoodsPrice vipGoodsPrice = goodsAllinone.getVipPrice();
         LitemallGoodsLadderPrice[] ladderPrices = goodsAllinone.getLadderPrices();
         LitemallGoodsMaxMinusPrice[] maxMinusPrices = goodsAllinone.getMaxMinusPrices();
+        LitemallGoodsAccessory[] litemallGoodsAccessories = goodsAllinone.getAccessories();
 
         String name = goods.getName();
         Integer shopId = goods.getShopId();
@@ -353,6 +365,14 @@ public class AdminGoodsService {
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
             productService.add(product);
+        }
+
+        if(litemallGoodsAccessories != null){
+            //辅料表
+            for (LitemallGoodsAccessory accessory : litemallGoodsAccessories) {
+                accessory.setGoodsId(goods.getId());
+                accessoryService.add(accessory);
+            }
         }
 
         // vip价格
@@ -446,17 +466,13 @@ public class AdminGoodsService {
 
     public Object detail(Integer id, Integer shopId) {
         LitemallGoods goods = goodsService.findById(id);
-        //查询门店商品
-//        if(!ObjectUtils.isEmpty(shopId)){
-//            LitemallShopGoods shopGoods = shopGoodsService.queryByShopIdAndGoodsid(shopId, id);
-//            return ResponseUtil.ok(new HashMap<String, Object>(){{put("goods", goods);put("shopGoods", shopGoods);}});
-//        }
         List<LitemallGoodsProduct> products = productService.queryByGid(id);
         List<LitemallGoodsSpecification> specifications = specificationService.queryByGid(id);
         List<LitemallGoodsAttribute> attributes = attributeService.queryByGid(id);
         LitemallVipGoodsPrice vipGoodsPrice = vipGoodsService.queryByGoodsId(id);
         List<LitemallGoodsLadderPrice> ladderPrices = goodsLadderPriceService.queryByGoodsId(id);
         List<LitemallGoodsMaxMinusPrice> maxMinusPrices = goodsMaxMinusPriceService.queryByGoodsId(id);
+        List<LitemallGoodsAccessory> accessories = accessoryService.queryByGoodsId(id);
 
         Integer categoryId = goods.getCategoryId();
         LitemallCategory category = categoryService.findById(categoryId);
@@ -476,6 +492,7 @@ public class AdminGoodsService {
         data.put("vipGoodsPrice", vipGoodsPrice);
         data.put("ladderPrices", ladderPrices);
         data.put("maxMinusPrices", maxMinusPrices);
+        data.put("accessories", accessories);
 
         return ResponseUtil.ok(data);
     }

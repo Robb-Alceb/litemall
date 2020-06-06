@@ -5,6 +5,7 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,6 +25,11 @@ public class NettyConfig {
      */
     private static ConcurrentHashMap<String,Channel> userChannelMap = new ConcurrentHashMap<>();
 
+    /**
+     * 存放门店与Chanel的对应信息，用于给指定门店发送消息
+     */
+    private static ConcurrentHashMap<String, List<Channel>> shopChannelMap = new ConcurrentHashMap<>();
+
     private NettyConfig() {}
 
     /**
@@ -41,4 +47,13 @@ public class NettyConfig {
     public static ConcurrentHashMap<String,Channel> getUserChannelMap(){
         return userChannelMap;
     }
+
+    /**
+     * 获取门店channel map
+     * @return
+     */
+    public static ConcurrentHashMap<String, List<Channel>> getShopChannelMap() {
+        return shopChannelMap;
+    }
+
 }

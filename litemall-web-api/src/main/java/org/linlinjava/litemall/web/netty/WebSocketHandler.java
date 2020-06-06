@@ -1,7 +1,8 @@
-package org.linlinjava.litemall.wx.netty;
+package org.linlinjava.litemall.web.netty;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -11,6 +12,11 @@ import org.linlinjava.litemall.core.notify.netty.NettyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author ：stephen
  * @date ：Created in 2020/4/8 13:52
@@ -19,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ChannelHandler.Sharable
 public class WebSocketHandler  extends SimpleChannelInboundHandler<TextWebSocketFrame>{
-    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
+    private static final Logger log = LoggerFactory.getLogger(WebNettyServer.class);
 
     /**
      * 一旦连接，第一个被执行
@@ -42,14 +48,20 @@ public class WebSocketHandler  extends SimpleChannelInboundHandler<TextWebSocket
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         log.info("服务器收到消息：{}",msg.text());
 
-        // 获取用户ID,关联channel
+        // 获取门店ID,关联channel
         JSONObject jsonObject = JSON.parseObject(msg.text());
-        String uid = jsonObject.getString("uid");
-        NettyConfig.getUserChannelMap().put(uid,ctx.channel());
+        String sid = jsonObject.getString("sid");
+        if(NettyConfig.getShopChannelMap().get(sid) == null){
+            List<Channel> list = new LinkedList<>();
+            list.add(ctx.channel());
+            NettyConfig.getShopChannelMap().put(sid, list);
+        }else{
+            NettyConfig.getShopChannelMap().get(sid).add(ctx.channel());
+        }
 
         // 将用户ID作为自定义属性加入到channel中，方便随时channel中获取用户ID
-        AttributeKey<String> key = AttributeKey.valueOf("userId");
-        ctx.channel().attr(key).setIfAbsent(uid);
+        AttributeKey<String> key = AttributeKey.valueOf("shopId");
+        ctx.channel().attr(key).setIfAbsent(sid);
 
         // 回复消息
         ctx.channel().writeAndFlush(new TextWebSocketFrame("服务器连接成功！"));
@@ -77,8 +89,11 @@ public class WebSocketHandler  extends SimpleChannelInboundHandler<TextWebSocket
      * @param ctx
      */
     private void removeUserId(ChannelHandlerContext ctx){
-        AttributeKey<String> key = AttributeKey.valueOf("userId");
-        String userId = ctx.channel().attr(key).get();
-        NettyConfig.getUserChannelMap().remove(userId);
+        AttributeKey<String> key = AttributeKey.valueOf("shopId");
+        String shopId = ctx.channel().attr(key).get();
+        List<Channel> channels = NettyConfig.getShopChannelMap().get(shopId);
+        if(channels != null){
+            channels.remove(ctx);
+        }
     }
 }

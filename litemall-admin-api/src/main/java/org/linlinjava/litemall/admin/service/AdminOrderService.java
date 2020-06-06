@@ -1,6 +1,5 @@
 package org.linlinjava.litemall.admin.service;
 
-import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,10 +11,7 @@ import org.linlinjava.litemall.admin.beans.pojo.convert.BeanConvert;
 import org.linlinjava.litemall.admin.beans.vo.OrderDetailVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderGoodsVo;
 import org.linlinjava.litemall.admin.beans.vo.OrderVo;
-import org.linlinjava.litemall.core.notify.AwsNotifyService;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
-import org.linlinjava.litemall.core.notify.NotifyService;
-import org.linlinjava.litemall.core.notify.NotifyType;
 import org.linlinjava.litemall.core.payment.paypal.service.impl.GoodsPaypalServiceImpl;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
@@ -54,13 +50,7 @@ public class AdminOrderService {
     @Autowired
     private LitemallCommentService commentService;
     @Autowired
-    private WxPayService wxPayService;
-    @Autowired
-    private NotifyService notifyService;
-    @Autowired
     private LogHelper logHelper;
-    @Autowired
-    private LitemallAdminOrderService adminOrderService;
     @Autowired
     private GoodsPaypalServiceImpl paypalService;
     @Autowired
@@ -76,7 +66,11 @@ public class AdminOrderService {
     @Autowired
     private NoticeHelper noticeHelper;
     @Autowired
-    private AwsNotifyService awsNotifyService;
+    private LitemallGiftCardUserService litemallGiftCardUserService;
+    @Autowired
+    private LitemallGiftCardUserLogService litemallGiftCardUserLogService;
+    @Autowired
+    private LitemallRechargeConsumptionService litemallRechargeConsumptionService;
 
     /**
      * 订单列表
@@ -177,23 +171,15 @@ public class AdminOrderService {
             if(!paypalService.refund(order.getId())){
                 return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
             };
+        }else if(order.getPayType() == Constants.PAY_TYPE_BALANCE.byteValue()){
+            if(!balanceRefund(order.getId())){
+                return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+            }
+        }else if(order.getPayType() == Constants.PAY_TYPE_GIFT_CARD.byteValue()){
+            if(!giftCardRefund(order.getId())){
+                return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
+            }
         }
-
-/*        WxPayRefundResult wxPayRefundResult;
-        try {
-            wxPayRefundResult = wxPayService.refund(wxPayRefundRequest);
-        } catch (WxPayException e) {
-            logger.error(e.getMessage(), e);
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
-        if (!wxPayRefundResult.getReturnCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }
-        if (!wxPayRefundResult.getResultCode().equals("SUCCESS")) {
-            logger.warn("refund fail: " + wxPayRefundResult.getReturnMsg());
-            return ResponseUtil.fail(ORDER_REFUND_FAILED, "订单退款失败");
-        }*/
 
         // 设置订单取消状态
         order.setOrderStatus(OrderUtil.STATUS_REFUND_CONFIRM);
@@ -327,11 +313,11 @@ public class AdminOrderService {
         if (order == null) {
             return ResponseUtil.fail(ORDER_NOT_EXIST, "订单不存在！");
         }
-        if(shopId != null){
+/*        if(shopId != null){
             if(!shopId.equals(order.getShopId())){
                 return ResponseUtil.fail(ORDER_NOT_PERMISSION, "无权处理该订单！");
             }
-        }
+        }*/
         String remark = JacksonUtil.parseString(body, "remark");
         if (StringUtils.isEmpty(remark)) {
             return ResponseUtil.badArgument();
@@ -658,5 +644,101 @@ public class AdminOrderService {
             }
         });
         return orderGoodss;
+    }
+
+    /**
+     * 退款到余额
+     * @param orderId
+     * @return
+     */
+    public boolean balanceRefund(Integer orderId){
+        try {
+            LitemallOrder order = orderService.findById(orderId);
+            Integer userId = order.getUserId();
+            LitemallUser user = userService.findById(userId);
+            LitemallUser update = new LitemallUser();
+            update.setId(userId);
+            update.setAvailableAmount(update.getAvailableAmount().add(order.getActualPrice()));
+            userService.updateWithOptimisticLocker(update, user.getUpdateTime());
+
+            LitemallRechargeConsumption log = new LitemallRechargeConsumption();
+            log.setOrderId(order.getId());
+            log.setAmount(order.getActualPrice());
+            log.setAddUserId(user.getId());
+            log.setUserId(user.getId());
+            log.setUsername(user.getUsername());
+            log.setMobile(user.getMobile());
+            log.setPoints(user.getPoints());
+            log.setType(org.linlinjava.litemall.db.beans.Constants.LOG_GIFTCARD_REFUND);
+            log.setUserLevel(user.getUserLevel());
+            log.setAvailableAmount(user.getAvailableAmount().add(order.getActualPrice()));
+            litemallRechargeConsumptionService.add(log);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 退款到礼物卡
+     * @param orderId
+     * @return
+     */
+    public boolean giftCardRefund(Integer orderId){
+        try {
+            LitemallOrder order = orderService.findById(orderId);
+            Integer cardId = Integer.valueOf(order.getTransationId());
+            LitemallGiftCardUser card = litemallGiftCardUserService.findById(cardId);
+            LitemallGiftCardUser update = new LitemallGiftCardUser();
+            update.setId(cardId);
+            update.setAmount(card.getAmount().add(order.getActualPrice()));
+            litemallGiftCardUserService.updateWithOptimisticLocker(update, card.getUpdateTime());
+
+            LitemallGiftCardUserLog log = new LitemallGiftCardUserLog();
+            log.setAmount(order.getActualPrice());
+            log.setAddUserId(order.getUserId());
+            log.setType(org.linlinjava.litemall.db.beans.Constants.LOG_GIFTCARD_REFUND);
+            log.setCardNumber(card.getCardNumber());
+            log.setContent("退款");
+            litemallGiftCardUserLogService.add(log);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 修改收货人
+     * @param body
+     * @param shopId
+     * @return
+     */
+    public Object consignee(String body, Integer shopId) {
+        Integer orderId = JacksonUtil.parseInteger(body, "orderId");
+        String consignee = JacksonUtil.parseString(body, "consignee");
+        String mobile = JacksonUtil.parseString(body, "mobile");
+        String address = JacksonUtil.parseString(body, "address");
+        if (orderId == null || orderId == 0) {
+            return ResponseUtil.badArgument();
+        }
+        LitemallOrder order = orderService.findById(orderId);
+        if (order == null) {
+            return ResponseUtil.fail(ORDER_NOT_EXIST, "订单不存在！");
+        }
+        LitemallOrder update = new LitemallOrder();
+        update.setId(orderId);
+        if(!StringUtils.isEmpty(consignee)){
+            update.setConsignee(consignee);
+        }
+        if(!StringUtils.isEmpty(mobile)) {
+            update.setMobile(mobile);
+        }
+        if(!StringUtils.isEmpty(address)) {
+            update.setAddress(address);
+        }
+        orderService.updateById(update);
+        return ResponseUtil.ok();
     }
 }

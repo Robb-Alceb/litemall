@@ -2,3 +2,8 @@ litemall:
   upload:
     max-file-size: 100MB
     max-request-size: 1000MB
+erp:
+  enable: false
+  uri: http:localhost:8083
+  key: lumiere_admin_123
+  secret: lumiere_erp_123

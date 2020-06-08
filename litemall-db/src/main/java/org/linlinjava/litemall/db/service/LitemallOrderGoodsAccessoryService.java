@@ -47,6 +47,13 @@ public class LitemallOrderGoodsAccessoryService {
         return litemallOrderGoodsAccessoryMapper.selectByExample(example);
     }
 
+
+    public List<LitemallOrderGoodsAccessory> findByOrderGoodsId(Integer orderGoodsId) {
+        LitemallOrderGoodsAccessoryExample example = new LitemallOrderGoodsAccessoryExample();
+        example.or().andOrderGoodsIdEqualTo(orderGoodsId).andDeletedEqualTo(false);
+        return litemallOrderGoodsAccessoryMapper.selectByExample(example);
+    }
+
     public List<LitemallOrderGoodsAccessory> findByOrderId(Integer orderId) {
         LitemallOrderGoodsAccessoryExample example = new LitemallOrderGoodsAccessoryExample();
         example.or().andOrderIdEqualTo(orderId);

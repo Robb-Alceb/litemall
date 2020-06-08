@@ -18,4 +18,5 @@ public class GoodsDetailVo {
     private Integer number;
     private BigDecimal price;
     private List<LitemallGoodsSpecification> specifications;
+    private List<AccessoryVo> accessorise;
 }

@@ -15,6 +15,7 @@ import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.web.dto.CartDto;
+import org.linlinjava.litemall.web.vo.AccessoryVo;
 import org.linlinjava.litemall.web.vo.CalculationOrderVo;
 import org.linlinjava.litemall.web.vo.OrderGoodsVo;
 import org.springframework.beans.BeanUtils;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.accessibility.AccessibleRelationSet;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -91,6 +91,10 @@ public class WebOrderService {
     private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
     @Autowired
     private LitemallOrderGoodsAccessoryService litemallOrderGoodsAccessoryService;
+    @Autowired
+    private NoticeHelper noticeHelper;
+    @Autowired
+    private LitemallMerchandiseService litemallMerchandiseService;
 
 
     /**
@@ -209,16 +213,39 @@ public class WebOrderService {
             OrderGoodsVo vo = new OrderGoodsVo();
             BeanUtils.copyProperties(orderGoods, vo);
             vo.setSpecificationList(goodsSpecificationService.queryByIds(orderGoods.getSpecificationIds()));
+            List<LitemallOrderGoodsAccessory> orderGoodsAccessories = litemallOrderGoodsAccessoryService.findByOrderGoodsId(orderGoods.getId());
+
+            //查询辅料
+            if(orderGoodsAccessories != null && orderGoodsAccessories.size() > 0){
+                vo.setAccessoryVos(new ArrayList<>());
+                for(LitemallOrderGoodsAccessory orderGoodsAccessory : orderGoodsAccessories){
+                    LitemallGoodsAccessory goodsAccessory = litemallGoodsAccessoryService.findById(orderGoodsAccessory.getAccessoryId());
+                    if(goodsAccessory != null){
+                        AccessoryVo accessoryVo = new AccessoryVo();
+                        accessoryVo.setSelectNum(orderGoodsAccessory.getNumber());
+                        accessoryVo.setGoodsId(orderGoodsAccessory.getGoodsId());
+                        accessoryVo.setGroupName(goodsAccessory.getGroupName());
+                        accessoryVo.setName(goodsAccessory.getName());
+                        accessoryVo.setPrice(orderGoodsAccessory.getPrice());
+                        LitemallMerchandise merchandise = litemallMerchandiseService.findById(goodsAccessory.getMerchandiseId());
+                        if(merchandise != null){
+                            accessoryVo.setUnit(merchandise.getUnit());
+                        }
+                        vo.getAccessoryVos().add(accessoryVo);
+                    }
+                }
+            }
             vos.add(vo);
         }
         List<LitemallOrderTax> litemallOrderTaxes = litemallOrderTaxService.queryByOrderId(order.getId());
+        Map<String, List<LitemallOrderTax>> taxGroupMap = litemallOrderTaxes.stream().collect(Collectors.groupingBy(LitemallOrderTax::getCode));
 
         List<LitemallOrderCash> orderCashes = litemallOrderCashService.queryByOrderId(orderId);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orderInfo", orderVo);
         result.put("orderGoods", vos);
-        result.put("orderTaxes", litemallOrderTaxes);
+        result.put("orderTaxes", taxGroupMap);
         result.put("orderCash", orderCashes);
 
         // 订单状态为已发货且物流信息不为空
@@ -258,6 +285,10 @@ public class WebOrderService {
             return error;
         }
 
+        /**
+         * 订单商品项
+         */
+        List<LitemallOrderGoods> orderGoodsList = new ArrayList<>();
         /**
          * 订单税费项
          */
@@ -319,13 +350,13 @@ public class WebOrderService {
             }
 
             //  辅料价格
-            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.findByCartId(checkGoods.getId());
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.queryByCartId(checkGoods.getId());
             BigDecimal acceGoodsPrice = new BigDecimal(0.00);
             if(accessories != null){
                 for(LitemallCartGoodsAccessory item : accessories){
                     LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
                     if(accessory != null){
-                        acceGoodsPrice = acceGoodsPrice.add(accessory.getPrice());
+                        acceGoodsPrice = acceGoodsPrice.add(accessory.getPrice().multiply(new BigDecimal(item.getNumber())));
 
                         /**
                          * 记录订单辅料项
@@ -341,7 +372,7 @@ public class WebOrderService {
             }
             logger.debug("WxOrderService [submit] specGoodsPrice is: "+specGoodsPrice.toString());
             logger.debug("WxOrderService [submit] goodsProduct is: "+goodsProduct.getSellPrice().toString());
-            if(goodsProduct.getSellPrice().add(specGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
+            if(goodsProduct.getSellPrice().add(specGoodsPrice).add(acceGoodsPrice).compareTo(checkGoods.getPrice()) != 0){
                 return ResponseUtil.fail(GOODS_PRICE_CHANGE,"商品价格已更新，请重新添加商品");
             }
             checkedGoodsPrice = checkedGoodsPrice.add(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber())));
@@ -367,12 +398,29 @@ public class WebOrderService {
                     orderTax.setName(item.getName());
                     orderTax.setType(item.getType());
                     orderTax.setValue(item.getValue());
+                    orderTax.setGoodsId(checkGoods.getGoodsId());
+                    orderTax.setPrice(tax.multiply(checkGoods.getPrice()));
                     orderTaxes.add(orderTax);
                 }
             }
             //税费 = 商品价格 * 商品数量 * 税率
             taxGoodsPrice = taxGoodsPrice.add(tax.multiply(checkGoods.getPrice().multiply(new BigDecimal(checkGoods.getNumber()))));
 
+            /**
+             * 设置订单商品表单项
+             */
+            LitemallOrderGoods orderGoods = new LitemallOrderGoods();
+            orderGoods.setTaxPrice(tax.multiply(checkGoods.getPrice()));
+            orderGoods.setGoodsId(checkGoods.getGoodsId());
+            orderGoods.setGoodsSn(checkGoods.getGoodsSn());
+            orderGoods.setProductId(checkGoods.getProductId());
+            orderGoods.setGoodsName(checkGoods.getGoodsName());
+            orderGoods.setPicUrl(checkGoods.getPicUrl());
+            orderGoods.setPrice(checkGoods.getGoodsPrice());
+            orderGoods.setNumber(checkGoods.getNumber());
+            orderGoods.setSpecifications(checkGoods.getSpecifications());
+            orderGoods.setSpecificationIds(checkGoods.getSpecificationIds());
+            orderGoodsList.add(orderGoods);
 //            taxGoodsPrice = taxGoodsPrice.add(checkGoods.getTaxPrice());
         }
 
@@ -418,35 +466,31 @@ public class WebOrderService {
         orderId = order.getId();
 
         // 添加订单商品表项
-        for (LitemallCart cartGoods : checkedGoodsList) {
+        for (LitemallOrderGoods orderGoods : orderGoodsList) {
             // 订单商品
-            LitemallOrderGoods orderGoods = new LitemallOrderGoods();
             orderGoods.setOrderId(order.getId());
-            orderGoods.setGoodsId(cartGoods.getGoodsId());
-            orderGoods.setGoodsSn(cartGoods.getGoodsSn());
-            orderGoods.setProductId(cartGoods.getProductId());
-            orderGoods.setGoodsName(cartGoods.getGoodsName());
-            orderGoods.setPicUrl(cartGoods.getPicUrl());
-            orderGoods.setPrice(cartGoods.getPrice());
-            orderGoods.setNumber(cartGoods.getNumber());
-            orderGoods.setSpecifications(cartGoods.getSpecifications());
             orderGoods.setAddTime(LocalDateTime.now());
-            orderGoods.setTaxPrice(cartGoods.getTaxPrice());
-            orderGoods.setSpecificationIds(cartGoods.getSpecificationIds());
-
+            orderGoods.setShopId(shopId);
             orderGoodsService.add(orderGoods);
+
+            // 添加辅料表项
+            for(LitemallOrderGoodsAccessory item: orderGoodsAccessories){
+                if(item.getGoodsId().equals(orderGoods.getGoodsId())){
+                    item.setOrderGoodsId(orderGoods.getId());
+                    item.setOrderId(orderId);
+                    litemallOrderGoodsAccessoryService.add(item);
+                }
+            }
+            // 添加订单税费表项
+            for(LitemallOrderTax item : orderTaxes){
+                if(item.getGoodsId().equals(orderGoods.getGoodsId())) {
+                    item.setOrderGoodsId(orderGoods.getId());
+                    item.setOrderId(order.getId());
+                    litemallOrderTaxService.add(item);
+                }
+            }
         }
 
-        // 添加订单税费表项
-        for(LitemallOrderTax item : orderTaxes){
-            item.setOrderId(order.getId());
-            litemallOrderTaxService.add(item);
-        }
-        // 添加辅料表项
-        for(LitemallOrderGoodsAccessory item: orderGoodsAccessories){
-            item.setOrderId(orderId);
-            litemallOrderGoodsAccessoryService.add(item);
-        }
 
         // 删除购物车里面的商品信息
         if(cartId != null){
@@ -529,6 +573,9 @@ public class WebOrderService {
         orderCash.setAddUserId(userId);
         orderCash.setAddUserName(litemallUserService.findById(userId).getUsername());
         litemallOrderCashService.add(orderCash);
+
+        //发送已支付订单到pos系统，门店开始制作商品
+        noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
         return ResponseUtil.ok();
     }
 

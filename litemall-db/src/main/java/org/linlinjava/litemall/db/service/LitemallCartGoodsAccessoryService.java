@@ -47,32 +47,28 @@ public class LitemallCartGoodsAccessoryService {
         return litemallCartGoodsAccessoryMapper.selectByExample(example);
     }
 
-    public List<LitemallCartGoodsAccessory> findByCartId(Integer cartId) {
+    public List<LitemallCartGoodsAccessory> queryByCartId(Integer cartId) {
         LitemallCartGoodsAccessoryExample example = new LitemallCartGoodsAccessoryExample();
         example.or().andCartIdEqualTo(cartId).andDeletedEqualTo(false);
         return litemallCartGoodsAccessoryMapper.selectByExample(example);
     }
 
 
-    public boolean exist(Integer cartId, Integer id, Integer number) {
+    public boolean exist(Integer cartId, Integer accessoryId, Integer number) {
         LitemallCartGoodsAccessoryExample example = new LitemallCartGoodsAccessoryExample();
-        example.or().andCartIdEqualTo(cartId).andIdEqualTo(id).andNumberEqualTo(number).andDeletedEqualTo(false);
+        example.or().andCartIdEqualTo(cartId).andAccessoryIdEqualTo(accessoryId).andNumberEqualTo(number).andDeletedEqualTo(false);
         return litemallCartGoodsAccessoryMapper.countByExample(example) == 1;
     }
 
-    public List<LitemallCartGoodsAccessory> querySelective(Integer page, Integer size, String sort, String order) {
+    public void deleteByCartIds(List<Integer> cartIds) {
         LitemallCartGoodsAccessoryExample example = new LitemallCartGoodsAccessoryExample();
-        LitemallCartGoodsAccessoryExample.Criteria criteria = example.createCriteria();
-
-
-        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
-            example.setOrderByClause(sort + " " + order);
-        }
-
-        PageHelper.startPage(page, size);
-        return litemallCartGoodsAccessoryMapper.selectByExample(example);
+        example.or().andCartIdIn(cartIds);
+        litemallCartGoodsAccessoryMapper.logicalDeleteByExample(example);
     }
 
-
-
+    public void deleteByCartId(Integer id) {
+        LitemallCartGoodsAccessoryExample example = new LitemallCartGoodsAccessoryExample();
+        example.or().andCartIdEqualTo(id);
+        litemallCartGoodsAccessoryMapper.logicalDeleteByExample(example);
+    }
 }

@@ -19,4 +19,5 @@ public class AccessoryVo {
     private BigDecimal price;
     private String unit;
     private Integer number;
+    private Integer selectNum;
 }

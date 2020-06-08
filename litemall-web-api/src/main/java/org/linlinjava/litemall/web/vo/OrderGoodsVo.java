@@ -34,4 +34,6 @@ public class OrderGoodsVo {
     private Boolean deleted;
     private Integer[] specificationIds;
     private List<LitemallGoodsSpecification> specificationList;
+    private List<AccessoryVo> accessoryVos;
+
 }

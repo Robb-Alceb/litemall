@@ -99,6 +99,13 @@ public class WebScanPayService {
     }
 
 
+    /**
+     *
+     * @param orderId   订单id
+     * @param cardId    卡id
+     * @param userId    持卡人id
+     * @return
+     */
     @Transactional
     public Object cardPay(Integer orderId, Integer cardId, Integer userId) {
         if(orderId == null){
@@ -169,7 +176,7 @@ public class WebScanPayService {
         }
 
 //        notifyService.notifyMail("新订单", order.toString());
-        //发送订单支付成功通知
+        //发送给持卡人订单支付成功通知
         noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn()+"订单支付成功", userId);
         //发送已支付订单到pos系统，门店开始制作商品
         noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
@@ -179,6 +186,12 @@ public class WebScanPayService {
         return ResponseUtil.ok();
     }
 
+    /**
+     *
+     * @param orderId   订单id
+     * @param userId    用户id
+     * @return
+     */
     @Transactional
     public Object balancePay(Integer orderId, Integer userId) {
 

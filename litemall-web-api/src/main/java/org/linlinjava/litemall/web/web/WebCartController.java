@@ -1,25 +1,22 @@
 package org.linlinjava.litemall.web.web;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.linlinjava.litemall.core.system.SystemConfig;
-import org.linlinjava.litemall.core.util.CompareUtils;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
-import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.web.annotation.LogAnno;
 import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.annotation.LoginUser;
 import org.linlinjava.litemall.web.dto.CartDto;
+import org.linlinjava.litemall.web.vo.AccessoryVo;
+import org.linlinjava.litemall.web.vo.CartTaxVo;
+import org.linlinjava.litemall.web.vo.CartVo;
 import org.linlinjava.litemall.web.vo.GoodsDetailVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,6 +66,7 @@ public class WebCartController {
             return ResponseUtil.unlogin();
         }
 
+        List<CartVo> rtn = new ArrayList<>();
         List<LitemallCart> cartList = cartService.queryByUid(userId);
         Integer goodsCount = 0;
         BigDecimal goodsAmount = new BigDecimal(0.00);
@@ -81,6 +79,36 @@ public class WebCartController {
                 checkedGoodsCount += cart.getNumber();
                 checkedGoodsAmount = checkedGoodsAmount.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
             }
+            CartVo vo = new CartVo();
+            BeanUtils.copyProperties(cart, vo);
+
+            /**
+             * 规格价格
+             */
+            BigDecimal specGoodsPrice = new BigDecimal(0.00);
+            if(cart.getSpecificationIds() != null && cart.getSpecificationIds().length > 0){
+                vo.setSpecificationList(new ArrayList<>());
+                for(Integer sid : cart.getSpecificationIds()){
+                    LitemallGoodsSpecification specificationServiceById = specificationService.findById(sid);
+                    vo.getSpecificationList().add(specificationServiceById);
+                    if(specificationServiceById != null){
+                        specGoodsPrice = specGoodsPrice.add(specificationServiceById.getPrice().multiply(new BigDecimal(cart.getNumber())));
+                    }
+                }
+            }
+
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.queryByCartId(cart.getId());
+            if(accessories != null){
+                List<AccessoryVo> collect = accessories.stream().map(item -> {
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    AccessoryVo accessoryVo = new AccessoryVo();
+                    BeanUtils.copyProperties(accessory, accessoryVo);
+                    accessoryVo.setSelectNum(item.getNumber());
+                    return accessoryVo;
+                }).collect(Collectors.toList());
+                vo.setAccessories(collect);
+            }
+            rtn.add(vo);
         }
         Map<String, Object> cartTotal = new HashMap<>();
         cartTotal.put("goodsCount", goodsCount);
@@ -89,7 +117,7 @@ public class WebCartController {
         cartTotal.put("checkedGoodsAmount", checkedGoodsAmount);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("cartList", cartList);
+        result.put("cartList", rtn);
         result.put("cartTotal", cartTotal);
 
         return ResponseUtil.ok(result);
@@ -125,6 +153,8 @@ public class WebCartController {
             return ResponseUtil.badArgument();
         }
 
+        //购物车辅料
+        List<LitemallCartGoodsAccessory> cartGoodsAccessories = new ArrayList<>();
         //判断商品是否可以购买
         LitemallGoods goods = goodsService.findById(goodsId);
         if (goods == null || !goods.getIsOnSale()) {
@@ -134,6 +164,14 @@ public class WebCartController {
         LitemallGoodsProduct product = productService.findById(productId);
         //判断购物车中是否存在此规格商品
         LitemallCart existCart = cartService.queryExist(goodsId, productId, userId, specIds);
+        if(existCart != null && cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
+            for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()){
+                if(!litemallCartGoodsAccessoryService.exist(existCart.getId(), item.getAccessoryId(), item.getNumber())){
+                    existCart = null;
+                    break;
+                }
+            }
+        }
         if (existCart == null) {
             //取得规格的信息,判断规格库存
             if (product == null || number > product.getNumber()) {
@@ -156,13 +194,15 @@ public class WebCartController {
             }
             //辅料价格
             if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
-                List<String> accesstories = new ArrayList<>();
-                List<LitemallGoodsAccessory> litemallGoodsSpecifications = litemallGoodsAccessoryService.queryByIds(cartDto.getCartGoodsAccessoryList().stream().map(LitemallCartGoodsAccessory::getAccessoryId).collect(Collectors.toList()).toArray(new Integer[]{}));
-                for(LitemallGoodsAccessory item : litemallGoodsSpecifications){
-                    sellPrice = sellPrice.add(item.getPrice());
-                    accesstories.add(item.getName());
+                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()){
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    //设置辅料项
+                    item.setGoodsId(accessory.getGoodsId());
+                    item.setAccessoryId(accessory.getId());
+                    item.setPrice(accessory.getPrice());
+                    cartGoodsAccessories.add(item);
+                    sellPrice = sellPrice.add(item.getPrice().multiply(new BigDecimal(item.getNumber())));
                 }
-
             }
             cartDto.setPrice(sellPrice);
             cartDto.setSpecifications(specifications.toArray(new String[]{}));
@@ -170,16 +210,15 @@ public class WebCartController {
             cartDto.setUserId(userId);
 
             LitemallCart cart = new LitemallCart();
+            cart.setGoodsPrice(product.getSellPrice());
             BeanUtils.copyProperties(cartDto, cart);
 
             cartService.add(cart);
-            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
-                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()) {
-                    item.setCartId(cart.getId());
-                    litemallCartGoodsAccessoryService.add(item);
-                }
-
+            for(LitemallCartGoodsAccessory item : cartGoodsAccessories) {
+                item.setCartId(cart.getId());
+                litemallCartGoodsAccessoryService.add(item);
             }
+
         } else {
             //取得规格的信息,判断规格库存
             int num = existCart.getNumber() + number;
@@ -223,6 +262,7 @@ public class WebCartController {
         //减少为0
         if(number == 0){
             cartService.deleteById(id);
+            litemallCartGoodsAccessoryService.deleteByCartId(id);
             return goodscount(userId);
         }
 
@@ -291,6 +331,7 @@ public class WebCartController {
         }
 
         cartService.delete(cartIds, userId);
+        litemallCartGoodsAccessoryService.deleteByCartIds(cartIds);
         return index(userId);
     }
 
@@ -337,6 +378,8 @@ public class WebCartController {
 
         // 商品价格
         List<LitemallCart> checkedGoodsList = new ArrayList<>();
+        // 商品税费
+        List<CartTaxVo> cartTaxVos = new ArrayList<>();
         checkedGoodsList = cartService.queryByUidAndChecked(userId);
 
         Map<String,Object> rtn = new HashMap<>();
@@ -358,13 +401,14 @@ public class WebCartController {
             vo.setId(cart.getId());
             vo.setName(cart.getGoodsName());
             vo.setNumber(cart.getNumber().intValue());
-            vo.setPrice(cart.getPrice());
+            vo.setPrice(cart.getGoodsPrice());
             vo.setSpecifications(new ArrayList<>());
+            vo.setAccessorise(new ArrayList<>());
             /**
-             * 税费和总价
+             * 规格价格
              */
             BigDecimal specGoodsPrice = new BigDecimal(0.00);
-            checkedGoodsPrice = checkedGoodsPrice.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
+            checkedGoodsPrice = checkedGoodsPrice.add(cart.getGoodsPrice().multiply(new BigDecimal(cart.getNumber())));
             if(cart.getSpecificationIds() != null && cart.getSpecificationIds().length > 0){
                 for(Integer sid : cart.getSpecificationIds()){
                     LitemallGoodsSpecification specificationServiceById = specificationService.findById(sid);
@@ -374,7 +418,26 @@ public class WebCartController {
                     }
                 }
             }
-            checkedGoodsPrice = checkedGoodsPrice.add(specGoodsPrice);
+            /**
+             * 辅料价格
+             */
+            BigDecimal acceGoodsPrice = new BigDecimal(0.00);
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.queryByCartId(cart.getId());
+            if(accessories != null){
+                for(LitemallCartGoodsAccessory item : accessories){
+                    acceGoodsPrice = acceGoodsPrice.add(item.getPrice().multiply(new BigDecimal(item.getNumber())));
+                }
+                List<AccessoryVo> collect = accessories.stream().map(item -> {
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    AccessoryVo accessoryVo = new AccessoryVo();
+                    BeanUtils.copyProperties(accessory, accessoryVo);
+                    accessoryVo.setSelectNum(item.getNumber());
+                    return accessoryVo;
+                }).collect(Collectors.toList());
+                vo.setAccessorise(collect);
+            }
+
+            checkedGoodsPrice = checkedGoodsPrice.add(specGoodsPrice).add(acceGoodsPrice);
             list.add(vo);
 
             /**
@@ -389,6 +452,16 @@ public class WebCartController {
                 });
                 if(anyMatch){
                     tax = tax.add(item.getValue().divide(new BigDecimal(100.00)));
+
+                    CartTaxVo cartTaxVo = new CartTaxVo();
+                    cartTaxVo.setCartId(cart.getId());
+                    cartTaxVo.setGoodsId(litemallGoodsProduct.getGoodsId());
+                    cartTaxVo.setCode(item.getCode());
+                    cartTaxVo.setType(item.getType());
+                    cartTaxVo.setName(item.getName());
+                    cartTaxVo.setPrice(item.getValue().divide(new BigDecimal(100.00)).multiply(cart.getPrice()).multiply(new BigDecimal(cart.getNumber())));
+                    cartTaxVo.setValue(item.getValue());
+                    cartTaxVos.add(cartTaxVo);
                 }
             }
             //税费 = 商品价格 * 商品数量 * 税率
@@ -399,8 +472,9 @@ public class WebCartController {
 
         totalPrice = totalPrice.add(checkedGoodsPrice);
 
+        Map<String, List<CartTaxVo>> cartGroupMap = cartTaxVos.stream().collect(Collectors.groupingBy(CartTaxVo::getCode));
         rtn.put("carts", list);
-        rtn.put("taxes", litemallTaxes);
+        rtn.put("taxes", cartGroupMap);
         rtn.put("totalPrice", totalPrice);
         return ResponseUtil.ok(rtn);
 

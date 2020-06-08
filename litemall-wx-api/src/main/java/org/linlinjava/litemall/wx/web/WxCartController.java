@@ -1,9 +1,6 @@
 package org.linlinjava.litemall.wx.web;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.system.SystemConfig;
 import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
@@ -12,8 +9,8 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
-import org.linlinjava.litemall.core.util.CompareUtils;
 import org.linlinjava.litemall.wx.dto.CartDto;
+import org.linlinjava.litemall.wx.vo.AccessoryVo;
 import org.linlinjava.litemall.wx.vo.CartVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +71,7 @@ public class WxCartController {
             return ResponseUtil.unlogin();
         }
 
+        List<CartVo> rtn = new ArrayList<>();
         List<LitemallCart> cartList = cartService.queryByUid(userId);
         Integer goodsCount = 0;
         BigDecimal goodsAmount = new BigDecimal(0.00);
@@ -90,6 +88,21 @@ public class WxCartController {
                 checkedGoodsCount += cart.getNumber();
                 checkedGoodsAmount = checkedGoodsAmount.add(cart.getPrice().multiply(new BigDecimal(cart.getNumber())));
             }
+
+            CartVo vo = new CartVo();
+            BeanUtils.copyProperties(cart, vo);
+            List<LitemallCartGoodsAccessory> accessories = litemallCartGoodsAccessoryService.queryByCartId(cart.getId());
+            if(accessories != null){
+                List<AccessoryVo> collect = accessories.stream().map(item -> {
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    AccessoryVo accessoryVo = new AccessoryVo();
+                    BeanUtils.copyProperties(accessory, accessoryVo);
+                    accessoryVo.setSelectNum(item.getNumber());
+                    return accessoryVo;
+                }).collect(Collectors.toList());
+                vo.setAccessories(collect);
+            }
+            rtn.add(vo);
         }
         Map<String, Object> cartTotal = new HashMap<>();
         cartTotal.put("goodsCount", goodsCount);
@@ -98,7 +111,7 @@ public class WxCartController {
         cartTotal.put("checkedGoodsAmount", checkedGoodsAmount);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("cartList", cartList);
+        result.put("cartList", rtn);
         result.put("cartTotal", cartTotal);
 
         return ResponseUtil.ok(result);
@@ -135,6 +148,8 @@ public class WxCartController {
             return ResponseUtil.badArgument();
         }
 
+        //购物车辅料
+        List<LitemallCartGoodsAccessory> cartGoodsAccessories = new ArrayList<>();
         //判断商品是否可以购买
         LitemallGoods goods = goodsService.findById(goodsId);
         if (goods == null || !goods.getIsOnSale()) {
@@ -176,11 +191,14 @@ public class WxCartController {
             }
             //辅料价格
             if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
-                List<String> accesstories = new ArrayList<>();
-                List<LitemallGoodsAccessory> litemallGoodsSpecifications = litemallGoodsAccessoryService.queryByIds(cartDto.getCartGoodsAccessoryList().stream().map(LitemallCartGoodsAccessory::getAccessoryId).collect(Collectors.toList()).toArray(new Integer[]{}));
-                for(LitemallGoodsAccessory item : litemallGoodsSpecifications){
+                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()){
+                    LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                    //设置辅料项
+                    item.setGoodsId(accessory.getGoodsId());
+                    item.setAccessoryId(accessory.getId());
+                    item.setPrice(accessory.getPrice());
+                    cartGoodsAccessories.add(item);
                     sellPrice = sellPrice.add(item.getPrice());
-                    accesstories.add(item.getName());
                 }
             }
             cartDto.setPrice(sellPrice);
@@ -190,14 +208,12 @@ public class WxCartController {
             cartDto.setChecked(true);
 
             LitemallCart cart = new LitemallCart();
+            cart.setGoodsPrice(product.getSellPrice());
             BeanUtils.copyProperties(cartDto, cart);
             cartService.add(cart);
-            if(cartDto.getCartGoodsAccessoryList() != null && cartDto.getCartGoodsAccessoryList().size() > 0){
-                for(LitemallCartGoodsAccessory item : cartDto.getCartGoodsAccessoryList()) {
-                    item.setCartId(cart.getId());
-                    litemallCartGoodsAccessoryService.add(item);
-                }
-
+            for(LitemallCartGoodsAccessory item : cartGoodsAccessories) {
+                item.setCartId(cart.getId());
+                litemallCartGoodsAccessoryService.add(item);
             }
         } else {
             //取得规格的信息,判断规格库存
@@ -340,6 +356,7 @@ public class WxCartController {
         }
 
         cartService.delete(cartIds, userId);
+        litemallCartGoodsAccessoryService.deleteByCartIds(cartIds);
         return index(userId);
     }
 

@@ -359,7 +359,7 @@ public class WxGoodsController {
 	 */
 	@GetMapping("accessory")
 	@LogAnno
-	public Object accessory(Integer goodsId){
+	public Object accessory(@NotNull Integer goodsId){
 		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
 		LitemallGoods goods = goodsService.findById(goodsId);
 
@@ -370,6 +370,7 @@ public class WxGoodsController {
 			if (mer != null) {
 				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), goods.getShopId());
 				vo.setUnit(mer.getUnit());
+				vo.setSelectNum(0);
 				if (shopMerchandise != null) {
 					vo.setNumber(shopMerchandise.getNumber());
 				} else {
@@ -378,6 +379,8 @@ public class WxGoodsController {
 			}
 			return vo;
 		}).collect(Collectors.toList());
-		return ResponseUtil.ok(collect);
+
+		Map<String, List<AccessoryVo>> rtn = collect.stream().collect(Collectors.groupingBy(AccessoryVo::getGroupName));
+		return ResponseUtil.ok(rtn);
 	}
 }

@@ -16,6 +16,7 @@ public enum WebResponseEnum {
     COUPON_BARCODE_NOT_ENOUGH(700011,"优惠券使用数量已达上限"),
     COUPON_BARCODE_ORDER(700012,"优惠券不能使用，订单金额不够"),
     ORDER_NOT_EXIST(700013,"订单不存在"),
+    ACCESSORY_ENOUGH(700014,"辅料不足"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

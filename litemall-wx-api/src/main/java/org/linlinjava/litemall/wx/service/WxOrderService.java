@@ -29,6 +29,7 @@ import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderHandleOption;
 import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.core.util.IpUtil;
+import org.linlinjava.litemall.wx.bo.OrderGoodsBo;
 import org.linlinjava.litemall.wx.util.LocationUtils;
 import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.linlinjava.litemall.wx.vo.AccessoryVo;
@@ -147,6 +148,8 @@ public class WxOrderService {
     private LitemallOrderGoodsAccessoryService litemallOrderGoodsAccessoryService;
     @Autowired
     private LitemallMerchandiseService litemallMerchandiseService;
+    @Autowired
+    private LitemallShopMerchandiseService litemallShopMerchandiseService;
 //    @Autowired
 //    private LitemallShopGoodsService shopGoodsService;
 
@@ -331,13 +334,13 @@ public class WxOrderService {
         /**
          * 订单商品项
          */
-        List<LitemallOrderGoods> orderGoodsList = new ArrayList<>();
+        List<OrderGoodsBo> orderGoodsList = new ArrayList<>();
         /**
          * 税费
          */
-        List<LitemallOrderTax> orderTaxes = new ArrayList<>();
+//        List<LitemallOrderTax> orderTaxes = new ArrayList<>();
         //辅料
-        List<LitemallOrderGoodsAccessory> orderGoodsAccessories = new ArrayList<>();
+//        List<LitemallOrderGoodsAccessory> orderGoodsAccessories = new ArrayList<>();
         List<Integer> cartIds = JacksonUtil.parseIntegerList(body, "cartIds");
         Integer addressId = JacksonUtil.parseInteger(body, "addressId");
         Integer couponId = JacksonUtil.parseInteger(body, "couponId");
@@ -434,6 +437,11 @@ public class WxOrderService {
         // 商品优惠价格，如会员减免、满减、阶梯价等
         BigDecimal discountPrice = new BigDecimal(0.00);
         for (LitemallCart checkGoods : checkedGoodsList) {
+            //初始化
+            OrderGoodsBo orderGoodsBo = new OrderGoodsBo();
+            orderGoodsBo.setLitemallOrderGoodsAccessories(new ArrayList<>());
+            orderGoodsBo.setLitemallOrderTaxes(new ArrayList<>());
+
             Integer goodsId = checkGoods.getGoodsId();
             LitemallGoods litemallGoods = goodsService.findById(goodsId);
             if(litemallGoods == null){
@@ -470,7 +478,7 @@ public class WxOrderService {
                         orderGoodsAccessory.setAccessoryId(accessory.getId());
                         orderGoodsAccessory.setNumber(item.getNumber());
                         orderGoodsAccessory.setPrice(accessory.getPrice());
-                        orderGoodsAccessories.add(orderGoodsAccessory);
+                        orderGoodsBo.getLitemallOrderGoodsAccessories().add(orderGoodsAccessory);
                     }
                 }
             }
@@ -543,7 +551,7 @@ public class WxOrderService {
                     orderTax.setValue(item.getValue());
                     orderTax.setGoodsId(checkGoods.getGoodsId());
                     orderTax.setPrice(tax.multiply(checkGoods.getPrice()));
-                    orderTaxes.add(orderTax);
+                    orderGoodsBo.getLitemallOrderTaxes().add(orderTax);
                 }
             }
             //税费 = 商品价格 * 商品数量 * 税率
@@ -563,7 +571,8 @@ public class WxOrderService {
             orderGoods.setNumber(checkGoods.getNumber());
             orderGoods.setSpecifications(checkGoods.getSpecifications());
             orderGoods.setSpecificationIds(checkGoods.getSpecificationIds());
-            orderGoodsList.add(orderGoods);
+            orderGoodsBo.setLitemallOrderGoods(orderGoods);
+            orderGoodsList.add(orderGoodsBo);
         }
 
 
@@ -657,29 +666,25 @@ public class WxOrderService {
 
 
         // 添加订单商品表项
-        for (LitemallOrderGoods orderGoods : orderGoodsList) {
+        for (OrderGoodsBo orderGoodsBo : orderGoodsList) {
             // 订单商品
-            orderGoods.setOrderId(order.getId());
-            orderGoods.setAddTime(LocalDateTime.now());
-            orderGoods.setShopId(shopId);
-            orderGoodsService.add(orderGoods);
+            orderGoodsBo.getLitemallOrderGoods().setOrderId(order.getId());
+            orderGoodsBo.getLitemallOrderGoods().setAddTime(LocalDateTime.now());
+            orderGoodsBo.getLitemallOrderGoods().setShopId(shopId);
+            orderGoodsService.add(orderGoodsBo.getLitemallOrderGoods());
 
             // 添加辅料表项
-            for(LitemallOrderGoodsAccessory item: orderGoodsAccessories){
-                if(item.getGoodsId().equals(orderGoods.getGoodsId())){
-                    item.setOrderGoodsId(orderGoods.getId());
-                    item.setOrderId(orderId);
-                    litemallOrderGoodsAccessoryService.add(item);
-                }
+            for(LitemallOrderGoodsAccessory item: orderGoodsBo.getLitemallOrderGoodsAccessories()){
+                item.setOrderGoodsId(orderGoodsBo.getLitemallOrderGoods().getId());
+                item.setOrderId(orderId);
+                litemallOrderGoodsAccessoryService.add(item);
             }
 
             // 添加订单税费表项
-            for(LitemallOrderTax item : orderTaxes) {
-                if(item.getGoodsId().equals(orderGoods.getGoodsId())) {
-                    item.setOrderGoodsId(orderGoods.getId());
-                    item.setOrderId(orderId);
-                    litemallOrderTaxService.add(item);
-                }
+            for(LitemallOrderTax item : orderGoodsBo.getLitemallOrderTaxes()) {
+                item.setOrderGoodsId(orderGoodsBo.getLitemallOrderGoods().getId());
+                item.setOrderId(orderId);
+                litemallOrderTaxService.add(item);
             }
         }
 
@@ -703,6 +708,24 @@ public class WxOrderService {
             }
             if (productService.reduceStock(productId, checkGoods.getNumber()) == 0) {
                 throw new RuntimeException("商品货品库存减少失败");
+            }
+        }
+        // 门店辅料货品数量减少
+        for (OrderGoodsBo orderGoodsBo : orderGoodsList) {
+            for (LitemallOrderGoodsAccessory item : orderGoodsBo.getLitemallOrderGoodsAccessories()) {
+                LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(accessory.getMerchandiseId(), shopId);
+                LitemallShopMerchandise update = new LitemallShopMerchandise();
+                update.setId(shopMerchandise.getId());
+                /**
+                 * 实际减少的数量 = 订单商品数 * 每个商品选择的辅料数量
+                 */
+                Integer remainNumber = shopMerchandise.getNumber() - item.getNumber() * orderGoodsBo.getLitemallOrderGoods().getNumber();
+                if (remainNumber < 0) {
+                    throw new RuntimeException("下单的辅料数量大于库存量");
+                }
+                update.setNumber(shopMerchandise.getNumber() - item.getNumber() * orderGoodsBo.getLitemallOrderGoods().getNumber());
+                litemallShopMerchandiseService.updateById(update);
             }
         }
 

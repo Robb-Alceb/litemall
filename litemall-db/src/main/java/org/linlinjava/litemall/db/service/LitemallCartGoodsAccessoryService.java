@@ -71,4 +71,10 @@ public class LitemallCartGoodsAccessoryService {
         example.or().andCartIdEqualTo(id);
         litemallCartGoodsAccessoryMapper.logicalDeleteByExample(example);
     }
+
+    public int countByCartId(Integer cartId) {
+        LitemallCartGoodsAccessoryExample example = new LitemallCartGoodsAccessoryExample();
+        example.or().andCartIdEqualTo(cartId).andDeletedEqualTo(false);
+        return (int)litemallCartGoodsAccessoryMapper.countByExample(example);
+    }
 }

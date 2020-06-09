@@ -78,7 +78,7 @@ public class WebOrderController {
     }
 
     /**
-     * 支付订单（ipad订单，现金支付或者pos支付），打印订单信息
+     * 支付订单（ipad订单，现金支付），打印订单信息
      * @param userId
      * @param body
      * @return

@@ -2,6 +2,7 @@ package org.linlinjava.litemall.wx.vo;
 
 import lombok.Data;
 import org.linlinjava.litemall.db.domain.LitemallCartGoodsAccessory;
+import org.linlinjava.litemall.db.domain.LitemallGoodsSpecification;
 import org.linlinjava.litemall.db.domain.LitemallTax;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public class CartVo {
     private String goodsName;
     private Integer productId;
     private BigDecimal price;
-    private BigDecimal taxPrice;
+    private BigDecimal goodsPrice;
     private Short number;
     private Integer[] specificationIds;
     private String[] specifications;
@@ -34,5 +35,6 @@ public class CartVo {
     private LocalDateTime updateTime;
     private Boolean deleted;
     private List<LitemallTax> taxes;
+    private List<LitemallGoodsSpecification> specificationList;
     private List<AccessoryVo> accessories;
 }

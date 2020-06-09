@@ -59,6 +59,7 @@ public enum WxResponseEnum {
     NOT_FIND_USER(701003,"用户不存在"),
     UNKOWN_LOCATION(701004,"未知的位置"),
     IS_NULL_CARD_SHARE(701005,"分享不存在"),
+    ACCESSORY_ENOUGH(701006,"辅料不足"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

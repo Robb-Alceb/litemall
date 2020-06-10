@@ -57,7 +57,7 @@ public class LitemallGoodsSpecificationService {
      * @param id
      * @return
      */
-    public Object getSpecificationVoList(Integer id) {
+    public List<VO> getSpecificationVoList(Integer id) {
         List<LitemallGoodsSpecification> goodsSpecificationList = queryByGid(id);
 
         Map<String, VO> map = new HashMap<>();

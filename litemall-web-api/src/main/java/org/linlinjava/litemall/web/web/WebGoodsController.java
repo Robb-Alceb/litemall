@@ -108,7 +108,8 @@ public class WebGoodsController {
 		Callable<List> taxCallable = () -> litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
 
 
-
+		// 商品辅料
+		boolean hasAccessory = litemallGoodsAccessoryService.countByGoodsId(id);
 
 		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
 		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
@@ -124,6 +125,7 @@ public class WebGoodsController {
 
 		try {
 			data.put("info", info);
+			data.put("hasAccessory", hasAccessory);
 			data.put("specificationList", objectCallableTask.get());
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
@@ -133,9 +135,6 @@ public class WebGoodsController {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		//商品分享图片地址
-		data.put("shareImage", info.getShareUrl());
 		return ResponseUtil.ok(data);
 	}
 

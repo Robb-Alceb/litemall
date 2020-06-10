@@ -40,8 +40,8 @@ public class AdminDashbordController {
     @LogAnno
     public Object info(@LoginAdminShopId Integer shopId) {
         int userTotal = userService.count();
-//        int goodsTotal = goodsService.count();
-//        int productTotal = productService.count();
+//        int goodsTotal = goodsService.countByGoodsId();
+//        int productTotal = productService.countByGoodsId();
 //        int orderTotal = orderService.countShop(shopId);
         Map<String, Integer> data = new HashMap<>();
         data.put("userTotal", userTotal);

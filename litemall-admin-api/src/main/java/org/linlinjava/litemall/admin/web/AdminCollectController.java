@@ -51,7 +51,7 @@ public class AdminCollectController {
                        @Order @RequestParam(defaultValue = "desc") String order) {
         List<LitemallCollect> collectList = collectService.querySelective(userId, valueId, page, limit, sort, order);
         List<CollectVo> rtn =  collectList.stream().map(collect->{
-            LitemallGoods goods = goodsService.findById(collect.getValueId());
+            LitemallGoods goods = goodsService.findById(collect.getGoodsId());
             LitemallUser user = userService.findById(collect.getUserId());
             return BeanConvert.toCollectVo(collect,goods != null?goods.getName():null,user!= null?user.getUsername():null);
         }).collect(Collectors.toList());

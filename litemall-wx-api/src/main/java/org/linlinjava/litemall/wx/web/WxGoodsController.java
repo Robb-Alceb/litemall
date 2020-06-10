@@ -11,8 +11,8 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
-import org.linlinjava.litemall.wx.vo.AccessoryVo;
-import org.linlinjava.litemall.wx.vo.GoodsVo;
+import org.linlinjava.litemall.wx.service.WxGoodsSpecificationService;
+import org.linlinjava.litemall.wx.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -23,10 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -62,7 +59,7 @@ public class WxGoodsController {
 	private LitemallSearchHistoryService searchHistoryService;
 
 	@Autowired
-	private LitemallGoodsSpecificationService goodsSpecificationService;
+	private WxGoodsSpecificationService wxGoodsSpecificationService;
 
 	@Autowired
 	private LitemallBrowseRecordService browseRecordService;
@@ -78,6 +75,8 @@ public class WxGoodsController {
 	private LitemallShopMerchandiseService litemallShopMerchandiseService;
 	@Autowired
 	private LitemallMerchandiseService litemallMerchandiseService;
+	@Autowired
+	private LitemallCollectAccessoryService litemallCollectAccessoryService;
 
 	private final static ArrayBlockingQueue<Runnable> WORK_QUEUE = new ArrayBlockingQueue<>(9);
 
@@ -105,7 +104,7 @@ public class WxGoodsController {
 		Callable<List> goodsAttributeListCallable = () -> goodsAttributeService.queryByGid(id);
 
 		// 商品规格 返回的是定制的GoodsSpecificationVo
-		Callable<Object> objectCallable = () -> goodsSpecificationService.getSpecificationVoList(id);
+		Callable<List<GoodsGroupSpecificationVo>> objectCallable = () -> wxGoodsSpecificationService.getSpecificationVoList(id);
 
 		// 商品规格对应的数量和价格
 		Callable<List> productListCallable = () -> productService.queryByGid(id);
@@ -119,11 +118,9 @@ public class WxGoodsController {
 		// 商品税费
 		Callable<List> taxCallable = () -> litemallTaxService.queryByRegionIds(shopRegions.stream().map(LitemallShopRegion::getRegionId).collect(Collectors.toList()));
 
-		// 用户收藏
-		int userHasCollect = 0;
-		if (userId != null) {
-			userHasCollect = collectService.count(userId, id);
-		}
+		// 商品辅料
+		boolean hasAccessory = litemallGoodsAccessoryService.countByGoodsId(id);
+
 
 		// 记录用户的足迹 异步处理
 		if (userId != null) {
@@ -146,7 +143,7 @@ public class WxGoodsController {
 		});
 
 		FutureTask<List> goodsAttributeListTask = new FutureTask<>(goodsAttributeListCallable);
-		FutureTask<Object> objectCallableTask = new FutureTask<>(objectCallable);
+		FutureTask<List<GoodsGroupSpecificationVo>> objectCallableTask = new FutureTask<>(objectCallable);
 		FutureTask<List> productListCallableTask = new FutureTask<>(productListCallable);
 		FutureTask<List> taxCallableTask = new FutureTask<>(taxCallable);
 //		FutureTask<List> accessoryCallableTask = new FutureTask<>(accessoryListCallable);
@@ -160,9 +157,41 @@ public class WxGoodsController {
 		Map<String, Object> data = new HashMap<>();
 
 		try {
+			List<GoodsGroupSpecificationVo> specificationList = objectCallableTask.get();
+			// 用户收藏
+			int userHasCollect = 0;
+			if (userId != null) {
+				LitemallCollect litemallCollect = collectService.queryByGoodsId(userId, id);
+				if(litemallCollect != null){
+					userHasCollect ++ ;		//已收藏
+					//设置默认选择规格
+					if(specificationList != null){
+						for(GoodsGroupSpecificationVo goodsGroupSpecificationVo : specificationList){
+							if(goodsGroupSpecificationVo.getValueList() != null){
+								for(GoodsSpecificationVo goodsSpecificationVo : goodsGroupSpecificationVo.getValueList()){
+									boolean anyMatch = Arrays.stream(litemallCollect.getSpecificationIds()).anyMatch(i -> {
+										return i.equals(goodsSpecificationVo.getId());
+									});
+									if(anyMatch){
+										goodsSpecificationVo.setSelected(true);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(userHasCollect == 0){
+				for(GoodsGroupSpecificationVo goodsGroupSpecificationVo : specificationList){
+					if(goodsGroupSpecificationVo.getValueList() != null && goodsGroupSpecificationVo.getValueList().size() > 0){
+						goodsGroupSpecificationVo.getValueList().get(1).setSelected(true);
+					}
+				}
+			}
 			data.put("info", info);
 			data.put("userHasCollect", userHasCollect);
-			data.put("specificationList", objectCallableTask.get());
+			data.put("hasAccessory", hasAccessory);
+			data.put("specificationList", specificationList);
 			data.put("productList", productListCallableTask.get());
 			data.put("attribute", goodsAttributeListTask.get());
 			data.put("taxes", taxCallableTask.get());
@@ -359,9 +388,21 @@ public class WxGoodsController {
 	 */
 	@GetMapping("accessory")
 	@LogAnno
-	public Object accessory(@NotNull Integer goodsId){
+	public Object accessory(@LoginUser Integer userId, @NotNull Integer goodsId){
 		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
 		LitemallGoods goods = goodsService.findById(goodsId);
+
+		/**
+		 * 判断是否收藏
+		 */
+		LitemallCollect litemallCollect = null;
+		if(userId != null){
+			litemallCollect = collectService.queryByGoodsId(userId, goodsId);
+		}
+		List<LitemallCollectAccessory> litemallCollectAccessories = new ArrayList<>();
+		if(litemallCollect != null){
+			litemallCollectAccessories.addAll(litemallCollectAccessoryService.queryByCollectId(litemallCollect.getId()));
+		}
 
 		List<AccessoryVo> collect = accessories.stream().map(accessory -> {
 			AccessoryVo vo = new AccessoryVo();
@@ -370,7 +411,19 @@ public class WxGoodsController {
 			if (mer != null) {
 				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), goods.getShopId());
 				vo.setUnit(mer.getUnit());
+
+				/**
+				 * 设置默认选中数量
+				 */
 				vo.setSelectNum(0);
+				if(litemallCollectAccessories.size() > 0){
+					LitemallCollectAccessory findObj = litemallCollectAccessories.stream().filter(item -> {
+						return item.getAccessoryId().equals(accessory.getId());
+					}).findFirst().orElse(null);
+					if(findObj != null){
+						vo.setSelectNum(findObj.getNumber());
+					}
+				}
 				if (shopMerchandise != null) {
 					vo.setNumber(shopMerchandise.getNumber());
 				} else {
@@ -380,7 +433,13 @@ public class WxGoodsController {
 			return vo;
 		}).collect(Collectors.toList());
 
-		Map<String, List<AccessoryVo>> rtn = collect.stream().collect(Collectors.groupingBy(AccessoryVo::getGroupName));
+		List<AccessoryGroupVo> rtn = new ArrayList<>();
+		collect.stream().collect(Collectors.groupingBy(AccessoryVo::getGroupName)).forEach((k,v)->{
+			AccessoryGroupVo vo = new AccessoryGroupVo();
+			vo.setName(k);
+			vo.setAccessoryVos(v);
+			rtn.add(vo);
+		});
 		return ResponseUtil.ok(rtn);
 	}
 }

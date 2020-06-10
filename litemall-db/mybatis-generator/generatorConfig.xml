@@ -406,6 +406,17 @@
             <columnOverride column="specifications" javaType="java.lang.String[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler"/>
         </table>-->
+<!--        <table tableName="litemall_collect">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <columnOverride column="specification_ids" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+            <columnOverride column="accessory_ids" javaType="java.lang.Integer[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+        </table>-->
+
+        <table tableName="litemall_collect_accessory">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
 
     </context>
 </generatorConfiguration>

@@ -1,6 +1,8 @@
 package org.linlinjava.litemall.web.web;
 
 import org.linlinjava.litemall.core.util.ResponseUtil;
+import org.linlinjava.litemall.web.annotation.LogAnno;
+import org.linlinjava.litemall.web.annotation.LoginShop;
 import org.linlinjava.litemall.web.dto.CouponDto;
 import org.linlinjava.litemall.web.service.WebCouponService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ public class WebCouponController {
     private WebCouponService webCouponService;
 
     @PostMapping("/use")
+    @LogAnno
     public Object use(@RequestBody @Valid CouponDto dto){
         return ResponseUtil.ok(webCouponService.use(dto));
     }

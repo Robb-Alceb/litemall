@@ -72,4 +72,10 @@ public class LitemallGoodsAccessoryService {
         example.or().andIdIn(Arrays.asList(acceIds)).andDeletedEqualTo(false);
         return litemallGoodsAccessoryMapper.selectByExample(example);
     }
+
+    public boolean countByGoodsId(Integer goodsId) {
+        LitemallGoodsAccessoryExample example = new LitemallGoodsAccessoryExample();
+        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        return litemallGoodsAccessoryMapper.countByExample(example) >= 1;
+    }
 }

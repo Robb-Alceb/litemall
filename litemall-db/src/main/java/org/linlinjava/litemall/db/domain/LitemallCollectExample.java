@@ -1,6 +1,5 @@
 package org.linlinjava.litemall.db.domain;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -223,19 +222,75 @@ public class LitemallCollectExample {
      * @mbg.generated
      */
     protected abstract static class GeneratedCriteria {
+        protected List<Criterion> specificationIdsCriteria;
+
+        protected List<Criterion> accessoryIdsCriteria;
+
+        protected List<Criterion> allCriteria;
+
         protected List<Criterion> criteria;
 
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
+            specificationIdsCriteria = new ArrayList<Criterion>();
+            accessoryIdsCriteria = new ArrayList<Criterion>();
+        }
+
+        public List<Criterion> getSpecificationIdsCriteria() {
+            return specificationIdsCriteria;
+        }
+
+        protected void addSpecificationIdsCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            specificationIdsCriteria.add(new Criterion(condition, value, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addSpecificationIdsCriterion(String condition, Integer[] value1, Integer[] value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            specificationIdsCriteria.add(new Criterion(condition, value1, value2, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        public List<Criterion> getAccessoryIdsCriteria() {
+            return accessoryIdsCriteria;
+        }
+
+        protected void addAccessoryIdsCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            accessoryIdsCriteria.add(new Criterion(condition, value, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addAccessoryIdsCriterion(String condition, Integer[] value1, Integer[] value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            accessoryIdsCriteria.add(new Criterion(condition, value1, value2, "org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"));
+            allCriteria = null;
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return criteria.size() > 0
+                || specificationIdsCriteria.size() > 0
+                || accessoryIdsCriteria.size() > 0;
         }
 
         public List<Criterion> getAllCriteria() {
-            return criteria;
+            if (allCriteria == null) {
+                allCriteria = new ArrayList<Criterion>();
+                allCriteria.addAll(criteria);
+                allCriteria.addAll(specificationIdsCriteria);
+                allCriteria.addAll(accessoryIdsCriteria);
+            }
+            return allCriteria;
         }
 
         public List<Criterion> getCriteria() {
@@ -247,6 +302,7 @@ public class LitemallCollectExample {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value, String property) {
@@ -254,6 +310,7 @@ public class LitemallCollectExample {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value1, Object value2, String property) {
@@ -261,6 +318,7 @@ public class LitemallCollectExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+            allCriteria = null;
         }
 
         public Criteria andIdIsNull() {
@@ -515,34 +573,18 @@ public class LitemallCollectExample {
             return (Criteria) this;
         }
 
-        public Criteria andValueIdIsNull() {
-            addCriterion("value_id is null");
+        public Criteria andGoodsIdIsNull() {
+            addCriterion("goods_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andValueIdIsNotNull() {
-            addCriterion("value_id is not null");
+        public Criteria andGoodsIdIsNotNull() {
+            addCriterion("goods_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andValueIdEqualTo(Integer value) {
-            addCriterion("value_id =", value, "valueId");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andValueIdEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id = ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdNotEqualTo(Integer value) {
-            addCriterion("value_id <>", value, "valueId");
+        public Criteria andGoodsIdEqualTo(Integer value) {
+            addCriterion("goods_id =", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -552,29 +594,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andValueIdNotEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id <> ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id = ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andValueIdGreaterThan(Integer value) {
-            addCriterion("value_id >", value, "valueId");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andValueIdGreaterThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id > ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdGreaterThanOrEqualTo(Integer value) {
-            addCriterion("value_id >=", value, "valueId");
+        public Criteria andGoodsIdNotEqualTo(Integer value) {
+            addCriterion("goods_id <>", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -584,29 +610,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andValueIdGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id >= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdNotEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id <> ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andValueIdLessThan(Integer value) {
-            addCriterion("value_id <", value, "valueId");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andValueIdLessThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id < ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdLessThanOrEqualTo(Integer value) {
-            addCriterion("value_id <=", value, "valueId");
+        public Criteria andGoodsIdGreaterThan(Integer value) {
+            addCriterion("goods_id >", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -616,43 +626,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andValueIdLessThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("value_id <= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdGreaterThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id > ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andValueIdIn(List<Integer> values) {
-            addCriterion("value_id in", values, "valueId");
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdNotIn(List<Integer> values) {
-            addCriterion("value_id not in", values, "valueId");
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdBetween(Integer value1, Integer value2) {
-            addCriterion("value_id between", value1, value2, "valueId");
-            return (Criteria) this;
-        }
-
-        public Criteria andValueIdNotBetween(Integer value1, Integer value2) {
-            addCriterion("value_id not between", value1, value2, "valueId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIsNull() {
-            addCriterion("`type` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeIsNotNull() {
-            addCriterion("`type` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeEqualTo(Byte value) {
-            addCriterion("`type` =", value, "type");
+        public Criteria andGoodsIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("goods_id >=", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -662,29 +642,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andTypeEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` = ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id >= ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTypeNotEqualTo(Byte value) {
-            addCriterion("`type` <>", value, "type");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andTypeNotEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` <> ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeGreaterThan(Byte value) {
-            addCriterion("`type` >", value, "type");
+        public Criteria andGoodsIdLessThan(Integer value) {
+            addCriterion("goods_id <", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -694,29 +658,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andTypeGreaterThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` > ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdLessThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id < ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTypeGreaterThanOrEqualTo(Byte value) {
-            addCriterion("`type` >=", value, "type");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andTypeGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` >= ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andTypeLessThan(Byte value) {
-            addCriterion("`type` <", value, "type");
+        public Criteria andGoodsIdLessThanOrEqualTo(Integer value) {
+            addCriterion("goods_id <=", value, "goodsId");
             return (Criteria) this;
         }
 
@@ -726,59 +674,43 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andTypeLessThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` < ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdLessThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("goods_id <= ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andTypeLessThanOrEqualTo(Byte value) {
-            addCriterion("`type` <=", value, "type");
+        public Criteria andGoodsIdIn(List<Integer> values) {
+            addCriterion("goods_id in", values, "goodsId");
             return (Criteria) this;
         }
 
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andTypeLessThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("`type` <= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andGoodsIdNotIn(List<Integer> values) {
+            addCriterion("goods_id not in", values, "goodsId");
             return (Criteria) this;
         }
 
-        public Criteria andTypeIn(List<Byte> values) {
-            addCriterion("`type` in", values, "type");
+        public Criteria andGoodsIdBetween(Integer value1, Integer value2) {
+            addCriterion("goods_id between", value1, value2, "goodsId");
             return (Criteria) this;
         }
 
-        public Criteria andTypeNotIn(List<Byte> values) {
-            addCriterion("`type` not in", values, "type");
+        public Criteria andGoodsIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("goods_id not between", value1, value2, "goodsId");
             return (Criteria) this;
         }
 
-        public Criteria andTypeBetween(Byte value1, Byte value2) {
-            addCriterion("`type` between", value1, value2, "type");
+        public Criteria andSpecificationIdsIsNull() {
+            addCriterion("specification_ids is null");
             return (Criteria) this;
         }
 
-        public Criteria andTypeNotBetween(Byte value1, Byte value2) {
-            addCriterion("`type` not between", value1, value2, "type");
+        public Criteria andSpecificationIdsIsNotNull() {
+            addCriterion("specification_ids is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAddTimeIsNull() {
-            addCriterion("add_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeIsNotNull() {
-            addCriterion("add_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeEqualTo(LocalDateTime value) {
-            addCriterion("add_time =", value, "addTime");
+        public Criteria andSpecificationIdsEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids =", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -788,29 +720,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andAddTimeEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time = ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids = ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andAddTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("add_time <>", value, "addTime");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andAddTimeNotEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time <> ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeGreaterThan(LocalDateTime value) {
-            addCriterion("add_time >", value, "addTime");
+        public Criteria andSpecificationIdsNotEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <>", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -820,29 +736,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andAddTimeGreaterThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time > ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsNotEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids <> ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andAddTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("add_time >=", value, "addTime");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andAddTimeGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time >= ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeLessThan(LocalDateTime value) {
-            addCriterion("add_time <", value, "addTime");
+        public Criteria andSpecificationIdsGreaterThan(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids >", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -852,59 +752,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andAddTimeLessThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time < ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsGreaterThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids > ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andAddTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("add_time <=", value, "addTime");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andAddTimeLessThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("add_time <= ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeIn(List<LocalDateTime> values) {
-            addCriterion("add_time in", values, "addTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("add_time not in", values, "addTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("add_time between", value1, value2, "addTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andAddTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("add_time not between", value1, value2, "addTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andUpdateTimeIsNull() {
-            addCriterion("update_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andUpdateTimeIsNotNull() {
-            addCriterion("update_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andUpdateTimeEqualTo(LocalDateTime value) {
-            addCriterion("update_time =", value, "updateTime");
+        public Criteria andSpecificationIdsGreaterThanOrEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids >=", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -914,29 +768,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andUpdateTimeEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time = ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids >= ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("update_time <>", value, "updateTime");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andUpdateTimeNotEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time <> ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andUpdateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("update_time >", value, "updateTime");
+        public Criteria andSpecificationIdsLessThan(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -946,29 +784,13 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andUpdateTimeGreaterThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time > ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsLessThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids < ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time >=", value, "updateTime");
-            return (Criteria) this;
-        }
-
-        /**
-         * This method was generated by MyBatis Generator.
-         * This method corresponds to the database table litemall_collect
-         *
-         * @mbg.generated
-         */
-        public Criteria andUpdateTimeGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time >= ").append(column.getEscapedColumnName()).toString());
-            return (Criteria) this;
-        }
-
-        public Criteria andUpdateTimeLessThan(LocalDateTime value) {
-            addCriterion("update_time <", value, "updateTime");
+        public Criteria andSpecificationIdsLessThanOrEqualTo(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids <=", value, "specificationIds");
             return (Criteria) this;
         }
 
@@ -978,13 +800,53 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andUpdateTimeLessThanColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time < ").append(column.getEscapedColumnName()).toString());
+        public Criteria andSpecificationIdsLessThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("specification_ids <= ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time <=", value, "updateTime");
+        public Criteria andSpecificationIdsLike(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids like", value, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotLike(Integer[] value) {
+            addSpecificationIdsCriterion("specification_ids not like", value, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsIn(List<Integer[]> values) {
+            addSpecificationIdsCriterion("specification_ids in", values, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotIn(List<Integer[]> values) {
+            addSpecificationIdsCriterion("specification_ids not in", values, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsBetween(Integer[] value1, Integer[] value2) {
+            addSpecificationIdsCriterion("specification_ids between", value1, value2, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andSpecificationIdsNotBetween(Integer[] value1, Integer[] value2) {
+            addSpecificationIdsCriterion("specification_ids not between", value1, value2, "specificationIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsIsNull() {
+            addCriterion("accessory_ids is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsIsNotNull() {
+            addCriterion("accessory_ids is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsEqualTo(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids =", value, "accessoryIds");
             return (Criteria) this;
         }
 
@@ -994,28 +856,118 @@ public class LitemallCollectExample {
          *
          * @mbg.generated
          */
-        public Criteria andUpdateTimeLessThanOrEqualToColumn(LitemallCollect.Column column) {
-            addCriterion(new StringBuilder("update_time <= ").append(column.getEscapedColumnName()).toString());
+        public Criteria andAccessoryIdsEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids = ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeIn(List<LocalDateTime> values) {
-            addCriterion("update_time in", values, "updateTime");
+        public Criteria andAccessoryIdsNotEqualTo(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids <>", value, "accessoryIds");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("update_time not in", values, "updateTime");
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_collect
+         *
+         * @mbg.generated
+         */
+        public Criteria andAccessoryIdsNotEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids <> ").append(column.getEscapedColumnName()).toString());
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time between", value1, value2, "updateTime");
+        public Criteria andAccessoryIdsGreaterThan(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids >", value, "accessoryIds");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time not between", value1, value2, "updateTime");
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_collect
+         *
+         * @mbg.generated
+         */
+        public Criteria andAccessoryIdsGreaterThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids > ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsGreaterThanOrEqualTo(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids >=", value, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_collect
+         *
+         * @mbg.generated
+         */
+        public Criteria andAccessoryIdsGreaterThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids >= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsLessThan(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids <", value, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_collect
+         *
+         * @mbg.generated
+         */
+        public Criteria andAccessoryIdsLessThanColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids < ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsLessThanOrEqualTo(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids <=", value, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        /**
+         * This method was generated by MyBatis Generator.
+         * This method corresponds to the database table litemall_collect
+         *
+         * @mbg.generated
+         */
+        public Criteria andAccessoryIdsLessThanOrEqualToColumn(LitemallCollect.Column column) {
+            addCriterion(new StringBuilder("accessory_ids <= ").append(column.getEscapedColumnName()).toString());
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsLike(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids like", value, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsNotLike(Integer[] value) {
+            addAccessoryIdsCriterion("accessory_ids not like", value, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsIn(List<Integer[]> values) {
+            addAccessoryIdsCriterion("accessory_ids in", values, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsNotIn(List<Integer[]> values) {
+            addAccessoryIdsCriterion("accessory_ids not in", values, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsBetween(Integer[] value1, Integer[] value2) {
+            addAccessoryIdsCriterion("accessory_ids between", value1, value2, "accessoryIds");
+            return (Criteria) this;
+        }
+
+        public Criteria andAccessoryIdsNotBetween(Integer[] value1, Integer[] value2) {
+            addAccessoryIdsCriterion("accessory_ids not between", value1, value2, "accessoryIds");
             return (Criteria) this;
         }
 

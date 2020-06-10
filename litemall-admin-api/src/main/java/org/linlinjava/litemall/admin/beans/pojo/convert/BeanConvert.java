@@ -62,12 +62,9 @@ public class BeanConvert {
     public static CollectVo toCollectVo(LitemallCollect litemallCollect, String goodsName, String userName){
         CollectVo vo = new CollectVo();
         vo.setId(litemallCollect.getId());
-        vo.setAddTime(litemallCollect.getAddTime());
-        vo.setType(litemallCollect.getType());
-        vo.setUpdateTime(litemallCollect.getUpdateTime());
         vo.setUserId(litemallCollect.getUserId());
         vo.setUserName(userName);
-        vo.setValueId(litemallCollect.getValueId());
+        vo.setValueId(litemallCollect.getGoodsId());
         vo.setValueName(goodsName);
         return vo;
     }

@@ -141,6 +141,7 @@ public class WebOrderService {
             orderVo.put("orderType", o.getOrderType());
             orderVo.put("updateTime", o.getUpdateTime());
             orderVo.put("payType", o.getPayType());
+            orderVo.put("couponPrice", o.getCouponPrice());
 
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
             if (groupon != null) {

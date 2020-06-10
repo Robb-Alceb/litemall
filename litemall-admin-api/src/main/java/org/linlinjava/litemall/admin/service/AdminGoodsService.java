@@ -45,8 +45,6 @@ public class AdminGoodsService {
     @Autowired
     private LitemallCategoryService categoryService;
     @Autowired
-    private LitemallBrandService brandService;
-    @Autowired
     private LitemallOrderGoodsService orderGoodsService;
     @Autowired
     private QCodeService qCodeService;
@@ -93,13 +91,6 @@ public class AdminGoodsService {
         String goodsSn = goods.getGoodsSn();
         if (StringUtils.isEmpty(goodsSn)) {
             return ResponseUtil.badArgument();
-        }
-        // 品牌商可以不设置，如果设置则需要验证品牌商存在
-        Integer brandId = goods.getBrandId();
-        if (brandId != null && brandId != 0) {
-            if (brandService.findById(brandId) == null) {
-                return ResponseUtil.badArgumentValue();
-            }
         }
         // 分类可以不设置，如果设置则需要验证分类存在
         Integer categoryId = goods.getCategoryId();
@@ -447,20 +438,9 @@ public class AdminGoodsService {
             categoryList.add(l1CatVo);
         }
 
-        // http://element-cn.eleme.io/#/zh-CN/component/select
-        // 管理员设置“所属品牌商”
-        List<LitemallBrand> list = brandService.all();
-        List<Map<String, Object>> brandList = new ArrayList<>(l1CatList.size());
-        for (LitemallBrand brand : list) {
-            Map<String, Object> b = new HashMap<>(2);
-            b.put("value", brand.getId());
-            b.put("label", brand.getName());
-            brandList.add(b);
-        }
 
         Map<String, Object> data = new HashMap<>();
         data.put("categoryList", categoryList);
-        data.put("brandList", brandList);
         return ResponseUtil.ok(data);
     }
 

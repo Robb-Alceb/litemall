@@ -40,16 +40,7 @@ public class WxHomeController {
     private LitemallGoodsService goodsService;
 
     @Autowired
-    private LitemallBrandService brandService;
-
-    @Autowired
-    private LitemallTopicService topicService;
-
-    @Autowired
     private LitemallCategoryService categoryService;
-
-    @Autowired
-    private WxGrouponRuleService grouponService;
 
     @Autowired
     private LitemallCouponService couponService;

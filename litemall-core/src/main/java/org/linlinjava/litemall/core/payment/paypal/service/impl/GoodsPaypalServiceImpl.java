@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.notify.AwsNotifyService;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
 import org.linlinjava.litemall.core.notify.NotifyService;
-import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.core.payment.DefaultCurType;
 import org.linlinjava.litemall.core.payment.PaymentResponseCode;
 import org.linlinjava.litemall.core.payment.paypal.service.PaypalService;
@@ -22,10 +21,7 @@ import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentIntent;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentMethod;
 import org.linlinjava.litemall.core.payment.paypal.config.PaypalPaymentState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -55,7 +51,7 @@ public class GoodsPaypalServiceImpl implements PaypalService {
     @Autowired
     private NoticeHelper noticeHelper;
     @Autowired
-    private LitemallMsgService litemallMsgService;
+    private LitemallNoticeService litemallMsgService;
     @Autowired
     private LitemallOrderGoodsService litemallOrderGoodsService;
     @Autowired

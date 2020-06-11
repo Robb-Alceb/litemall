@@ -414,9 +414,12 @@
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
         </table>-->
 
-        <table tableName="litemall_collect_accessory">
+<!--        <table tableName="litemall_collect_accessory">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>-->
+
+        <table tableName="litemall_notice">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
-
     </context>
 </generatorConfiguration>

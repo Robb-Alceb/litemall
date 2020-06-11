@@ -230,7 +230,7 @@ public class WxGiftCardService {
         litemallGiftCardShareService.add(share);
         log(share.getCardNumber(), Constants.LOG_GIFTCARD_SHARE, "分享礼物卡",userId);
 
-        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+share.getCardNumber()+"分享成功", userId);
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER,"卡分享", "礼物卡"+share.getCardNumber()+"分享成功", userId, share);
 
         return ResponseUtil.ok(share);
     }
@@ -250,7 +250,7 @@ public class WxGiftCardService {
         shareCard.setActiveTime(LocalDateTime.now());
         litemallGiftCardShareService.update(shareCard);
         log(shareCard.getCardNumber(), Constants.LOG_GIFTCARD_SHARE, "取消分享礼物卡",userId);
-        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+shareCard.getCardNumber()+"取消分享", userId);
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER,"卡取消分享", "礼物卡"+shareCard.getCardNumber()+"取消分享", userId, shareCard);
         return ResponseUtil.ok(shareCard);
     }
 
@@ -312,7 +312,7 @@ public class WxGiftCardService {
 
         log(share.getCardNumber(), Constants.LOG_GIFTCARD_PICK, "领取礼物卡",userId);
 
-        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER, "礼物卡"+share.getCardNumber()+"被领取", share.getUserId());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_OTHER,"卡被领取", "礼物卡"+share.getCardNumber()+"被领取", share.getUserId(),share);
         return ResponseUtil.ok(cardUser);
     }
 

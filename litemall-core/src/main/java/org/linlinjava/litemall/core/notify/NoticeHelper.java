@@ -5,9 +5,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.core.notify.jpush.JpushConfig;
 import org.linlinjava.litemall.core.notify.netty.PushService;
-import org.linlinjava.litemall.db.domain.LitemallMsg;
-import org.linlinjava.litemall.db.service.LitemallMsgService;
-import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.domain.LitemallNotice;
+import org.linlinjava.litemall.db.domain.LitemallNoticeWithBLOBs;
+import org.linlinjava.litemall.db.service.LitemallNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class NoticeHelper {
     private Log log = LogFactory.getLog(NoticeHelper.class);
     @Autowired
-    private LitemallMsgService litemallMsgService;
+    private LitemallNoticeService litemallMsgService;
     @Autowired
     private PushService pushService;
     @Autowired
@@ -46,14 +46,14 @@ public class NoticeHelper {
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeUser(Byte type, String content, Integer userId) {
-        noticeUser(type, "", content, null, userId, true);
+    public void noticeUser(Byte type, String content, Integer userId, Object extend) {
+        noticeUser(type, "", content, null, userId, true, extend);
     }
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeUser(Byte type, String title, String content, Integer userId) {
-        noticeUser(type, title, content, null, userId, true);
+    public void noticeUser(Byte type, String title, String content, Integer userId, Object extend) {
+        noticeUser(type, title, content, null, userId, true, extend);
     }
 
     /**
@@ -66,16 +66,19 @@ public class NoticeHelper {
      */
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeUser(Byte type, String title, String content, String link, Integer userId, boolean isSave) {
+    public void noticeUser(Byte type, String title, String content, String link, Integer userId, boolean isSave, Object extend) {
 
 
         //保存消息
-        LitemallMsg msg = new LitemallMsg();
+        LitemallNoticeWithBLOBs msg = new LitemallNoticeWithBLOBs();
         msg.setContent(content);
         msg.setUserId(userId);
         msg.setType(type);
         msg.setLink(link);
         msg.setTitle(title);
+        if(extend != null){
+            msg.setExtend(JSON.toJSONString(extend));
+        }
 
         log.info("noticeUser param is :" + msg.toString());
         //推送消息
@@ -90,9 +93,8 @@ public class NoticeHelper {
 
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeAll(Byte type, String content, String title) {
-        noticeAll(type, content, title, null);
-
+    public void noticeAll(Byte type, String content, String title, Object extend) {
+        noticeAll(type, content, title, null, extend);
     }
 
     /**
@@ -104,13 +106,16 @@ public class NoticeHelper {
      */
     @Async
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void noticeAll(Byte type, String content, String title, String link) {
+    public void noticeAll(Byte type, String content, String title, String link, Object extend) {
         //保存消息
-        LitemallMsg msg = new LitemallMsg();
+        LitemallNoticeWithBLOBs msg = new LitemallNoticeWithBLOBs();
         msg.setContent(content);
         msg.setType(type);
         msg.setLink(link);
         msg.setTitle(title);
+        if(extend != null){
+            msg.setExtend(JSON.toJSONString(extend));
+        }
 
         log.info("noticeUser param is :" + msg.toString());
         //推送消息
@@ -126,13 +131,16 @@ public class NoticeHelper {
      * @param title
      * @param link
      */
-    public void noticeAllIos(Byte type, String content, String title, String link) {
+    public void noticeAllIos(Byte type, String content, String title, String link, Object extend) {
         //保存消息
-        LitemallMsg msg = new LitemallMsg();
+        LitemallNoticeWithBLOBs msg = new LitemallNoticeWithBLOBs();
         msg.setContent(content);
         msg.setType(type);
         msg.setLink(link);
         msg.setTitle(title);
+        if(extend != null){
+            msg.setExtend(JSON.toJSONString(extend));
+        }
 
         log.info("noticeUser param is :" + msg.toString());
         //推送消息
@@ -148,13 +156,16 @@ public class NoticeHelper {
      * @param title
      * @param link
      */
-    public void noticeAllAndroid(Byte type, String content, String title, String link) {
+    public void noticeAllAndroid(Byte type, String content, String title, String link, Object extend) {
         //保存消息
-        LitemallMsg msg = new LitemallMsg();
+        LitemallNoticeWithBLOBs msg = new LitemallNoticeWithBLOBs();
         msg.setContent(content);
         msg.setType(type);
         msg.setLink(link);
         msg.setTitle(title);
+        if(extend != null){
+            msg.setExtend(JSON.toJSONString(extend));
+        }
 
         log.info("noticeUser param is :" + msg.toString());
         //推送消息

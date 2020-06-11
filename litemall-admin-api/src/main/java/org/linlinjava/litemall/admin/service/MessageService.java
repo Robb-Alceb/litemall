@@ -1,19 +1,17 @@
 package org.linlinjava.litemall.admin.service;
 
-import io.netty.channel.Channel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.MessageDto;
 import org.linlinjava.litemall.core.notify.NoticeHelper;
-import org.linlinjava.litemall.core.notify.netty.NettyConfig;
 import org.linlinjava.litemall.core.notify.netty.PushService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.LitemallMessageReceiverService;
 import org.linlinjava.litemall.db.service.LitemallMessageService;
-import org.linlinjava.litemall.db.service.LitemallMsgService;
+import org.linlinjava.litemall.db.service.LitemallNoticeService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -21,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MessageService {
@@ -38,7 +34,7 @@ public class MessageService {
     @Autowired
     private LitemallUserService litemallUserService;
     @Autowired
-    private LitemallMsgService litemallMsgService;
+    private LitemallNoticeService litemallMsgService;
     @Autowired
     private NoticeHelper noticeHelper;
 
@@ -83,23 +79,10 @@ public class MessageService {
 
     @Async
     public void sendMessage(LitemallMessage message){
-/*        try{
-            Thread.sleep(1000);
-        }catch (Exception e){
-
-        }*/
         log.info("sendMessage start param :" + message.toString());
         if(message.getType() == Constants.MESSAGE_TYPE_SYSTEM){
             pushService.pushMsgToAll(message.getContent());
-            noticeHelper.noticeAll(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM);
-/*          ConcurrentHashMap<String, Channel> channelMap = NettyConfig.getUserChannelMap();
-            channelMap.forEach((s, channel) -> {
-                LitemallMsg msg = new LitemallMsg();
-                msg.setMessageId(message.getId());
-                msg.setUserId(Integer.valueOf(s));
-                msg.setContent(message.getContent());
-                litemallMsgService.create(msg);
-            });*/
+            noticeHelper.noticeAll(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM, message);
 
         }else if(message.getType() == Constants.MESSAGE_TYPE_LEVEL){
             Integer[] receiverLevels = message.getReceiverLevels();
@@ -110,13 +93,8 @@ public class MessageService {
                 }
                 List<LitemallUser> users = litemallUserService.queryByUserLevels(levels);
                 users.forEach(user -> {
-                    noticeHelper.noticeUser(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM, user.getId());
+                    noticeHelper.noticeUser(Constants.MSG_TYPE_SYSTEM, message.getContent(), Constants.JPUSH_TITLE_SYSTEM, user.getId(), message);
                     pushService.pushMsgToOne(String.valueOf(user.getId()), message.getContent());
-                    /*LitemallMsg msg = new LitemallMsg();
-                    msg.setMessageId(message.getId());
-                    msg.setUserId(Integer.valueOf(user.getId()));
-                    msg.setContent(message.getContent());
-                    litemallMsgService.create(msg);*/
                 });
             }
         }

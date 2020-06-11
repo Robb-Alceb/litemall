@@ -192,13 +192,6 @@ public class WxOrderService {
             orderVo.put("address", o.getAddress());
 
 
-            LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
-            if (groupon != null) {
-                orderVo.put("isGroupin", true);
-            } else {
-                orderVo.put("isGroupin", false);
-            }
-
             List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(o.getId());
             List<Map<String, Object>> orderGoodsVoList = new ArrayList<>(orderGoodsList.size());
             for (LitemallOrderGoods orderGoods : orderGoodsList) {
@@ -258,6 +251,7 @@ public class WxOrderService {
         orderVo.put("expCode", order.getShipChannel());
         orderVo.put("expNo", order.getShipSn());
         orderVo.put("payType", order.getPayType());
+        orderVo.put("orderTpe", order.getOrderType());
 
         List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(order.getId());
         List<OrderGoodsVo> vos = new ArrayList<>();
@@ -750,7 +744,7 @@ public class WxOrderService {
 
         Map<String, Object> data = new HashMap<>();
         data.put("orderId", orderId);
-//        noticeHelper.noticeUser( Constants.MSG_TYPE_ORDER, order.getOrderSn() + "支付成功",order.getUserId());
+        noticeHelper.noticeUser( Constants.MSG_TYPE_ORDER,"下单", order.getOrderSn() + "下单成功",order.getUserId(), order);
         return ResponseUtil.ok(data);
     }
 

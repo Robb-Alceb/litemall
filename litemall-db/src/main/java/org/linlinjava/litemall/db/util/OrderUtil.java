@@ -121,6 +121,7 @@ public class OrderUtil {
         if (showType.equals(1)) {
             // 待付款订单
             status.add((short) 101);
+            status.add((short) 202);
         } else if (showType.equals(2)) {
             // 待发货订单
             status.add((short) 201);

@@ -9,8 +9,6 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
-import org.linlinjava.litemall.wx.annotation.LogAnno;
-import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.CartDto;
 import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.linlinjava.litemall.wx.vo.AccessoryVo;
@@ -18,11 +16,6 @@ import org.linlinjava.litemall.wx.vo.CartVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -486,7 +479,6 @@ public class WxCartService {
                  * 规格价格
                  */
                 BigDecimal specGoodsPrice = new BigDecimal(0.00);
-                checkedGoodsPrice = checkedGoodsPrice.add(cart.getGoodsPrice().multiply(new BigDecimal(cart.getNumber())));
                 if(cart.getSpecificationIds() != null && cart.getSpecificationIds().length > 0){
                     for(Integer sid : cart.getSpecificationIds()){
                         LitemallGoodsSpecification specificationServiceById = specificationService.findById(sid);

@@ -65,8 +65,6 @@ public class WebOrderService {
     @Autowired
     private LitemallGoodsProductService productService;
     @Autowired
-    private LitemallGrouponService grouponService;
-    @Autowired
     private ExpressService expressService;
     @Autowired
     private LitemallGoodsService goodsService;
@@ -143,12 +141,6 @@ public class WebOrderService {
             orderVo.put("payType", o.getPayType());
             orderVo.put("couponPrice", o.getCouponPrice());
 
-            LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
-            if (groupon != null) {
-                orderVo.put("isGroupin", true);
-            } else {
-                orderVo.put("isGroupin", false);
-            }
 
             List<LitemallOrderGoods> orderGoodsList = orderGoodsService.queryByOid(o.getId());
             List<Map<String, Object>> orderGoodsVoList = new ArrayList<>(orderGoodsList.size());

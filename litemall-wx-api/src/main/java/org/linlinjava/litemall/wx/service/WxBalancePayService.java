@@ -112,11 +112,11 @@ public class WxBalancePayService {
         litemallUserService.updateWithOptimisticLocker(update, user.getUpdateTime());
 
         //发送订单支付成功通知
-        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, order.getOrderSn()+"订单支付成功", userId);
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER,"订单支付", order.getOrderSn()+"订单支付成功", userId, order);
         //发送已支付订单到pos系统，门店开始制作商品
         noticeHelper.noticeShop(Constants.MSG_TYPE_ORDER, JSON.toJSONString(order), order.getShopId());
         //发送礼物卡消费通知
-        noticeHelper.noticeUser( Constants.MSG_TYPE_OTHER, "您的账户余额消费：$"+order.getActualPrice(), userId);
+        noticeHelper.noticeUser( Constants.MSG_TYPE_OTHER,"账户消费", "您的账户消费：$"+order.getActualPrice(), userId, update);
 
 
         return ResponseUtil.ok();

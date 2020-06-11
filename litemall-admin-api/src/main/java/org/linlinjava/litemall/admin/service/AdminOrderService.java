@@ -207,7 +207,7 @@ public class AdminOrderService {
 
         logHelper.logOrderSucceed("退款", "订单编号 " + orderId);
         //消息推送和保存
-        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER,"退款", "订单编号 "+order.getOrderSn()+"退款", order.getUserId());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER,"退款", "订单编号 "+order.getOrderSn()+"退款", order.getUserId(), order);
         return ResponseUtil.ok();
     }
 
@@ -255,7 +255,7 @@ public class AdminOrderService {
 
         logHelper.logOrderSucceed("发货", "订单编号 " + orderId);
         //消息推送和保存
-        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER, "订单编号 "+order.getOrderSn()+"发货", order.getUserId());
+        noticeHelper.noticeUser(Constants.MSG_TYPE_ORDER,"订单发货", "订单编号 "+order.getOrderSn()+"发货", order.getUserId(), order);
         return ResponseUtil.ok();
     }
 
@@ -658,7 +658,7 @@ public class AdminOrderService {
             LitemallUser user = userService.findById(userId);
             LitemallUser update = new LitemallUser();
             update.setId(userId);
-            update.setAvailableAmount(update.getAvailableAmount().add(order.getActualPrice()));
+            update.setAvailableAmount(user.getAvailableAmount().add(order.getActualPrice()));
             userService.updateWithOptimisticLocker(update, user.getUpdateTime());
 
             LitemallRechargeConsumption log = new LitemallRechargeConsumption();

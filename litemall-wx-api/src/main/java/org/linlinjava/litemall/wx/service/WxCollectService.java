@@ -70,8 +70,10 @@ public class WxCollectService {
      */
     public Object delete(Integer userId, Integer goodsId) {
         LitemallCollect litemallCollect = collectService.queryByGoodsId(userId, goodsId);
-        collectService.deleteByGoodsId(userId, goodsId);
-        collectAccessoryService.deleteByCollectId(litemallCollect.getId());
+        if(litemallCollect != null){
+            collectService.deleteByGoodsId(userId, goodsId);
+            collectAccessoryService.deleteByCollectId(litemallCollect.getId());
+        }
         return ResponseUtil.ok();
     }
 }

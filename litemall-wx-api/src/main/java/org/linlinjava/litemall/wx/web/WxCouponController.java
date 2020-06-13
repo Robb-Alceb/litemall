@@ -200,10 +200,10 @@ public class WxCouponController {
 
         // 优惠券状态，已下架或者过期不能领取
         Short status = coupon.getStatus();
-        if(status.equals(Constants.STATUS_OUT)){
+        if(status.equals(Constants.COUPON_STATUS_OUT)){
             return ResponseUtil.fail(WxResponseCode.COUPON_EXCEED_LIMIT, "优惠券已领完");
         }
-        else if(status.equals(Constants.STATUS_EXPIRED)){
+        else if(status.equals(Constants.COUPON_STATUS_EXPIRED)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券已经过期");
         }
 
@@ -280,10 +280,10 @@ public class WxCouponController {
 
         // 优惠券状态，已下架或者过期不能领取
         Short status = coupon.getStatus();
-        if(status.equals(Constants.STATUS_OUT)){
+        if(status.equals(Constants.COUPON_STATUS_OUT)){
             return ResponseUtil.fail(WxResponseCode.COUPON_EXCEED_LIMIT, "优惠券已兑换");
         }
-        else if(status.equals(Constants.STATUS_EXPIRED)){
+        else if(status.equals(Constants.COUPON_STATUS_EXPIRED)){
             return ResponseUtil.fail(WxResponseCode.COUPON_RECEIVE_FAIL, "优惠券已经过期");
         }
 

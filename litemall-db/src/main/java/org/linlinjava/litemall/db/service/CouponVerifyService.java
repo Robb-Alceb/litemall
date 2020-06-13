@@ -72,7 +72,7 @@ public class CouponVerifyService {
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(Constants.STATUS_NORMAL)) {
+        if (!status.equals(Constants.COUPON_STATUS_NORMAL)) {
             return null;
         }
         // 检测是否满足最低消费
@@ -125,7 +125,7 @@ public class CouponVerifyService {
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(Constants.STATUS_NORMAL)) {
+        if (!status.equals(Constants.COUPON_STATUS_NORMAL)) {
             return null;
         }
         // 检测是否满足最低消费
@@ -178,7 +178,7 @@ public class CouponVerifyService {
 
         // 检测订单状态
         Short status = coupon.getStatus();
-        if (!status.equals(Constants.STATUS_NORMAL)) {
+        if (!status.equals(Constants.COUPON_STATUS_NORMAL)) {
             return null;
         }
 

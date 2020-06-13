@@ -184,7 +184,7 @@ public class WxGoodsController {
 			if(userHasCollect == 0){
 				for(GoodsGroupSpecificationVo goodsGroupSpecificationVo : specificationList){
 					if(goodsGroupSpecificationVo.getValueList() != null && goodsGroupSpecificationVo.getValueList().size() > 0){
-						goodsGroupSpecificationVo.getValueList().get(1).setSelected(true);
+						goodsGroupSpecificationVo.getValueList().get(0).setSelected(true);
 					}
 				}
 			}

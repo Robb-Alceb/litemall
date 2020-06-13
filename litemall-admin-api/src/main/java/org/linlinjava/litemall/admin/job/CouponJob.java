@@ -36,13 +36,13 @@ public class CouponJob {
 
         List<LitemallCoupon> couponList = couponService.queryExpired();
         for (LitemallCoupon coupon : couponList) {
-            coupon.setStatus(Constants.STATUS_EXPIRED);
+            coupon.setStatus(Constants.COUPON_STATUS_EXPIRED);
             couponService.updateById(coupon);
         }
 
         List<LitemallCouponUser> couponUserList = couponUserService.queryExpired();
         for (LitemallCouponUser couponUser : couponUserList) {
-            couponUser.setStatus(Constants.STATUS_EXPIRED);
+            couponUser.setStatus(Constants.COUPON_STATUS_EXPIRED);
             couponUserService.update(couponUser);
         }
     }

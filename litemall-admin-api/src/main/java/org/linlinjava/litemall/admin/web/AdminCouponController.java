@@ -186,15 +186,15 @@ public class AdminCouponController {
         Map<String,Object> map = new HashMap<>();
 
         map.put("pullNumber",couponUserService.countCoupon(id));
-        map.put("expiredNumber",couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_EXPIRED));
+        map.put("expiredNumber",couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_EXPIRED));
         LitemallCoupon coupon = couponService.findById(id);
-        Integer usedNumber = couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_USED);
+        Integer usedNumber = couponUserService.countCoupon(id, org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_USED);
         map.put("usedNumber",usedNumber);
         if(null != coupon){
             map.put("totalDiscount",coupon.getDiscount().multiply(new BigDecimal(usedNumber)));
         }
         List<LitemallOrder> orders = new ArrayList<>();
-        List<LitemallCouponUser> litemallCouponUsers = couponUserService.queryByCoupon(id, org.linlinjava.litemall.db.beans.Constants.STATUS_USED);
+        List<LitemallCouponUser> litemallCouponUsers = couponUserService.queryByCoupon(id, org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_USED);
         for(LitemallCouponUser item : litemallCouponUsers){
             if(null !=item.getOrderId()){
                 orders.add(orderService.findById(item.getOrderId()));

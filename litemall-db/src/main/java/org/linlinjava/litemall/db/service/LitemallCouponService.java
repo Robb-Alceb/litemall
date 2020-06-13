@@ -50,7 +50,7 @@ public class LitemallCouponService {
      * @return
      */
     public List<LitemallCoupon> queryList(LitemallCouponExample.Criteria criteria, int offset, int limit, String sort, String order) {
-        criteria.andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_COMMON).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
+        criteria.andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_COMMON).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_NORMAL).andDeletedEqualTo(false);
         criteria.example().setOrderByClause(sort + " " + order);
         PageHelper.startPage(offset, limit);
         return couponMapper.selectByExampleSelective(criteria.example(), result);
@@ -80,7 +80,7 @@ public class LitemallCouponService {
 
     public LitemallCoupon findByCode(String code) {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andCodeEqualTo(code).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_CODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
+        example.or().andCodeEqualTo(code).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_CODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_NORMAL).andDeletedEqualTo(false);
         List<LitemallCoupon> couponList =  couponMapper.selectByExample(example);
         if(couponList.size() > 1){
             throw new RuntimeException("");
@@ -95,7 +95,7 @@ public class LitemallCouponService {
 
     public LitemallCoupon findByBarCode(String barCode) {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andBarCodeEqualTo(barCode).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_BARCODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.STATUS_NORMAL).andDeletedEqualTo(false);
+        example.or().andBarCodeEqualTo(barCode).andTypeEqualTo(org.linlinjava.litemall.db.beans.Constants.TYPE_BARCODE).andStatusEqualTo(org.linlinjava.litemall.db.beans.Constants.COUPON_STATUS_NORMAL).andDeletedEqualTo(false);
         List<LitemallCoupon> couponList =  couponMapper.selectByExample(example);
         if(couponList.size() > 1){
             throw new RuntimeException("");
@@ -115,7 +115,7 @@ public class LitemallCouponService {
      */
     public List<LitemallCoupon> queryRegister() {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andTypeEqualTo(Constants.TYPE_REGISTER).andStatusEqualTo(Constants.STATUS_NORMAL).andDeletedEqualTo(false);
+        example.or().andTypeEqualTo(Constants.TYPE_REGISTER).andStatusEqualTo(Constants.COUPON_STATUS_NORMAL).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
 
@@ -205,7 +205,7 @@ public class LitemallCouponService {
      */
     public List<LitemallCoupon> queryExpired() {
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andStatusEqualTo(Constants.STATUS_NORMAL).andTimeTypeEqualTo(Constants.TIME_TYPE_TIME).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
+        example.or().andStatusEqualTo(Constants.COUPON_STATUS_NORMAL).andTimeTypeEqualTo(Constants.TIME_TYPE_TIME).andEndTimeLessThan(LocalDateTime.now()).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
 

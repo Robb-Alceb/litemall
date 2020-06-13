@@ -210,10 +210,10 @@ public class Constants {
     /**
      *  优惠券状态
      */
-    public static final Short STATUS_NORMAL = 0;
-    public static final Short STATUS_USED = 1;
-    public static final Short STATUS_EXPIRED = 2;
-    public static final Short STATUS_OUT = 3;
+    public static final Short COUPON_STATUS_NORMAL = 0;
+    public static final Short COUPON_STATUS_USED = 1;
+    public static final Short COUPON_STATUS_EXPIRED = 2;
+    public static final Short COUPON_STATUS_OUT = 3;
 
     /**
      * 优惠券过期类型

@@ -7,3 +7,11 @@ erp:
   uri: http://127.0.0.1:8083
   key: lumiere_admin_123
   secret: lumiere_erp_123
+  material:
+    list:
+      url: ${erp.uri}/api/material/list
+  depot:
+    purchase:
+      url: ${erp.uri}/api/depothead/addDepotHeadAndDetail
+    billnumber:
+      url: ${erp.uri}/api/depothead/buildNumber

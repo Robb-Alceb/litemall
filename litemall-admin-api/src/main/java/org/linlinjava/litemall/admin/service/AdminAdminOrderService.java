@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.SecurityUtils;
 import org.linlinjava.litemall.admin.beans.Constants;
+import org.linlinjava.litemall.admin.beans.dto.PurchaseDto;
+import org.linlinjava.litemall.admin.beans.dto.PurchaseItemDto;
 import org.linlinjava.litemall.admin.beans.enums.AdminOrderStatusEnum;
 import org.linlinjava.litemall.admin.beans.enums.AdminPayStatusEnum;
 import org.linlinjava.litemall.admin.beans.enums.PromptEnum;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -196,14 +199,14 @@ public class AdminAdminOrderService {
         List<LitemallAdminOrderMerchandise> litemallAdminOrderMerchandises = adminOrderMerchandiseService.querybyAdminOrderId(adminOrderVo.getAdminOrderId());
         for (LitemallAdminOrderMerchandise item : litemallAdminOrderMerchandises) {
             Integer merchandiseId = item.getMerchandiseId();
-            LitemallMerchandise litemallMerchandise = merchandiseService.findById(merchandiseId);
-            if(litemallMerchandise == null){
-                return ResponseUtil.updatedDataFailed();
-            }
+//            LitemallMerchandise litemallMerchandise = merchandiseService.findById(merchandiseId);
+//            if(litemallMerchandise == null){
+//                return ResponseUtil.updatedDataFailed();
+//            }
             /**
              * 给门店添加库存,存在则改变数量，不存在则新增
              */
-            LitemallShopMerchandise shopMerchandise1 = shopMerchandiseService.queryByMerId(litemallMerchandise.getId(), order.getShopId());
+            LitemallShopMerchandise shopMerchandise1 = shopMerchandiseService.queryByMerId(item.getMerchandiseId(), order.getShopId());
             if(shopMerchandise1 != null){
                 shopMerchandise1.setNumber(shopMerchandise1.getNumber() + adminOrderVo.getNumber());
                 shopMerchandiseService.updateById(shopMerchandise1);
@@ -213,7 +216,7 @@ public class AdminAdminOrderService {
                 shopMerchandise.setAddUserId(admin.getId());
                 shopMerchandise.setMerchandiseId(merchandiseId);
                 shopMerchandise.setNumber(item.getNumber());
-                shopMerchandise.setSellPrice(litemallMerchandise.getSellingPrice());
+                shopMerchandise.setSellPrice(item.getPrice());
                 shopMerchandise.setShopId(order.getShopId());
                 shopMerchandise.setUpdateUserId(admin.getId());
                 shopMerchandiseService.create(shopMerchandise);
@@ -222,7 +225,16 @@ public class AdminAdminOrderService {
 
 
         updateOrderStatus(adminOrderVo, AdminOrderStatusEnum.P_5.getCode().toString());
-        saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.TAKE_DELIVERY);
+        LitemallMerchandiseLog merchandiseLog = new LitemallMerchandiseLog();
+        merchandiseLog.setAddUserId(order.getAdminId());
+        merchandiseLog.setAdminOrderId(order.getId());
+        merchandiseLog.setContent(generatorContent(Constants.TAKE_DELIVERY,order, litemallAdminOrderMerchandises));
+        merchandiseLog.setOrderSn(order.getOrderSn());
+        merchandiseLog.setPayPrice(order.getOrderPrice());
+        merchandiseLog.setShopId(order.getShopId());
+        merchandiseLog.setUserName(order.getUsername());
+        merchandiseLogService.add(merchandiseLog);
+//        saveMerchandiseLog(setAdminOrder(adminOrderVo), Constants.TAKE_DELIVERY);
         return ResponseUtil.ok();
     }
 
@@ -326,5 +338,82 @@ public class AdminAdminOrderService {
         }
         adminOrderService.insert(adminOrder);
         return adminOrder;
+    }
+
+    public Object purchaseApplying(PurchaseDto purchaseDto) {
+        if(ObjectUtils.isEmpty(purchaseDto.getShopId())
+                || ObjectUtils.isEmpty(purchaseDto.getUserId())){
+            return ResponseUtil.fail(PromptEnum.P_101.getCode(), PromptEnum.P_101.getDesc());
+        }
+        //新增订单及子项数据
+        saveAdminOrder(purchaseDto);
+        return ResponseUtil.ok();
+    }
+
+    public void saveAdminOrder(PurchaseDto purchaseDto) {
+        List<LitemallAdminOrderMerchandise> rtn = new ArrayList<>();
+        /**
+         * 保存订单数据
+         */
+        //查询用户信息
+        LitemallAdmin admin = (LitemallAdmin)SecurityUtils.getSubject().getPrincipal();
+        //查询门店信息
+        LitemallShop shop = shopService.findById(purchaseDto.getShopId());
+        LitemallAdminOrder adminOrder = new LitemallAdminOrder();
+        adminOrder.setAdminId(purchaseDto.getUserId());
+        adminOrder.setUsername(admin.getUsername());
+        adminOrder.setShopId(purchaseDto.getShopId());
+        adminOrder.setShopName(shop.getName());
+        adminOrder.setOrderRemark(purchaseDto.getRemark());
+        adminOrder.setOrderSn(RandomUtils.getMerchandiseOrderId());
+        adminOrder.setConsignee(purchaseDto.getConsignee());
+        adminOrder.setMobile(purchaseDto.getMobile());
+        adminOrder.setAddress(purchaseDto.getAddress());
+        adminOrder.setOrderPrice(purchaseDto.getOrderPrice());
+        if(null != adminOrder.getFreightPrice()){
+            adminOrder.setActualPrice(purchaseDto.getOrderPrice().add(adminOrder.getFreightPrice()));
+        }else{
+            adminOrder.setActualPrice(purchaseDto.getOrderPrice());
+        }
+        adminOrderService.insert(adminOrder);
+
+        /**
+         * 保存子项数据
+         */
+        if(purchaseDto.getPurchaseItemDtos() != null && purchaseDto.getPurchaseItemDtos().size() > 0){
+            for(PurchaseItemDto item : purchaseDto.getPurchaseItemDtos()){
+                LitemallAdminOrderMerchandise adminOrderMerchandise = new LitemallAdminOrderMerchandise();
+                adminOrderMerchandise.setAdminOrderId(adminOrder.getId());
+                adminOrderMerchandise.setMerchandiseId(item.getMaterialId());
+                adminOrderMerchandise.setMerchandiseName(item.getName());
+                adminOrderMerchandise.setNumber(item.getStock());
+                adminOrderMerchandise.setPrice(item.getPrice());
+                adminOrderMerchandiseService.insert(adminOrderMerchandise);
+                rtn.add(adminOrderMerchandise);
+            }
+        }
+        LitemallMerchandiseLog merchandiseLog = new LitemallMerchandiseLog();
+        merchandiseLog.setAddUserId(admin.getId());
+        merchandiseLog.setAdminOrderId(adminOrder.getAdminId());
+        merchandiseLog.setContent(generatorContent(Constants.ORDER_APPLYING, adminOrder, rtn));
+        merchandiseLog.setOrderSn(adminOrder.getOrderSn());
+        merchandiseLog.setPayPrice(adminOrder.getOrderPrice());
+        merchandiseLog.setShopId(adminOrder.getShopId());
+        merchandiseLog.setUserName(admin.getUsername());
+        merchandiseLogService.add(merchandiseLog);
+    }
+
+    /**
+     *
+     * @param order
+     * @param adminOrderItems
+     * @return
+     */
+    public String generatorContent(String mark, LitemallAdminOrder order, List<LitemallAdminOrderMerchandise> adminOrderItems){
+        StringBuffer buffer = new StringBuffer(mark);
+        adminOrderItems.stream().forEach(item->{
+            buffer.append("名称:").append(item.getMerchandiseName()).append(",数量:").append(item.getNumber()).append(";");
+        });
+        return buffer.toString();
     }
 }

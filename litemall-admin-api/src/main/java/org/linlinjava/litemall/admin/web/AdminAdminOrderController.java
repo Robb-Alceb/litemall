@@ -6,6 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
+import org.linlinjava.litemall.admin.beans.dto.PurchaseDto;
 import org.linlinjava.litemall.admin.beans.vo.AdminOrderVo;
 import org.linlinjava.litemall.admin.service.AdminAdminOrderService;
 import org.linlinjava.litemall.core.validator.Order;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @RestController
@@ -159,6 +161,20 @@ public class AdminAdminOrderController {
     @LogAnno
     public Object read(@NotNull  @RequestParam(value = "id") Integer id, @LoginAdminShopId Integer shopId){
         return adminAdminOrderService.read(id, shopId);
+    }
+
+    /**
+     * 采购申请
+     * @param purchaseDto
+     * @return
+     */
+    @RequiresPermissions("admin:order:purchaseApplying")
+    @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "采购申请")
+    @PostMapping("/purchaseApplying")
+    @LogAnno
+    public Object purchaseApplying(@Valid @RequestBody PurchaseDto purchaseDto, @LoginAdminShopId Integer shopId){
+        purchaseDto.setShopId(shopId);
+        return adminAdminOrderService.purchaseApplying(purchaseDto);
     }
 
 }

@@ -10,6 +10,7 @@ public enum AdminResponseEnum {
     TAX_EXIST(100003,"税费已存在"),
     TAX_NOT_EXIST(100004,"税费不存在"),
     I18N_EXIST(100005,"该语言已存在"),
+    APPLY_PURCHASE_ERROR(100006,"申请采购失败"),
 
     GIFT_CARD_SHARE_NOT_AUTH(764,"");
 

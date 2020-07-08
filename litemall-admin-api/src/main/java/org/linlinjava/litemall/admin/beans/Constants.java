@@ -95,6 +95,11 @@ public class Constants extends org.linlinjava.litemall.db.beans.Constants {
      * 确认收货
      */
     public static final String TAKE_DELIVERY="确认收货";
+    /**
+     * 向erp发起采购
+     */
+    public static final String ERP_PURCHASE="向erp发起采购";
+
 
     /**
      * 1：商品

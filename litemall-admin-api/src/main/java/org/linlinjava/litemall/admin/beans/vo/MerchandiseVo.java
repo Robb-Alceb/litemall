@@ -3,6 +3,7 @@ package org.linlinjava.litemall.admin.beans.vo;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import java.math.BigDecimal;
 
 /**
  * @author ：stephen
@@ -15,4 +16,5 @@ public class MerchandiseVo {
     @NotEmpty
     private Integer id;
     private Integer number;
+    private BigDecimal sellingPrice;
 }

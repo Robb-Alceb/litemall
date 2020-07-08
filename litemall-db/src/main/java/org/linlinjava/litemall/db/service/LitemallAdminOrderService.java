@@ -56,7 +56,7 @@ public class LitemallAdminOrderService {
 
     public LitemallAdminOrder queryByIdAndShopId(Integer id, Integer shopId) {
         LitemallAdminOrderExample example = new LitemallAdminOrderExample();
-        example.or().andLogicalDeleted(false).andIdEqualTo(id);
+        example.or().andDeletedEqualTo(false).andIdEqualTo(id);
         if(null != shopId){
             example.or().andShopIdEqualTo(shopId);
         }
@@ -89,5 +89,11 @@ public class LitemallAdminOrderService {
         LitemallAdminOrderExample example = new LitemallAdminOrderExample();
         example.or().andShopIdEqualTo(shopId).andOrderStatusEqualTo(status).andDeletedEqualTo(false);
         return adminOrderMapper.selectByExample(example);
+    }
+
+    public LitemallAdminOrder getByOrderSn(String orderSn) {
+        LitemallAdminOrderExample example = new LitemallAdminOrderExample();
+        example.or().andDeletedEqualTo(false).andOrderSnEqualTo(orderSn);
+        return adminOrderMapper.selectOneByExample(example);
     }
 }

@@ -39,4 +39,5 @@ public class AdminOrderVo {
     private String handleRemark;
     //运费
     private BigDecimal shipPrice;
+
 }

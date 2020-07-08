@@ -145,12 +145,28 @@ public class AdminMerchandiseController {
     /**
      * 门店查询库存数量
      * @param shopId
-     * @param merchandiseSn
      * @return
      */
     @GetMapping("/count")
     @LogAnno
-    public Object count(@LoginAdminShopId Integer shopId, @NotNull  @RequestParam(value = "merchandiseSn") String merchandiseSn) {
-        return adminMerchandiseService.count(shopId, merchandiseSn);
+    public Object count(@LoginAdminShopId Integer shopId, @NotNull  @RequestParam(value = "merchandiseId") Integer merchandiseId) {
+        return adminMerchandiseService.count(shopId, merchandiseId);
     }
+
+    /**
+     * 修改销售价
+     * @param vo
+     * @return
+     */
+    @RequiresPermissions("admin:merchandise:updatePrice")
+    @RequiresPermissionsDesc(menu = {"库存管理", "库存管理"}, button = "修改销售价")
+    @PutMapping("/updatePrice")
+    @LogAnno
+    public Object updatePrice(@RequestBody MerchandiseVo vo, @LoginAdminShopId Integer shopId) {
+        if(shopId == null){
+            return ResponseUtil.badArgument();
+        }
+        return adminMerchandiseService.updatePrice(vo, shopId);
+    }
+
 }

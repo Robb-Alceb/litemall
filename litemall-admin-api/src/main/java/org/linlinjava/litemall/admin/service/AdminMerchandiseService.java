@@ -184,10 +184,34 @@ public class AdminMerchandiseService {
         return ResponseUtil.ok(0);
     }
 
+    /**
+     * 查询门店库存数量
+     *
+     * @param shopId
+     * @param merchandiseId
+     * @return
+     */
+    public Object count(Integer shopId, Integer merchandiseId) {
+        LitemallShopMerchandise shopMerchandise = shopMerchandiseService.queryByMerId(merchandiseId, shopId);
+        if(shopMerchandise != null){
+            return ResponseUtil.ok(shopMerchandise.getNumber());
+        }else{
+            return ResponseUtil.ok(0);
+        }
+    }
+
     private LitemallAdmin getLitemallAdmin() {
         return (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
     }
 
 
-
+    public Object updatePrice(MerchandiseVo vo, Integer shopId) {
+        LitemallShopMerchandise shopMerchandise = shopMerchandiseService.queryByMerId(vo.getId(), shopId);
+        if(shopMerchandise != null){
+            LitemallShopMerchandise update = new LitemallShopMerchandise();
+            update.setId(shopMerchandise.getId());
+            update.setSellPrice(vo.getSellingPrice());
+        }
+        return null;
+    }
 }

@@ -155,7 +155,7 @@ public class AdminAdminOrderController {
      * @param id
      * @return
      */
-    @RequiresPermissions("admin:order:takeDelivery")
+    @RequiresPermissions("admin:shopOrder:read")
     @RequiresPermissionsDesc(menu = {"门店管理", "门店订单"}, button = "详情")
     @GetMapping("/read")
     @LogAnno

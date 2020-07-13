@@ -36,8 +36,6 @@ public class WxCouponController {
     @Autowired
     private LitemallCouponUserService couponUserService;
     @Autowired
-    private LitemallGrouponRulesService grouponRulesService;
-    @Autowired
     private LitemallCartService cartService;
     @Autowired
     private CouponVerifyService couponVerifyService;

@@ -10,7 +10,6 @@ import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.service.HomeCacheManager;
-import org.linlinjava.litemall.wx.service.WxGrouponRuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -7,8 +7,6 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.domain.LitemallComment;
 import org.linlinjava.litemall.db.service.LitemallCommentService;
 import org.linlinjava.litemall.db.service.LitemallGoodsService;
-import org.linlinjava.litemall.db.service.LitemallTopicService;
-import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LogAnno;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
@@ -35,13 +33,10 @@ public class WxCommentController {
     @Autowired
     private LitemallCommentService commentService;
     @Autowired
-    private LitemallUserService userService;
-    @Autowired
     private UserInfoService userInfoService;
     @Autowired
     private LitemallGoodsService goodsService;
-    @Autowired
-    private LitemallTopicService topicService;
+
 
     private Object validate(LitemallComment comment) {
         String content = comment.getContent();
@@ -67,9 +62,9 @@ public class WxCommentController {
                 return ResponseUtil.badArgumentValue();
             }
         } else if (type == 1) {
-            if (topicService.findById(valueId) == null) {
+/*            if (topicService.findById(valueId) == null) {
                 return ResponseUtil.badArgumentValue();
-            }
+            }*/
         } else {
             return ResponseUtil.badArgumentValue();
         }

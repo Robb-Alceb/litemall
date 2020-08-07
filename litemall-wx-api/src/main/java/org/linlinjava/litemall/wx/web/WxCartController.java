@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -167,5 +168,17 @@ public class WxCartController {
             return ResponseUtil.unlogin();
         }
         return wxCartService.checkout(userId, cartIds, addressId, couponId);
+    }
+
+    /**
+     * 切换门店，修改购物车信息
+     * @param userId
+     * @param shopId
+     * @return
+     */
+    @GetMapping("changeShop")
+    @LogAnno
+    public Object changeShop(@LoginUser Integer userId, @NotNull Integer shopId) {
+        return wxCartService.changeShop(userId, shopId);
     }
 }

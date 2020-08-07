@@ -22,10 +22,18 @@ public class LitemallOrderGoodsService {
         return orderGoodsMapper.insertSelective(orderGoods);
     }
 
-    public List<LitemallOrderGoods> queryByGid(Integer goodsId) {
+    public List<LitemallOrderGoods> queryByGidAndSid(Integer goodsId, Integer shopId) {
         LitemallOrderGoodsExample example = new LitemallOrderGoodsExample();
-        example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        if(shopId != null){
+            example.or().andGoodsIdEqualTo(goodsId).andShopIdEqualTo(shopId).andDeletedEqualTo(false);
+        }else{
+            example.or().andGoodsIdEqualTo(goodsId).andDeletedEqualTo(false);
+        }
         return orderGoodsMapper.selectByExample(example);
+    }
+
+    public List<LitemallOrderGoods> queryByGid(Integer goodsId) {
+        return queryByGidAndSid(goodsId, null);
     }
 
     public List<LitemallOrderGoods> queryByOid(Integer orderId) {

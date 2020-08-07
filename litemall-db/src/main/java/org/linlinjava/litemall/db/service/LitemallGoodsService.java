@@ -151,18 +151,23 @@ public class LitemallGoodsService {
 
     public List<LitemallGoods> querySelective(String goodsSn, String name, Integer shopId, Integer page, Integer size, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        LitemallGoodsExample.Criteria criteria = example.createCriteria();
+        LitemallGoodsExample.Criteria criteria = example.or();
+        LitemallGoodsExample.Criteria criteria2 = example.or();
 
         if (!StringUtils.isEmpty(shopId)) {
             criteria.andShopIdEqualTo(shopId);
+            criteria2.andShopIdIsNull();
         }
         if (!StringUtils.isEmpty(goodsSn)) {
             criteria.andGoodsSnEqualTo(goodsSn);
+            criteria2.andGoodsSnEqualTo(goodsSn);
         }
         if (!StringUtils.isEmpty(name)) {
             criteria.andNameLike("%" + name + "%");
+            criteria2.andNameLike("%" + name + "%");
         }
         criteria.andDeletedEqualTo(false);
+        criteria2.andDeletedEqualTo(false);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
@@ -306,7 +311,11 @@ public class LitemallGoodsService {
 
     public boolean checkExistByName(Integer shopId, String name) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andNameEqualTo(name).andShopIdEqualTo(shopId).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        if(shopId != null){
+            example.or().andNameEqualTo(name).andShopIdEqualTo(shopId).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        }else{
+            example.or().andNameEqualTo(name).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        }
         return goodsMapper.countByExample(example) != 0;
     }
 
@@ -357,6 +366,12 @@ public class LitemallGoodsService {
     public List<LitemallGoods> findByIds(List<Integer> goodsIds) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andIdIn(goodsIds).andDeletedEqualTo(false);
+        return goodsMapper.selectByExample(example);
+    }
+
+    public List<LitemallGoods> queryHead() {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andShopIdIsNull().andDeletedEqualTo(false);
         return goodsMapper.selectByExample(example);
     }
 }

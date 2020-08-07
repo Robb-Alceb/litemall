@@ -131,4 +131,10 @@ public class LitemallShopService {
         }
         return litemallShopMapper.selectOneByExample(example);
     }
+
+    public List<LitemallShop> queryAll() {
+        LitemallShopExample example = new LitemallShopExample();
+        example.or().andDeletedEqualTo(false);
+        return litemallShopMapper.selectByExample(example);
+    }
 }

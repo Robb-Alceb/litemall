@@ -52,6 +52,8 @@ public class ShopService {
     private LitemallShopRegionService litemallShopRegionService;
     @Autowired
     private LitemallRegionService litemallRegionService;
+    @Autowired
+    private LitemallGoodsProductService litemallGoodsProductService;
 
     public Object list(Integer shopId, String name, String address, Integer regionId, Integer status, String addTimeFrom, String addTimeTo, Integer page, Integer limit, String sort, String order){
         Short sp = null;
@@ -163,6 +165,20 @@ public class ShopService {
             if(null != admin){
                 setShopRole(admin, shop.getShopManagerId(), shop.getLitemallShop().getId());
             }
+        }
+
+        /**
+         * 添加默认商品价格
+         */
+        List<LitemallGoods> litemallGoods = litemallGoodsService.queryHead();
+        for(LitemallGoods goods : litemallGoods){
+            LitemallGoodsProduct product = new LitemallGoodsProduct();
+            product.setShopId(shop.getLitemallShop().getId());
+            product.setGoodsId(goods.getId());
+            product.setUnit(goods.getUnit());
+            product.setSellPrice(goods.getRetailPrice());
+            product.setCostPrice(goods.getCounterPrice());
+            litemallGoodsProductService.add(product);
         }
         return ResponseUtil.ok();
     }

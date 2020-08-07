@@ -9,6 +9,7 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.db.beans.Constants;
 import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
+import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.CartDto;
 import org.linlinjava.litemall.wx.util.WxResponseEnum;
 import org.linlinjava.litemall.wx.vo.AccessoryVo;
@@ -16,6 +17,8 @@ import org.linlinjava.litemall.wx.vo.CartVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,7 +61,8 @@ public class WxCartService {
     private LitemallCartGoodsAccessoryService litemallCartGoodsAccessoryService;
     @Autowired
     private LitemallShopMerchandiseService litemallShopMerchandiseService;
-
+    @Autowired
+    private LitemallGoodsProductService litemallGoodsProductService;
 
     /**
      * 用户购物车信息
@@ -596,4 +600,68 @@ public class WxCartService {
 
 
     }
+
+
+    /**
+     * 切换门店，修改购物车信息
+     * @param userId
+     * @return
+     */
+    public Object changeShop(Integer userId, Integer shopId) {
+
+        List<LitemallCart> litemallCarts = cartService.queryByUid(userId);
+        for(LitemallCart cart : litemallCarts){
+            if(cart.getShopId() != shopId){
+                List<LitemallGoodsProduct> products = litemallGoodsProductService.queryByGidAndSid(cart.getGoodsId(), shopId);
+                /**
+                 * 这里如果要切换的门店没有改商品，则将购物车的productId置为null，前端则不可结算该商品
+                 */
+                if(products.size() > 0){
+                    LitemallGoodsProduct product = products.get(0);
+                    BigDecimal sellPrice = product.getSellPrice();
+                    List<String> specifications = new ArrayList<>();
+                    //规格价格
+                    if(null != cart.getSpecificationIds() && cart.getSpecificationIds().length > 0 ){
+                        List<LitemallGoodsSpecification> litemallGoodsSpecifications = specificationService.queryByIds(cart.getSpecificationIds());
+                        for(LitemallGoodsSpecification item : litemallGoodsSpecifications){
+                            sellPrice = sellPrice.add(item.getPrice());
+                            specifications.add(item.getValue());
+                        }
+                    }
+                    List<LitemallCartGoodsAccessory> cartGoodsAccessories = litemallCartGoodsAccessoryService.queryByCartId(cart.getId());
+                    //辅料价格
+                    if(cartGoodsAccessories != null && cartGoodsAccessories.size() > 0){
+                        for(LitemallCartGoodsAccessory item : cartGoodsAccessories){
+                            LitemallGoodsAccessory accessory = litemallGoodsAccessoryService.findById(item.getAccessoryId());
+                            LitemallShopMerchandise merchandise = litemallShopMerchandiseService.queryByMerId(accessory.getMerchandiseId(), shopId);
+                            if(merchandise == null || merchandise.getNumber() < item.getNumber() * cart.getNumber()){
+                                return ResponseUtil.fail(WxResponseEnum.ACCESSORY_ENOUGH);
+                            }
+                            //设置辅料项
+                            item.setGoodsId(accessory.getGoodsId());
+                            item.setAccessoryId(accessory.getId());
+                            item.setPrice(accessory.getPrice());
+                            cartGoodsAccessories.add(item);
+                            sellPrice = sellPrice.add(item.getPrice().multiply(new BigDecimal(item.getNumber())));
+                        }
+                    }
+                    LitemallCart update = new LitemallCart();
+                    update.setGoodsPrice(sellPrice);
+                    update.setShopId(shopId);
+                    update.setProductId(product.getId());
+                    update.setId(cart.getId());
+                    cartService.updateById(update);
+                }else{
+                    LitemallCart update = new LitemallCart();
+                    update.setShopId(0);
+                    update.setProductId(0);
+                    update.setId(cart.getId());
+                    cartService.updateById(update);
+                }
+            }
+        }
+
+        return ResponseUtil.ok();
+    }
+
 }

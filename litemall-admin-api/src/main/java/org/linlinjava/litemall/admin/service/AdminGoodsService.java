@@ -62,6 +62,8 @@ public class AdminGoodsService {
     private LitemallCartService cartService;
     @Autowired
     private LitemallGoodsAccessoryService accessoryService;
+    @Autowired
+    private LitemallShopService litemallShopService;
 
     /**
      * 商品列表
@@ -78,7 +80,7 @@ public class AdminGoodsService {
         }else{*/
         List<LitemallGoods> goodsList = goodsService.querySelective(goodsSn, name, shopId, page, limit, sort, order);
         List<GoodsVo> goodsVos = new ArrayList<>();
-        getGoodsVos(goodsList, goodsVos);
+        getGoodsVos(goodsList, goodsVos, shopId);
         return ResponseUtil.okList(goodsVos, goodsList);
     }
 
@@ -227,12 +229,35 @@ public class AdminGoodsService {
         }
 
         // 商品货品表litemall_product
-        for (LitemallGoodsProduct product : products) {
-            //总税率
-//            product.setTax(totalTax);
-            product.setGoodsId(goods.getId());
-            productService.updateByGoodsId(product);
+        /**
+         * 门店修改
+         */
+        if(products != null && products.length > 0){
+            for (LitemallGoodsProduct product : products) {
+                //门店id
+                product.setShopId(shopId);
+                product.setGoodsId(goods.getId());
+                productService.updateByGoodsId(product);
+            }
+            /**
+             * 总部修改
+             */
+        }else{
+            List<LitemallShop> litemallShops = litemallShopService.queryAll();
+            for (LitemallShop shop : litemallShops) {
+                LitemallGoodsProduct product = new LitemallGoodsProduct();
+                //门店id
+                product.setShopId(shop.getId());
+                product.setGoodsId(goods.getId());
+                /**
+                 * 这里将零售价设为默认价格
+                 */
+                product.setSellPrice(goods.getRetailPrice());
+                product.setCostPrice(goods.getCounterPrice());
+                productService.add(product);
+            }
         }
+
 
         if(litemallGoodsAccessories != null){
             //辅料表
@@ -305,7 +330,7 @@ public class AdminGoodsService {
     }
 
     @Transactional
-    public Object create(GoodsAllinone goodsAllinone) {
+    public Object create(GoodsAllinone goodsAllinone, Integer shopId) {
         Object error = validate(goodsAllinone);
         if (error != null) {
             return error;
@@ -321,7 +346,10 @@ public class AdminGoodsService {
         LitemallGoodsAccessory[] litemallGoodsAccessories = goodsAllinone.getAccessories();
 
         String name = goods.getName();
-        Integer shopId = goods.getShopId();
+//        Integer shopId = goods.getShopId();
+        if(shopId != null){
+            goods.setShopId(shopId);
+        }
         if (goodsService.checkExistByName(shopId, name)) {
             return ResponseUtil.fail(GOODS_NAME_EXIST, "此门店商品名已经存在");
         }
@@ -353,9 +381,34 @@ public class AdminGoodsService {
         }
 
         // 商品货品表litemall_product
-        for (LitemallGoodsProduct product : products) {
-            product.setGoodsId(goods.getId());
-            productService.add(product);
+        /**
+         * 门店添加的商品仅门店可设置库存和价格
+         */
+        if(shopId != null) {
+            for (LitemallGoodsProduct product : products) {
+                //门店id
+                product.setShopId(shopId);
+                product.setGoodsId(goods.getId());
+                productService.add(product);
+            }
+            /**
+             * 总部添加的商品，给所有门店设置一个默认的价格
+             */
+        }else{
+            List<LitemallShop> litemallShops = litemallShopService.queryAll();
+            for (LitemallShop shop : litemallShops) {
+                LitemallGoodsProduct product = new LitemallGoodsProduct();
+                //门店id
+                product.setShopId(shop.getId());
+                product.setGoodsId(goods.getId());
+                product.setCostPrice(goods.getCounterPrice());
+                product.setUnit(goods.getUnit());
+                /**
+                 * 这里将零售价设为默认价格
+                 */
+                product.setSellPrice(goods.getRetailPrice());
+                productService.add(product);
+            }
         }
 
         if(litemallGoodsAccessories != null){
@@ -719,16 +772,43 @@ public class AdminGoodsService {
         return ResponseUtil.ok();
     }
 
-    private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos) {
+    public Object readGoodsProduct(Integer goodsId, Integer shopId){
+        return ResponseUtil.ok(productService.queryByGidAndSid(goodsId, shopId));
+    }
+
+    public Object addGoodsProduct(GoodsProductDto dto){
+        LitemallGoodsProduct product = new LitemallGoodsProduct();
+        BeanUtils.copyProperties(dto, product);
+        productService.add(product);
+        return ResponseUtil.ok();
+    }
+
+    public Object updateGoodsProduct(GoodsProductDto dto){
+        if(dto.getId() == null){
+            return ResponseUtil.badArgument();
+        }
+        LitemallGoodsProduct product = new LitemallGoodsProduct();
+        BeanUtils.copyProperties(dto, product);
+        productService.updateById(product);
+        return ResponseUtil.ok();
+    }
+
+    private void getGoodsVos(List<LitemallGoods> goodsList, List<GoodsVo> goodsVos, Integer shopId) {
         if(!CollectionUtils.isEmpty(goodsList)){
             goodsList.stream().forEach(goods->{
                 GoodsVo goodsVo = new GoodsVo();
                 BeanUtils.copyProperties(goods, goodsVo);
                 //库存查询
-                goodsVo.setNumber(productService.queryByGid(goodsVo.getId()).get(0).getNumber());
-                goodsVo.setRetailPrice(productService.queryByGid(goodsVo.getId()).get(0).getSellPrice());
+                List<LitemallGoodsProduct> litemallGoodsProducts = productService.queryByGidAndSid(goodsVo.getId(), shopId);
+                if(litemallGoodsProducts.size() > 0){
+                    goodsVo.setNumber(litemallGoodsProducts.stream().mapToInt(goodsProduct-> goodsProduct.getNumber()).sum());
+                    /**
+                     * 这里默认取第一个价格
+                     */
+                    goodsVo.setRetailPrice(litemallGoodsProducts.get(0).getSellPrice());
+                }
                 //销量查询
-                List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryByGid(goodsVo.getId());
+                List<LitemallOrderGoods> litemallOrderGoods = orderGoodsService.queryByGidAndSid(goodsVo.getId(), shopId);
                 if(!CollectionUtils.isEmpty(litemallOrderGoods)){
                     goodsVo.setSales(litemallOrderGoods.stream().mapToInt(adminOrderGoods-> adminOrderGoods.getNumber()).sum());
                 }

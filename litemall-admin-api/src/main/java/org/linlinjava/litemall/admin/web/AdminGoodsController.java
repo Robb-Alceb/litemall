@@ -6,10 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.beans.annotation.LogAnno;
 import org.linlinjava.litemall.admin.beans.annotation.LoginAdminShopId;
 import org.linlinjava.litemall.admin.beans.annotation.RequiresPermissionsDesc;
-import org.linlinjava.litemall.admin.beans.dto.GoodsAllinone;
-import org.linlinjava.litemall.admin.beans.dto.GoodsStatusDto;
-import org.linlinjava.litemall.admin.beans.dto.GoodsStoreDto;
-import org.linlinjava.litemall.admin.beans.dto.PriceDto;
+import org.linlinjava.litemall.admin.beans.dto.*;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
@@ -105,7 +102,7 @@ public class AdminGoodsController {
         if(goodsAllinone.getShopIds() != null && goodsAllinone.getShopIds().size() > 0){
             for(Integer shopId : goodsAllinone.getShopIds()){
                 goodsAllinone.getGoods().setShopId(shopId);
-                adminGoodsService.create(goodsAllinone);
+                adminGoodsService.create(goodsAllinone, shopId);
             }
         }
         return ResponseUtil.ok();
@@ -121,8 +118,8 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "新增")
     @PostMapping("/create")
     @LogAnno
-    public Object create(@RequestBody GoodsAllinone goodsAllinone) {
-        return adminGoodsService.create(goodsAllinone);
+    public Object create(@RequestBody GoodsAllinone goodsAllinone, @LoginAdminShopId Integer shopId) {
+        return adminGoodsService.create(goodsAllinone, shopId);
     }
 
     /**
@@ -286,4 +283,49 @@ public class AdminGoodsController {
     public Object updateVipGoodsPrice(@RequestBody GoodsAllinone goodsAllinone){
         return adminGoodsService.updateDiscountPrice(goodsAllinone);
     }
+
+
+    /**
+     * 设置商品库存和价格
+     *
+     * @param dto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:addGoodsProduct")
+    @RequiresPermissionsDesc(menu = {"商品管理", "库存管理"}, button = "设置商品库存和价格")
+    @PostMapping("/addGoodsProduct")
+    @LogAnno
+    public Object addGoodsProduct(@RequestBody GoodsProductDto dto){
+        return adminGoodsService.addGoodsProduct(dto);
+    }
+
+    /**
+     * 修改商品库存和价格
+     *
+     * @param dto
+     * @return
+     */
+    @RequiresPermissions("admin:goods:updateGoodsProduct")
+    @RequiresPermissionsDesc(menu = {"商品管理", "库存管理"}, button = "修改商品库存和价格")
+    @PutMapping("/updateGoodsProduct")
+    @LogAnno
+    public Object updateGoodsProduct(@RequestBody GoodsProductDto dto){
+        return adminGoodsService.updateGoodsProduct(dto);
+    }
+
+    /**
+     * 查看商品库存和价格
+     *
+     * @param shopId
+     * @param goodsId
+     * @return
+     */
+    @RequiresPermissions("admin:goods:readGoodsProduct")
+    @RequiresPermissionsDesc(menu = {"商品管理", "库存管理"}, button = "查看商品库存和价格")
+    @GetMapping("/readGoodsProduct")
+    @LogAnno
+    public Object readGoodsProduct(@LoginAdminShopId Integer shopId, @NotNull Integer goodsId){
+        return adminGoodsService.readGoodsProduct(goodsId, shopId);
+    }
+
 }

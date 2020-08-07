@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: stephen
@@ -42,11 +43,14 @@ public class GoodsWarningJob {
     public void checkCouponExpired() {
         logger.info("系统开启任务检查商品数量预警");
 
-        List<Integer> goodsIds = litemallGoodsProductService.queryWarning();
-        if(goodsIds.size() > 0){
-            List<LitemallGoods> goodsList = litemallGoodsService.findByIds(goodsIds);
+        List<LitemallGoodsProduct> products = litemallGoodsProductService.queryWarning();
+        if(products.size() > 0){
+            List<LitemallGoods> goodsList = litemallGoodsService.findByIds(products.stream().map(LitemallGoodsProduct::getGoodsId).collect(Collectors.toList()));
             goodsList.forEach(goods -> {
-                List<LitemallAdmin> admins = litemallAdminService.findByShopId(goods.getShopId());
+                Integer shopId = products.stream().filter(product->{
+                    return goods.getId().equals(product.getGoodsId());
+                }).findFirst().get().getShopId();
+                List<LitemallAdmin> admins = litemallAdminService.findByShopId(shopId);
                 for (LitemallAdmin admin : admins) {
                     if(Arrays.asList(admin.getRoleIds()).indexOf(Constants.SHOPKEEPER_ROLE_ID) >= 0){
                         logger.info("商品数量预警发送邮件:"+goods.getName());

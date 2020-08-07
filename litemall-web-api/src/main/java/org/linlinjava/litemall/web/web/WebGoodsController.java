@@ -88,7 +88,7 @@ public class WebGoodsController {
 	 */
 	@GetMapping("detail")
 	@LogAnno
-	public Object detail(@LoginUser Integer userId, @NotNull Integer id) {
+	public Object detail(@LoginUser Integer userId, @NotNull Integer id, @LoginShop Integer shopId) {
 		// 商品信息
 		LitemallGoods info = goodsService.findById(id);
 
@@ -101,7 +101,7 @@ public class WebGoodsController {
 		// 商品规格对应的数量和价格
 		Callable<List> productListCallable = () -> productService.queryByGid(id);
 
-		LitemallShop shop = litemallShopService.findById(info.getShopId());
+		LitemallShop shop = litemallShopService.findById(shopId);
 		List<LitemallShopRegion> shopRegions = litemallShopRegionService.queryByShopId(shop.getId());
 
 		// 商品税费
@@ -291,7 +291,7 @@ public class WebGoodsController {
 	 */
 	@GetMapping("accessory")
 	@LogAnno
-	public Object accessory(@NotNull Integer goodsId){
+	public Object accessory(@NotNull Integer goodsId, @LoginShop Integer shopId){
 		List<LitemallGoodsAccessory> accessories = litemallGoodsAccessoryService.queryByGoodsId(goodsId);
 		LitemallGoods goods = goodsService.findById(goodsId);
 
@@ -300,7 +300,7 @@ public class WebGoodsController {
 			BeanUtils.copyProperties(accessory, vo);
 			LitemallMerchandise mer = litemallMerchandiseService.findById(accessory.getMerchandiseId());
 			if (mer != null) {
-				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), goods.getShopId());
+				LitemallShopMerchandise shopMerchandise = litemallShopMerchandiseService.queryByMerId(mer.getId(), shopId);
 				vo.setUnit(mer.getUnit());
 				vo.setSelectNum(0);
 				if (shopMerchandise != null) {

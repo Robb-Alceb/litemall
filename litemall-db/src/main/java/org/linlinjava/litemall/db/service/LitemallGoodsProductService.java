@@ -26,6 +26,16 @@ public class LitemallGoodsProductService {
         return litemallGoodsProductMapper.selectByExample(example);
     }
 
+    public List<LitemallGoodsProduct> queryByGidAndSid(Integer gid, Integer shopId) {
+        LitemallGoodsProductExample example = new LitemallGoodsProductExample();
+        if(shopId != null){
+            example.or().andGoodsIdEqualTo(gid).andShopIdEqualTo(shopId).andDeletedEqualTo(false);
+        }else{
+            example.or().andGoodsIdEqualTo(gid).andDeletedEqualTo(false);
+        }
+        return litemallGoodsProductMapper.selectByExample(example);
+    }
+
     public LitemallGoodsProduct findById(Integer id) {
         return litemallGoodsProductMapper.selectByPrimaryKey(id);
     }
@@ -38,6 +48,12 @@ public class LitemallGoodsProductService {
         goodsProduct.setAddTime(LocalDateTime.now());
         goodsProduct.setUpdateTime(LocalDateTime.now());
         litemallGoodsProductMapper.insertSelective(goodsProduct);
+    }
+
+    public void updateById(LitemallGoodsProduct goodsProduct) {
+        goodsProduct.setAddTime(LocalDateTime.now());
+        goodsProduct.setUpdateTime(LocalDateTime.now());
+        litemallGoodsProductMapper.updateByPrimaryKeySelective(goodsProduct);
     }
 
     public int updateByGoodsId(LitemallGoodsProduct goodsProduct) {
@@ -67,14 +83,14 @@ public class LitemallGoodsProductService {
         return goodsProductMapper.reduceStock(id, num);
     }
 
-    public List<Integer> queryWarning() {
+    public List<LitemallGoodsProduct> queryWarning() {
         LitemallGoodsProductExample example = new LitemallGoodsProductExample();
         example.or().andDeletedEqualTo(false);
         List<LitemallGoodsProduct> litemallGoodsProducts = litemallGoodsProductMapper.selectByExample(example);
-        List<Integer> collect = litemallGoodsProducts.stream().filter(litemallGoodsProduct -> {
+        List<LitemallGoodsProduct> collect = litemallGoodsProducts.stream().filter(litemallGoodsProduct -> {
             return litemallGoodsProduct.getEarlyWarningValue() >= litemallGoodsProduct.getNumber();
         }).map(litemallGoodsProduct -> {
-            return litemallGoodsProduct.getGoodsId();
+            return litemallGoodsProduct;
         }).collect(Collectors.toList());
         return collect;
     }

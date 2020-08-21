@@ -176,6 +176,7 @@ public class AwsNotifyService {
         String content = template.get(templateName);
         if(!StringUtils.isEmpty(content)){
             String str = String.format(content, params);
+            log.info("noticeMailTemplate " + str);
             noticeMail(subject, str, str, sendTo);
         }
     }

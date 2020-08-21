@@ -19,6 +19,8 @@ import java.util.List;
 @Service
 public class LitemallGoodsService {
     Column[] columns = new Column[]{Column.id, Column.name, Column.brief, Column.picUrl, Column.isHot, Column.isNew, Column.counterPrice, Column.retailPrice, Column.categoryId};
+
+    Column[] columnOpss = new Column[]{Column.id, Column.name};
     @Resource
     private LitemallGoodsMapper goodsMapper;
 
@@ -113,8 +115,9 @@ public class LitemallGoodsService {
 
         if(null != shopId){
             criteria1.andShopIdEqualTo(shopId);
-            criteria2.andShopIdEqualTo(shopId);
         }
+        criteria2.andShopIdIsNull();
+
         if (!StringUtils.isEmpty(catId) && catId != 0) {
             criteria1.andCategoryIdEqualTo(catId);
             criteria2.andCategoryIdEqualTo(catId);
@@ -319,6 +322,13 @@ public class LitemallGoodsService {
         return goodsMapper.countByExample(example) != 0;
     }
 
+
+    public List<LitemallGoods> queryByIds(List<Integer> ids) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        example.or().andIdIn(ids).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        return goodsMapper.selectByExampleSelective(example, columns);
+    }
+
     public List<LitemallGoods> queryByIds(Integer[] ids) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andIdIn(Arrays.asList(ids)).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
@@ -373,5 +383,23 @@ public class LitemallGoodsService {
         LitemallGoodsExample example = new LitemallGoodsExample();
         example.or().andShopIdIsNull().andDeletedEqualTo(false);
         return goodsMapper.selectByExample(example);
+    }
+
+    /**
+     * 查询id和名称
+     * @param shopId
+     * @return
+     */
+    public Object queryByShopId(Integer shopId) {
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria1 = example.or();
+        LitemallGoodsExample.Criteria criteria2 = example.or();
+        if (shopId != null) {
+            criteria1.andShopIdEqualTo(shopId);
+            criteria1.andDeletedEqualTo(false);
+        }
+        criteria2.andShopIdIsNull();
+        criteria1.andDeletedEqualTo(false);
+        return goodsMapper.selectByExampleSelective(example, columnOpss);
     }
 }

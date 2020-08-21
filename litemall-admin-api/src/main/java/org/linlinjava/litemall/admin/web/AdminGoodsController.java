@@ -328,4 +328,10 @@ public class AdminGoodsController {
         return adminGoodsService.readGoodsProduct(goodsId, shopId);
     }
 
+    @GetMapping("/goodsOps")
+    @LogAnno
+    public Object goodsOps(@LoginAdminShopId Integer shopId){
+        return adminGoodsService.all(shopId);
+    }
+
 }

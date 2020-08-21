@@ -18,9 +18,9 @@ public class LitemallSubscribeShopService {
         subscribeShopMapper.logicalDeleteByPrimaryKey(id);
     }
 
-    public void add(LitemallSubscribeShop subscribeGoods) {
+    public int add(LitemallSubscribeShop subscribeGoods) {
         subscribeGoods.setAddTime(LocalDateTime.now());
-        subscribeShopMapper.insertSelective(subscribeGoods);
+        return subscribeShopMapper.insertSelective(subscribeGoods);
     }
 
     public List<LitemallSubscribeShop> queryBySubId(Integer subId) {
@@ -41,5 +41,15 @@ public class LitemallSubscribeShopService {
 
     public LitemallSubscribeShop findById(Integer id) {
         return subscribeShopMapper.selectByPrimaryKey(id);
+    }
+
+    public List<LitemallSubscribeShop> queryByShopId(Integer shopId) {
+        LitemallSubscribeShopExample example = new LitemallSubscribeShopExample();
+        if(shopId != null){
+            example.or().andDeletedEqualTo(false).andShopIdEqualTo(shopId);
+        }else{
+            example.or().andDeletedEqualTo(false);
+        }
+        return subscribeShopMapper.selectByExample(example);
     }
 }

@@ -103,11 +103,12 @@ public class Constants {
     public static final Byte USER_CONSUME = 2;
 
     /**
-     * 订单类型(1:自提；2：外送;3:堂食)
+     * 订单类型(1:自提；2：外送;3:堂食；4：邮寄)
      */
     public static final Byte ORDER_AET = 1;
     public static final Byte ORDER_SEND = 2;
     public static final Byte ORDER_EAT = 3;
+    public static final Byte ORDER_MAIL = 4;
 
 
     /**
@@ -225,8 +226,10 @@ public class Constants {
     /**
      * 订单来源
      */
-    public static final Byte ORDER_SOURCE_APP = 1;
-    public static final Byte ORDER_SOURCE_POS = 2;
+    public static final Byte ORDER_SOURCE_APP = 1;          //手机app下单
+    public static final Byte ORDER_SOURCE_POS = 2;          //门店下单
+    public static final Byte ORDER_SOURCE_SITE = 3;         //官网商城
+    public static final Byte ORDER_SOURCE_SUBSCRIBE = 4;    //订阅
 
 
     /**
@@ -234,6 +237,13 @@ public class Constants {
      */
     public static final String AWS_MESSAGE_TYPE_TRANSACTIONAL = "TRANSACTIONAL";    //敏感的、 验证码、密码等
     public static final String AWS_MESSAGE_TYPE_PROMOTIONAL = "PROMOTIONAL";        //推广的、不重要的、订单通知、活动等
+
+    /**
+     * 订阅方式
+     */
+    public static final Byte SUBSCRIBE_METHOD_WEEK = 1;         //周
+    public static final Byte SUBSCRIBE_METHOD_MONTH = 2;        //月
+    public static final Byte SUBSCRIBE_METHOD_YEAR = 3;         //年
 
 
 

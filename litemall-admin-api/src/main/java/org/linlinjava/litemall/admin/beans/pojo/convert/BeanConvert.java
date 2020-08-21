@@ -2,12 +2,13 @@ package org.linlinjava.litemall.admin.beans.pojo.convert;
 
 import org.linlinjava.litemall.admin.beans.Constants;
 import org.linlinjava.litemall.admin.beans.dto.ShopDto;
-import org.linlinjava.litemall.admin.beans.vo.CollectVo;
-import org.linlinjava.litemall.admin.beans.vo.OrderVo;
+import org.linlinjava.litemall.admin.beans.vo.*;
 import org.linlinjava.litemall.admin.util.DateUtil;
-import org.linlinjava.litemall.admin.beans.vo.ShopVo;
 import org.linlinjava.litemall.db.domain.*;
+import org.springframework.beans.BeanUtils;
+import sun.security.provider.Sun;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,5 +79,36 @@ public class BeanConvert {
         user.setPassword(admin.getPassword());
         user.setUsername(admin.getUsername());
         return user;
+    }
+
+
+    public static SubscribeVo toSubVo(LitemallSubscribe subscribe, List<LitemallSubscribeShop> subscribeShops, List<LitemallSubscribeGoods> subscribeGoodss, List<LitemallSubscribeGoodsPrice> subscribeGoodsPrices){
+        SubscribeVo vo = new SubscribeVo();
+        BeanUtils.copyProperties(subscribe, vo);
+        vo.setSubscribeGoodsDtos(new ArrayList<>());
+        vo.setSubscribeShopDtos(new ArrayList<>());
+        if(subscribeShops != null) {
+            for (LitemallSubscribeShop subscribeShop : subscribeShops) {
+                SubscribeShopVo shopVo = new SubscribeShopVo();
+                BeanUtils.copyProperties(subscribeShop, shopVo);
+                vo.getSubscribeShopDtos().add(shopVo);
+            }
+        }
+        if(subscribeGoodss != null) {
+            for (LitemallSubscribeGoods subscribeGoods : subscribeGoodss) {
+                SubscribeGoodsVo goodsVo = new SubscribeGoodsVo();
+                BeanUtils.copyProperties(subscribeGoods, goodsVo);
+                vo.getSubscribeGoodsDtos().add(goodsVo);
+                goodsVo.setSubscribeGoodsPriceDtos(new ArrayList<>());
+                if (subscribeGoodsPrices != null) {
+                    for (LitemallSubscribeGoodsPrice subscribeGoodsPrice : subscribeGoodsPrices) {
+                        SubscribeGoodsPriceVo goodsPriceVo = new SubscribeGoodsPriceVo();
+                        BeanUtils.copyProperties(subscribeGoodsPrice, goodsPriceVo);
+                        goodsVo.getSubscribeGoodsPriceDtos().add(goodsPriceVo);
+                    }
+                }
+            }
+        }
+        return vo;
     }
 }

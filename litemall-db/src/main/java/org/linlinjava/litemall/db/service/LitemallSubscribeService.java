@@ -20,10 +20,10 @@ public class LitemallSubscribeService {
         subscribeMapper.logicalDeleteByPrimaryKey(id);
     }
 
-    public void add(LitemallSubscribe issue) {
-        issue.setAddTime(LocalDateTime.now());
-        issue.setUpdateTime(LocalDateTime.now());
-        subscribeMapper.insertSelective(issue);
+    public int add(LitemallSubscribe subscribe) {
+        subscribe.setAddTime(LocalDateTime.now());
+        subscribe.setUpdateTime(LocalDateTime.now());
+        return subscribeMapper.insertSelective(subscribe);
     }
 
     public List<LitemallSubscribe> querySelective(String name, Integer page, Integer limit, String sort, String order) {
@@ -43,9 +43,9 @@ public class LitemallSubscribeService {
         return subscribeMapper.selectByExample(example);
     }
 
-    public int updateById(LitemallSubscribe issue) {
-        issue.setUpdateTime(LocalDateTime.now());
-        return subscribeMapper.updateByPrimaryKeySelective(issue);
+    public int updateById(LitemallSubscribe subscribe) {
+        subscribe.setUpdateTime(LocalDateTime.now());
+        return subscribeMapper.updateByPrimaryKeySelective(subscribe);
     }
 
     public LitemallSubscribe findById(Integer id) {

@@ -832,5 +832,12 @@ public class AdminGoodsService {
         return goodsVos;
     }
 
-
+    /**
+     * 根据门店查询id和名称options
+     * @param shopId
+     * @return
+     */
+    public Object all(Integer shopId) {
+        return ResponseUtil.ok(goodsService.queryByShopId(shopId));
+    }
 }

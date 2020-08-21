@@ -383,4 +383,14 @@ public class ShopService {
         }
         return litemallShopService.all();
     }
+
+    public Object queryShopOps(Integer id) {
+        if(id != null){
+            List<LitemallShop> rtn = new ArrayList<>();
+            rtn.add(litemallShopService.findById(id));
+            return ResponseUtil.ok(rtn);
+        }else{
+            return ResponseUtil.ok(litemallShopService.all());
+        }
+    }
 }

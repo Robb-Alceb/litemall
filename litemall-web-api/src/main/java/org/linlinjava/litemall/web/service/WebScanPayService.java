@@ -273,6 +273,7 @@ public class WebScanPayService {
     public LitemallGiftCardUserLog saveLog( LitemallOrder order, LitemallGiftCardUser card, Integer userId, String content){
         LitemallGiftCardUserLog log = new LitemallGiftCardUserLog();
         log.setAmount(order.getActualPrice());
+        log.setOrderId(order.getId());
         log.setAddUserId(userId);
         log.setType(Constants.LOG_GIFTCARD_CONSUME);
         log.setCardNumber(card.getCardNumber());
@@ -292,6 +293,7 @@ public class WebScanPayService {
         log.setOrderId(order.getId());
         log.setAmount(order.getActualPrice());
         log.setAddUserId(user.getId());
+        log.setOrderId(order.getId());
         log.setUserId(user.getId());
         log.setUsername(user.getUsername());
         log.setMobile(user.getMobile());

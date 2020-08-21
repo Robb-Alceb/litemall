@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.linlinjava.litemall.db.dao.SubscribeUserMapper">
+    <resultMap id="BaseResultMap" type="org.linlinjava.litemall.db.domain.SubscribeUserVo">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="subscribe_id" jdbcType="INTEGER" property="subscribeId" />
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="shop_id" jdbcType="INTEGER" property="shopId" />
+        <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+        <result column="goods_product_id" jdbcType="INTEGER" property="goodsProductId" />
+        <result column="number" jdbcType="INTEGER" property="number" />
+        <result column="goods_item" jdbcType="VARCHAR" property="goodsItem" />
+        <result column="price" jdbcType="DECIMAL" property="price" />
+        <result column="tax_price" jdbcType="DECIMAL" property="taxPrice" />
+        <result column="address_id" jdbcType="INTEGER" property="addressId" />
+        <result column="method" jdbcType="TINYINT" property="method" />
+        <result column="delivery_method" jdbcType="TINYINT" property="deliveryMethod" />
+        <result column="delivery_days" jdbcType="INTEGER" property="deliveryDays" />
+        <result column="delivery_start_time" jdbcType="TIME" property="deliveryStartTime" />
+        <result column="delivery_end_time" jdbcType="TIME" property="deliveryEndTime" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="auto_sub" jdbcType="BIT" property="autoSub" />
+        <result column="auto_pay_type" jdbcType="TINYINT" property="autoPayType" />
+        <result column="auto_pay_id" jdbcType="INTEGER" property="autoPayId" />
+        <result column="link_id" jdbcType="INTEGER" property="linkId" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="deleted" jdbcType="BIT" property="deleted" />
+        <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+        <result column="shop_name" jdbcType="VARCHAR" property="shopName" />
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+        <result column="address" jdbcType="VARCHAR" property="address" />
+    </resultMap>
+    <select id="querySelective"  parameterType="map" resultMap="BaseResultMap">
+        SELECT
+            t.*, lg.NAME AS goods_name,
+            ls.NAME AS shop_name,
+            lu.username AS user_name,
+            lu.nickname AS nickname,
+            la.country + la.province + la.city + la.county + la.address_detail AS address
+        FROM
+            litemall_subscribe_user t
+            LEFT JOIN litemall_goods lg ON lg.id = t.goods_id
+            LEFT JOIN litemall_shop ls ON ls.id = t.shop_id
+            LEFT JOIN litemall_user lu ON lu.id = t.user_id
+            LEFT JOIN litemall_address la ON la.id = t.address_id
+        WHERE 1=1
+        <if test="name != null">
+            and lu.username = #{name}
+        </if>
+        <if test="goodsId != null">
+            and t.goods_id = #{goodsId}
+        </if>
+        <if test="shopId != null">
+            and t.shop_id = #{shopId}
+        </if>
+        <if test="order != null and sort != null">
+            order by ${sort} ${order}
+        </if>
+    </select>
+</mapper>

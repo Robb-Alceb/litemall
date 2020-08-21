@@ -164,3 +164,5 @@ litemall:
       enable: true
       template:
         captcha: 欢迎注册Lumiere。你的注册码为%s,有效时间一分钟。
+        subscribePaySucceed: Lumiere提醒您，您订阅的商品 %s,正在处理发货中，请耐心等候。
+        subscribePayError: Lumiere提醒您，您订阅的商品 %s,自动支付失败，请手动处理。

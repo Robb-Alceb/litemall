@@ -1,6 +1,7 @@
 package org.linlinjava.litemall.db.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.linlinjava.litemall.db.domain.I18nVo;
 
 import java.util.List;
 
@@ -10,5 +11,5 @@ import java.util.List;
  * @description：TODO
  */
 public interface I18nMapper {
-    List list(@Param("key") String key, @Param("type") String type, @Param("page") Integer page, @Param("size") Integer size, @Param("sort") String sort, @Param("order") String order);
+    List<I18nVo> list(@Param("key") String key, @Param("type") String type, @Param("page") Integer page, @Param("size") Integer size, @Param("sort") String sort, @Param("order") String order);
 }

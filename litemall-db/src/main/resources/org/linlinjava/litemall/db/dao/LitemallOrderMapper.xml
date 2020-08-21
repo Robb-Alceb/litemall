@@ -37,6 +37,9 @@
     <result column="ship_channel" jdbcType="VARCHAR" property="shipChannel" />
     <result column="ship_time" jdbcType="TIMESTAMP" property="shipTime" />
     <result column="ship_remark" jdbcType="VARCHAR" property="shipRemark" />
+    <result column="receipt_start_time" jdbcType="TIMESTAMP" property="receiptStartTime" />
+    <result column="receipt_end_time" jdbcType="TIMESTAMP" property="receiptEndTime" />
+    <result column="external_id" jdbcType="INTEGER" property="externalId" />
     <result column="confirm_time" jdbcType="TIMESTAMP" property="confirmTime" />
     <result column="comments" jdbcType="SMALLINT" property="comments" />
     <result column="description" jdbcType="VARCHAR" property="description" />
@@ -121,8 +124,8 @@
     address, message, goods_price, freight_price, coupon_price, integral_price, groupon_price, 
     order_price, tax_price, actual_price, currency, pay_type, pay_id, out_trade_no, transation_id, 
     pay_time, order_source, ship_status, ship_sn, ship_channel, ship_time, ship_remark, 
-    confirm_time, comments, description, shop_order, end_time, add_time, update_time, 
-    deleted
+    receipt_start_time, receipt_end_time, external_id, confirm_time, comments, description, 
+    shop_order, end_time, add_time, update_time, deleted
   </sql>
   <select id="selectByExample" parameterType="org.linlinjava.litemall.db.domain.LitemallOrderExample" resultMap="BaseResultMap">
     <!--
@@ -253,6 +256,7 @@
       out_trade_no, transation_id, pay_time, 
       order_source, ship_status, ship_sn, 
       ship_channel, ship_time, ship_remark, 
+      receipt_start_time, receipt_end_time, external_id, 
       confirm_time, comments, description, 
       shop_order, end_time, add_time, 
       update_time, deleted)
@@ -266,6 +270,7 @@
       #{outTradeNo,jdbcType=VARCHAR}, #{transationId,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP}, 
       #{orderSource,jdbcType=TINYINT}, #{shipStatus,jdbcType=TINYINT}, #{shipSn,jdbcType=VARCHAR}, 
       #{shipChannel,jdbcType=VARCHAR}, #{shipTime,jdbcType=TIMESTAMP}, #{shipRemark,jdbcType=VARCHAR}, 
+      #{receiptStartTime,jdbcType=TIMESTAMP}, #{receiptEndTime,jdbcType=TIMESTAMP}, #{externalId,jdbcType=INTEGER}, 
       #{confirmTime,jdbcType=TIMESTAMP}, #{comments,jdbcType=SMALLINT}, #{description,jdbcType=VARCHAR}, 
       #{shopOrder,jdbcType=BIT}, #{endTime,jdbcType=TIMESTAMP}, #{addTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT})
@@ -369,6 +374,15 @@
       </if>
       <if test="shipRemark != null">
         ship_remark,
+      </if>
+      <if test="receiptStartTime != null">
+        receipt_start_time,
+      </if>
+      <if test="receiptEndTime != null">
+        receipt_end_time,
+      </if>
+      <if test="externalId != null">
+        external_id,
       </if>
       <if test="confirmTime != null">
         confirm_time,
@@ -485,6 +499,15 @@
       </if>
       <if test="shipRemark != null">
         #{shipRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="receiptStartTime != null">
+        #{receiptStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receiptEndTime != null">
+        #{receiptEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="externalId != null">
+        #{externalId,jdbcType=INTEGER},
       </if>
       <if test="confirmTime != null">
         #{confirmTime,jdbcType=TIMESTAMP},
@@ -622,6 +645,15 @@
       <if test="record.shipRemark != null">
         ship_remark = #{record.shipRemark,jdbcType=VARCHAR},
       </if>
+      <if test="record.receiptStartTime != null">
+        receipt_start_time = #{record.receiptStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.receiptEndTime != null">
+        receipt_end_time = #{record.receiptEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.externalId != null">
+        external_id = #{record.externalId,jdbcType=INTEGER},
+      </if>
       <if test="record.confirmTime != null">
         confirm_time = #{record.confirmTime,jdbcType=TIMESTAMP},
       </if>
@@ -688,6 +720,9 @@
       ship_channel = #{record.shipChannel,jdbcType=VARCHAR},
       ship_time = #{record.shipTime,jdbcType=TIMESTAMP},
       ship_remark = #{record.shipRemark,jdbcType=VARCHAR},
+      receipt_start_time = #{record.receiptStartTime,jdbcType=TIMESTAMP},
+      receipt_end_time = #{record.receiptEndTime,jdbcType=TIMESTAMP},
+      external_id = #{record.externalId,jdbcType=INTEGER},
       confirm_time = #{record.confirmTime,jdbcType=TIMESTAMP},
       comments = #{record.comments,jdbcType=SMALLINT},
       description = #{record.description,jdbcType=VARCHAR},
@@ -797,6 +832,15 @@
       <if test="shipRemark != null">
         ship_remark = #{shipRemark,jdbcType=VARCHAR},
       </if>
+      <if test="receiptStartTime != null">
+        receipt_start_time = #{receiptStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receiptEndTime != null">
+        receipt_end_time = #{receiptEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="externalId != null">
+        external_id = #{externalId,jdbcType=INTEGER},
+      </if>
       <if test="confirmTime != null">
         confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
       </if>
@@ -860,6 +904,9 @@
       ship_channel = #{shipChannel,jdbcType=VARCHAR},
       ship_time = #{shipTime,jdbcType=TIMESTAMP},
       ship_remark = #{shipRemark,jdbcType=VARCHAR},
+      receipt_start_time = #{receiptStartTime,jdbcType=TIMESTAMP},
+      receipt_end_time = #{receiptEndTime,jdbcType=TIMESTAMP},
+      external_id = #{externalId,jdbcType=INTEGER},
       confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
       comments = #{comments,jdbcType=SMALLINT},
       description = #{description,jdbcType=VARCHAR},

@@ -3,6 +3,7 @@ package org.linlinjava.litemall.db.service;
 import com.github.pagehelper.PageHelper;
 import org.linlinjava.litemall.db.dao.I18nMapper;
 import org.linlinjava.litemall.db.dao.LitemallI18nMapper;
+import org.linlinjava.litemall.db.domain.I18nVo;
 import org.linlinjava.litemall.db.domain.LitemallI18n;
 import org.linlinjava.litemall.db.domain.LitemallI18nExample;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class LitemallI18nService {
         return litemallI18nMapper.selectByPrimaryKey(id);
     }
 
-    public List<LitemallI18n> querySelective(String key, String type, Integer page, Integer size, String sort, String order) {
+    public List<I18nVo> querySelective(String key, String type, Integer page, Integer size, String sort, String order) {
 /*        LitemallI18nExample example = new LitemallI18nExample();
         LitemallI18nExample.Criteria criteria = example.createCriteria();
 

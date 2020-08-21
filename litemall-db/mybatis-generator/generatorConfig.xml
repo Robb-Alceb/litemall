@@ -445,12 +445,15 @@
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>-->
 
-        <table tableName="litemall_goods_product">LitemallGoodsProduct
+<!--        <table tableName="litemall_goods_product">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
             <columnOverride column="specification_ids" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
             <columnOverride column="tax_types" javaType="java.lang.Integer[]"
                             typeHandler="org.linlinjava.litemall.db.mybatis.JsonIntegerArrayTypeHandler"/>
+        </table>-->
+        <table tableName="litemall_order">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
     </context>
 </generatorConfiguration>

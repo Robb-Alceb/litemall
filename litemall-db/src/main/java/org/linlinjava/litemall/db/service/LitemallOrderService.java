@@ -399,4 +399,12 @@ public class LitemallOrderService {
         order.setUpdateTime(LocalDateTime.now());
         return litemallOrderMapper.updateByPrimaryKeySelective(order);
     }
+
+    public int countTodayByExtendId(Integer externalId) {
+        LitemallOrderExample example = new LitemallOrderExample();
+        LocalDateTime start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        example.or().andExternalIdEqualTo(externalId).andAddTimeBetween(start, end).andDeletedEqualTo(false);
+        return (int)litemallOrderMapper.countByExample(example);
+    }
 }

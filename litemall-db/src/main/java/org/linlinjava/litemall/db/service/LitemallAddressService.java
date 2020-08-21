@@ -83,4 +83,8 @@ public class LitemallAddressService {
         example.or().andUserIdEqualTo(userId).andDeletedEqualTo(false);
         return addressMapper.selectByExample(example);
     }
+
+    public LitemallAddress findById(Integer addressId) {
+        return addressMapper.selectByPrimaryKey(addressId);
+    }
 }

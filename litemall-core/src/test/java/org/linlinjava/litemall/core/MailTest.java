@@ -3,6 +3,7 @@ package org.linlinjava.litemall.core;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linlinjava.litemall.core.notify.NotifyService;
+import org.linlinjava.litemall.core.notify.NotifyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -48,5 +49,9 @@ public class MailTest {
         }
     }
 
+    @Test
+    public void testTemplateMail(){
+        notifyService.notifyMailTemplate("订阅订单", NotifyType.SUBSCRIBE_PAY_SUCCEED, "alceb.liu@gmail.com", new String[]{"咖啡豆"});
+    }
 
 }

@@ -4,6 +4,8 @@ public enum NotifyType {
     PAY_SUCCEED("paySucceed"),
     SHIP("ship"),
     REFUND("refund"),
+    SUBSCRIBE_PAY_SUCCEED("subscribePaySucceed"),
+    SUBSCRIBE_PAY_ERROR("subscribePayError"),
     CAPTCHA("captcha");
 
     private String type;

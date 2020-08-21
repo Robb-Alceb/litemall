@@ -132,6 +132,7 @@ public class WxBalancePayService {
         LitemallRechargeConsumption log = new LitemallRechargeConsumption();
         log.setAmount(order.getActualPrice());
         log.setAddUserId(user.getId());
+        log.setOrderId(order.getId());
         log.setUserId(user.getId());
         log.setUsername(user.getUsername());
         log.setMobile(user.getMobile());

@@ -173,4 +173,9 @@ public class NoticeHelper {
         //极光推送
         notifyService.sendToAllAndroid(title, title, content, JSON.toJSONString(msg));
     }
+
+    public void notifyMailTemplate(String subject, NotifyType notifyType, String sendTo, String[] params) {
+        //模板邮件发送
+        notifyService.notifyMailTemplate(subject, notifyType, sendTo, params);
+    }
 }

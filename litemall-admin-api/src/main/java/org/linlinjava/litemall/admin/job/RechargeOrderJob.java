@@ -17,7 +17,7 @@ import java.util.List;
  * @description：TODO
  */
 public class RechargeOrderJob {
-    private final Log logger = LogFactory.getLog(CardOrderJob.class);
+    private final Log logger = LogFactory.getLog(RechargeOrderJob.class);
 
     @Autowired
     private LitemallUserRechargeOrderService litemallUserRechargeOrderService;

@@ -180,4 +180,10 @@ public class AdminShopController {
     public Object queryShopRegions(@LoginAdminShopId @NotNull Integer id){
         return ResponseUtil.okList(shopRegionService.queryByShopId(id));
     }
+
+    @GetMapping("/ops")
+    @LogAnno
+    public Object queryShopOps(@LoginAdminShopId Integer id){
+        return shopService.queryShopOps(id);
+    }
 }
